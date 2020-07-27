@@ -1,2 +1,2 @@
 # fLZc
-Fast Lempil-Ziv complexity library in C, with MATLAB interface
+Fast Lempel-Ziv complexity library in C, with MATLAB interface
