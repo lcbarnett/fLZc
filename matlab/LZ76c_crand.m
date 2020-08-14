@@ -9,8 +9,6 @@ if nargin < 3 || isempty(asymp), asymp = 0; end
 assert(isvector(n) && isnumeric(n) && all(n == floor(n)) && all(n > 0),'String lengths must be a vector of positive integers');
 assert(isscalar(d) && isnumeric(d) && d == floor(d),'Alphabet size must be a scalar integer');
 
-global LZc_root;
-
 numn = length(n);
 
 if asymp > 1 % asymp == 2 : return asymptotic for every value
@@ -27,7 +25,8 @@ if asymp > 1 % asymp == 2 : return asymptotic for every value
 	return
 end
 
-load(fullfile(LZc_root,'data',sprintf('LZ76c_rand_A%02d.mat',d)));
+global fLZc_data_path;
+load(fullfile(fLZc_data_path,sprintf('LZ76c_rand_A%02d.mat',d)));
 
 of = (n <= N)';    % on file
 iof = find(of);    % indices on file
