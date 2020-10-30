@@ -1,17 +1,13 @@
 % Startup stuff
 
-global LZc_version;
-LZc_version.major = 1;
-LZc_version.minor = 0;
-
-fprintf('[fLZc startup] Initialising LZc version %d.%d\n', LZc_version.major, LZc_version.minor);
+fprintf('[fLZc startup] Initialising fLZc\n');
 
 % Add LZc root dir + appropriate subdirs to path
 
-global LZc_root;
-LZc_root = fileparts(mfilename('fullpath')); % directory containing this file
-addpath(genpath(LZc_root));
-fprintf('[fLZc startup] Added path %s\n',LZc_root);
+global fLZc_root;
+fLZc_root = fileparts(mfilename('fullpath')); % directory containing this file
+addpath(genpath(fLZc_root));
+fprintf('[fLZc startup] Added path %s\n',fLZc_root);
 
 % Binary data files: download zip file
 %
