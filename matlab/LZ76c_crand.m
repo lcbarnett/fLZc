@@ -4,10 +4,15 @@ function [cm,cs,ixf,N,cdesc] = LZ76c_crand(n,d,asymp)
 % and string lengthslength n from file of values estimated by Monte Carlo simulation. For string
 % sizes larger than the largest on file, the asymptotic value n/log_d(n) is returned.
 
+global fLZc_data_path;
+assert(~isempty(fLZc_data_path),'LZc normalisation data unavailable.');
+
 if nargin < 3 || isempty(asymp), asymp = 0; end
 
 assert(isvector(n) && isnumeric(n) && all(n == floor(n)) && all(n > 0),'String lengths must be a vector of positive integers');
 assert(isscalar(d) && isnumeric(d) && d == floor(d),'Alphabet size must be a scalar integer');
+
+load(fullfile(fLZc_data_path,sprintf('LZ76c_rand_A%02d.mat',d)));
 
 numn = length(n);
 
@@ -24,9 +29,6 @@ if asymp > 1 % asymp == 2 : return asymptotic for every value
 	end
 	return
 end
-
-global fLZc_data_path;
-load(fullfile(fLZc_data_path,sprintf('LZ76c_rand_A%02d.mat',d)));
 
 of = (n <= N)';    % on file
 iof = find(of);    % indices on file

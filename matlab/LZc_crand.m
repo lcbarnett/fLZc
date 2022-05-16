@@ -3,12 +3,14 @@ function [cm,cs,ixf,N,cdesc] = LZc_crand(n,d)
 % Load random string mean complexities (and optionally standard deviations) for alphabet of size d
 % and string lengthslength n from file of values estimated by Monte Carlo simulation.
 
+global fLZc_data_path;
+assert(~isempty(fLZc_data_path),'LZc normalisation data unavailable.');
+
 assert(isvector(n) && isnumeric(n) && all(n == floor(n)),'String lengths must be a vector of integers');
 assert(isscalar(d) && isnumeric(d) &&     d == floor(d) ,'Alphabet size must be a scalar integer');
 
 numn = length(n);
 
-global fLZc_data_path;
 load(fullfile(fLZc_data_path,sprintf('LZc_rand_A%02d.mat',d)));
 
 of = (n <= N)';    % on file

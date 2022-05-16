@@ -9,7 +9,7 @@ fLZc_root = fileparts(mfilename('fullpath')); % directory containing this file
 addpath(genpath(fLZc_root));
 fprintf('[fLZc startup] Added path %s\n',fLZc_root);
 
-% Binary data files: download zip file
+% Binary data files used in *_crand.m: download zip file
 %
 % http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip
 %
@@ -18,7 +18,10 @@ fprintf('[fLZc startup] Added path %s\n',fLZc_root);
 
 global fLZc_data_path;
 fLZc_data_path = getenv('FLZC_DATA_PATH');
-assert(~isempty(fLZc_data_path), 'You must define the environmental variable ''FLZC_DATA_PATH''');
-assert(exist(fLZc_data_path,'dir') == 7,'bad data path: ''%s'' does not exist or is not a directory',fLZc_data_path);
+if isempty(fLZc_data_path)
+	fprintf(2,'[fLZc startup] WARNING: LZc normalisation data not found; normalisation will not be available\n');
+else
+	assert(exist(fLZc_data_path,'dir') == 7,'bad data path: ''%s'' does not exist or is not a directory',fLZc_data_path);
+end
 
 fprintf('[fLZc startup] Initialised (you may re-run `startup'' at any time)\n');
