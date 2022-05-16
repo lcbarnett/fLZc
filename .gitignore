@@ -1,2 +1,4 @@
 *.o
 *.obj
+C/testing/*
+matlab/testing/*
