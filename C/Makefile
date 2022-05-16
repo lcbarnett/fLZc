@@ -68,12 +68,12 @@ TBIN = $(patsubst %.c,%$(BINEXT),$(TSRC))
 MFLAGS = -std=c99 -march=native
 ifdef GLIBVER
 	WFLAGS = -Wall -Wextra -Wconversion -Winline -pedantic-errors -Werror
-	DFLAGS = -D_POSIX_C_SOURCE=199309L -D_BSD_SOURCE -DGLIBVER
+	DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE -DGLIBVER
 	IFLAGS = $(shell pkg-config --cflags glib-2.0)
 	LIBS   = $(shell pkg-config --libs glib-2.0)
 else
 	WFLAGS = -Wall -Wextra -Wconversion -Winline -pedantic-errors
-	DFLAGS = -D_POSIX_C_SOURCE=199309L -D_BSD_SOURCE
+	DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE
 	IFLAGS =
 	LIBS   =
 endif
