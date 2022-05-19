@@ -20,8 +20,10 @@ fLZc_data_path = fullfile(fLZc_root,'data');
 
 % Check if data seems to be there
 
-df1 = length({dir([fLZc_data_path filesep '/LZc_rand_A*.mat']).name});
-df2 = length({dir([fLZc_data_path filesep '/LZ76c_rand_A*.mat']).name});
+dl1 = dir([fLZc_data_path filesep '/LZc_rand_A*.mat']);
+df1 = length({dl1.name});
+dl2 = dir([fLZc_data_path filesep '/LZ76c_rand_A*.mat']);
+df2 = length({dl2.name});
 if ~(df1 == 20 && df2 == 20)
 	fprintf('[fLZc startup]\n');
 	fprintf(2,'[fLZc startup] WARNING: Some Matlab LZc normalisation data files seem to be missing.\n');
