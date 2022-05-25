@@ -142,6 +142,8 @@ diag:
 	@echo "*** MEXEXT    = " $(MEXEXT)
 	@echo "*** MEXDIR    = " $(MEXDIR)
 	@echo
+	@echo "*** CC        = " $(CC) -c $(GCCFLAGS)
+	@echo "*** MEX       = " $(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR)
 
 $(MEXDIR)/%.$(MEXEXT): %.c $(MDEP)
 	$(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR) $< $(CSRC)
