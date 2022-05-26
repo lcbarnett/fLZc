@@ -1,7 +1,7 @@
 function [cm,cs,ixf,N,cdesc] = LZc_crand(n,d)
 
 % Load random string mean complexities (and optionally standard deviations) for alphabet of size d
-% and string lengthslength n from file of values estimated by Monte Carlo simulation.
+% and string lengths n from file of values estimated by Monte Carlo simulation.
 
 assert(isvector(n) && isnumeric(n) && all(n == floor(n)),'String lengths must be a vector of integers');
 assert(isscalar(d) && isnumeric(d) &&     d == floor(d) ,'Alphabet size must be a scalar integer');

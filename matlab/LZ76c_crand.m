@@ -1,7 +1,7 @@
 function [cm,cs,ixf,N,cdesc] = LZ76c_crand(n,d,asymp)
 
 % Load random string mean complexities (and optionally standard deviations) for alphabet of size d
-% and string lengthslength n from file of values estimated by Monte Carlo simulation. For string
+% and string lengths n from file of values estimated by Monte Carlo simulation. For string
 % sizes larger than the largest on file, the asymptotic value n/log_d(n) is returned.
 
 if nargin < 3 || isempty(asymp), asymp = 0; end
