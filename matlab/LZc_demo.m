@@ -68,18 +68,21 @@ end
 
 % Estimate spectral density (PSD) of time series
 
-[S,f] = pwelch(x,[],[],[],fs,'power'); % estimated PSD (Welch method)
-SOU   = (sig^2)./(a^2+f.^2);           % OU process theoretical PSD
+[S,f] = pwelch(x,[],[],[],fs);            % estimated PSD (Welch method)
+A     = exp(-a/fs);                       % AR(1) coefficient
+w     = 2*pi*f/fs;                        % normalised frequency
+ST    = abs(1./(1-A*exp(-1i*w))/fs).^2;   % theoretical PSD
+%SOU   = (sig^2)./(a^2+f.^2);             % OU process theoretical PSD
 
 % Display PSD and normalised complexities
 
 figure(2); clf
 
 subplot(2,1,1);
-semilogx(f,log([(fs/2)*S,SOU]));
+semilogx(f,log([S ST]));
 xlim([f(2) fs/2]); % to Nyqvist frequency
 title(sprintf('Power spectral density (f_s = %gHz)',fs));
-legend('time series','Ornstein-Uhlenbeck');
+legend('estimated','theoretical');
 xlabel('Frequency (Hz; log-scale)');
 ylabel('Log-power (dB)');
 set(gca,'XTickLabel',num2str(get(gca,'XTick')')); % ridiculous faff to force sensible tick labels
