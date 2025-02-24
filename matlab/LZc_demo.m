@@ -3,10 +3,11 @@
 %
 % Default parameters (may be overriden on command line)
 
-defvar('maxn',    100000    ); % length of time series (max 100,000)
+defvar('T',       400       ); % length of process
 defvar('maxq',    5         ); % maximum quantisation
 defvar('fs',      200       ); % sampling frequency (Hz)
-defvar('oudec',   1         ); % OU process decay parameter (> 0); smaller oudec gives "smoother" process
+defvar('a',       0.1       ); % OU process decay parameter (> 0); smaller a gives "smoother" process
+defvar('sig',     1         ); % OU process noise std. dev.
 defvar('algo',   'LZ'       ); % Lempel-Ziv algorithm: 'LZ' or 'LZ76'
 
 switch upper(algo)
@@ -17,16 +18,13 @@ end
 % Generate an (approximate) Ornstein-Uhlenbeck time series
 
 fprintf('\ngenerating OU time series... ');
-dt     = 1/fs;                         % integration time step size
-trunc  = maxn;                         % initial samples to truncate (for transients)
-totn   = trunc+maxn;                   % total simulation steps
-a      = 1-oudec*dt;                   % autoregression coefficient
-x      = sqrt(dt)*randn(totn,1);       % initialise to Gaussian white noise (variance adjusted for step size)
-for i = 2:totn;
-	x(i) = x(i) + a*x(i-1);            % generate approximate OU time series by autoregression
-end
-x = x(trunc+1:totn);                   % truncate initial transients
+[x,t] = ouproc(a,sig,fs,T);
 fprintf('done\n\n');
+maxn = length(x);
+
+if maxn > 100000
+	fprintf(2,'WARNING: sequence rather long - won''t be able to normalise at all lengths\n\n');
+end
 
 % Calculate complexities for different quantisation levels, and load random string complexities
 
@@ -48,8 +46,7 @@ for q = 1:maxq                             % for each quantisation
 end
 cnorm = c./crnd;                       % complexities normalised by mean complexity of random strings of same length and alphabet size
 
-n = (1:maxn)'; % sequence lengths
-t = dt*(n-1);  % corresponding time stamps
+n = (1:maxn)';  % sequence lengths
 
 % Display time series with quantiles
 
@@ -62,39 +59,39 @@ for q = 1:maxq
 	for k = 1:q
 		yline(qtiles{q}(k),'color','r');
 	end
-	xlim([0,dt*maxn]);
+	xlim([0,T]);
 	ylim([-xmax xmax]);
-	xlabel('time (secs)');
+	xlabel('Time (secs)');
 	ylabel(sprintf('q = %d',q));
 end
 % sgtitle('Time series with quantisations'); % only version >= 2018b
 
-% Estimate power spectral density (PSD) of time series
+% Estimate spectral density (PSD) of time series
 
-[S,f] = pwelch(x,[],[],[],fs);         % estimated PSD (Welch method)
-w = 2*pi*f/fs;                         % normalised frequency in [0,pi]
-ST = dt*abs(1./(1-a*exp(-1i*w))).^2;   % theoretical PSD
+[S,f] = pwelch(x,[],[],[],fs,'power'); % estimated PSD (Welch method)
+SOU   = (sig^2)./(a^2+f.^2);           % OU process theoretical PSD
 
 % Display PSD and normalised complexities
 
 figure(2); clf
 
 subplot(2,1,1);
-semilogx(f,log([(fs/2)*S,ST]));
+semilogx(f,log([(fs/2)*S,SOU]));
 xlim([f(2) fs/2]); % to Nyqvist frequency
 title(sprintf('Power spectral density (f_s = %gHz)',fs));
-legend('estimated','theoretical');
-xlabel('frequency (Hz; log-scale)');
-ylabel('log-power (dB)');
+legend('time series','Ornstein-Uhlenbeck');
+xlabel('Frequency (Hz; log-scale)');
+ylabel('Log-power (dB)');
 set(gca,'XTickLabel',num2str(get(gca,'XTick')')); % ridiculous faff to force sensible tick labels
 
 subplot(2,1,2);
-semilogx(n,cnorm);
+semilogx(t,cnorm);
 ylim([0 1.2]);
+xlim([1/fs,T]);
 yline(1,'color','k');
-title(sprintf('normalised %s complexity',algostr));
-xlabel('sequence length (log-scale)');
-ylabel('complexity');
+title(sprintf('Normalised %s complexity',algostr));
+xlabel('Time (seconds; log-scale)');
+ylabel('Complexity');
 leg = legend(num2str((1:maxq)','%2d'),'location','southwest');
 leg.Title.Visible = 'on';
 title(leg,'quantiles');

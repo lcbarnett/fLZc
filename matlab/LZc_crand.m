@@ -14,7 +14,6 @@ load(fullfile(fLZc_data_path,sprintf('LZc_rand_A%02d.mat',d)));
 of = (n <= N)';    % on file
 iof = find(of);    % indices on file
 nof = n(iof);      % values on file
-ixf = find(~of);   % indices not on file
 
 cm = nan(numn,1);
 cm(iof) = cmean(nof);
