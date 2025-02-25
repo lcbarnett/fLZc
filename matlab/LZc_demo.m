@@ -8,13 +8,13 @@ defvar('q',       1         ); % quantisation (1 = binarise around median)
 defvar('fs',      200       ); % sampling frequency (Hz)
 defvar('a',       0.1       ); % OU process decay parameter (> 0); smaller a gives "smoother" process
 defvar('sig',     1         ); % OU process noise std. dev.
-defvar('algo',   'LZ'       ); % Lempel-Ziv algorithm: 'LZ' or 'LZ76'
+defvar('lz76',    false     ); % Use LZ76 algorithm? (else "standard" LZ)
 defvar('nrmlz',   true      ); % Normalise LZc by random sequence mean?
 
-switch upper(algo)
-	case 'LZ',   lz76 = false; if nrmlz, algostr = 'LZc (normalised)';   else, algostr = 'LZc';   end
-	case 'LZ76', lz76 = true;  if nrmlz, algostr = 'LZ76c (normalised)'; else, algostr = 'LZ76c'; end
-	otherwise, error('Lempel-Ziv algorithm must be ''LZ'' or ''LZ76''');
+if lz76
+	if nrmlz, algostr = 'LZ76c (normalised)'; else, algostr = 'LZ76c'; end
+else
+	if nrmlz, algostr = 'LZc (normalised)';   else, algostr = 'LZc';   end
 end
 
 % Generate subsampled Ornstein-Uhlenbeck time series data
@@ -26,21 +26,24 @@ maxn = length(x);
 
 % Calculate complexities for different quantisation levels, and load random string complexities
 
+
 fprintf('calculating %s... ',algostr);
-d = q+1;                              % alphabet size = number of quantiles + 1
-[s,qtiles] = LZc_quantise(x,q);       % quantise noise sequence by q quantiles; store quantiles
+st = tic;
+d = q+1;                          % alphabet size = number of quantiles + 1
+[s,qtiles] = LZc_quantise(x,q);   % quantise noise sequence by q quantiles; store quantiles
 if lz76
-	c = LZ76c_x(s,d);                 % calculate "running" LZ76 complexity (i.e., for all sequence lengths to maximum)
+	c = LZ76c_x(s);               % calculate "running" LZ76 complexity (i.e., for all sequence lengths to maximum)
 	if nrmlz
-		c = c./LZ76c_crand(1:maxn,d); % load random string mean complexities from file
+		c = c./LZ76c_crand(maxn,d); % scale by random string mean complexities
 	end
 else
-	c = LZc_x(s,d);                   % calculate "running" LZ complexity (i.e., for all sequence lengths to maximum)
+	c = LZc_x(s,d);               % calculate "running" LZ complexity (i.e., for all sequence lengths to maximum)
 	if nrmlz
-		c = c./LZc_crand(1:maxn,d);   % load random string mean complexities from file
+		c = c./LZc_crand(maxn,d); % scale by random string mean complexities
 	end
 end
-fprintf('done\n\n');
+et = toc(st);
+fprintf('done (%g seconds)\n\n',et);
 
 if nrmlz && isnan(c(end))
 	fprintf(2,'WARNING: sequence rather long - couldn''t normalise for all lengths\n\n');

@@ -6,8 +6,13 @@ function [cm,cs,ixf,N,cdesc] = LZ76c_crand(n,d,asymp)
 
 if nargin < 3 || isempty(asymp), asymp = 0; end
 
-assert(isvector(n) && isnumeric(n) && all(n == floor(n)) && all(n > 0),'String lengths must be a vector of positive integers');
-assert(isscalar(d) && isnumeric(d) && d == floor(d),'Alphabet size must be a scalar integer');
+if isscalar(n)
+	assert(isnumeric(n) && n == floor(n) && n > 0,'Maximum length must be a positive integer');
+	n = 1:n;
+else
+	assert(isvector(n) && isnumeric(n) && all(n == floor(n)) && all(n > 0),'String lengths must be a vector of positive integers');
+end
+assert(isscalar(d) && isnumeric(d) &&     d == floor(d)  && d > 0 ,    'Alphabet size must be a positive integer');
 
 global fLZc_data_path;
 load(fullfile(fLZc_data_path,sprintf('LZ76c_rand_A%02d.mat',d)));

@@ -1,18 +1,13 @@
 % Demonstrate scaling with sequence length of maximum complexity strings and
 % complexity of random string against the rough asymptotic log(d)*(maxn/log(maxn)
 %
-% Supply:
-%
-% maxn     % maximum sequence length
-% d        % alphabet size
-%
-% e.g. (cut & paste)
-%{
-maxn = 100000; d = 5; LZc_demo_scaling
-%}
+% Default parameters (may be overriden on command line)
+
+defvar('maxn',       1000       ); % maximum sequence length
+defvar('d',          2          ); % alphabet size
 
 cmax = LZc_cmax_x(maxn,d);
-crnd = LZc_crand(maxn,d);
+crnd = LZc_crand(1:maxn,d);
 
 n = (2:maxn)';
 csca = log(d)*(n./log(n));
