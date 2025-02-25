@@ -1,84 +1,75 @@
-% LZc demo script: generate an (approximate) Ornstein Uhlenbeck time series, and calculate
-% normalised LZ-complexity at all sequence lengths for a range of quantisation levels.
+% LZc demo script: calculate LZ-complexity at all sequence lengths for a
+% subsampled stationary Ornstein-Uhlenbeck process.
 %
 % Default parameters (may be overriden on command line)
 
 defvar('T',       400       ); % length of process
-defvar('maxq',    5         ); % maximum quantisation
+defvar('q',       1         ); % quantisation (1 = binarise around median)
 defvar('fs',      200       ); % sampling frequency (Hz)
 defvar('a',       0.1       ); % OU process decay parameter (> 0); smaller a gives "smoother" process
 defvar('sig',     1         ); % OU process noise std. dev.
 defvar('algo',   'LZ'       ); % Lempel-Ziv algorithm: 'LZ' or 'LZ76'
+defvar('nrmlz',   true      ); % Normalise LZc by random sequence mean?
 
 switch upper(algo)
-	case 'LZ',   lz76 = false; algostr = 'LZc';
-	case 'LZ76', lz76 = true;  algostr = 'LZ76c';
+	case 'LZ',   lz76 = false; if nrmlz, algostr = 'LZc (normalised)';   else, algostr = 'LZc';   end
+	case 'LZ76', lz76 = true;  if nrmlz, algostr = 'LZ76c (normalised)'; else, algostr = 'LZ76c'; end
 	otherwise, error('Lempel-Ziv algorithm must be ''LZ'' or ''LZ76''');
 end
-% Generate an (approximate) Ornstein-Uhlenbeck time series
 
-fprintf('\ngenerating OU time series... ');
+% Generate subsampled Ornstein-Uhlenbeck time series data
+
+fprintf('\ngenerating stationary OU time series... ');
 [x,t] = ouproc(a,sig,fs,T);
 fprintf('done\n\n');
 maxn = length(x);
 
-if maxn > 100000
-	fprintf(2,'WARNING: sequence rather long - won''t be able to normalise at all lengths\n\n');
-end
-
 % Calculate complexities for different quantisation levels, and load random string complexities
 
-c      = zeros(maxn,maxq);                 % complexities of x
-crnd   = zeros(maxn,maxq);                 % random string complexities
-qtiles = cell(maxq,1);                     % quantiles
-for q = 1:maxq                             % for each quantisation
-	fprintf('processing qauntisation %d of %d... ',q,maxq);
-	d = q+1;                               % alphabet size = number of quantiles + 1
-	[s,qtiles{q}] = LZc_quantise(x,q);     % quantise noise sequence by q quantiles; store quantiles
-	if lz76
-		c(:,q) = LZ76c_x(s,d);             % calculate "running" LZ76 complexity (i.e., for all sequence lengths to maximum)
-		crnd(:,q) = LZ76c_crand(1:maxn,d); % load random string mean complexities from file
-	else
-		c(:,q) = LZc_x(s,d);               % calculate "running" LZ complexity (i.e., for all sequence lengths to maximum)
-		crnd(:,q) = LZc_crand(1:maxn,d);   % load random string mean complexities from file
+fprintf('calculating %s... ',algostr);
+d = q+1;                              % alphabet size = number of quantiles + 1
+[s,qtiles] = LZc_quantise(x,q);       % quantise noise sequence by q quantiles; store quantiles
+if lz76
+	c = LZ76c_x(s,d);                 % calculate "running" LZ76 complexity (i.e., for all sequence lengths to maximum)
+	if nrmlz
+		c = c./LZ76c_crand(1:maxn,d); % load random string mean complexities from file
 	end
-	fprintf('done\n');
+else
+	c = LZc_x(s,d);                   % calculate "running" LZ complexity (i.e., for all sequence lengths to maximum)
+	if nrmlz
+		c = c./LZc_crand(1:maxn,d);   % load random string mean complexities from file
+	end
 end
-cnorm = c./crnd;                       % complexities normalised by mean complexity of random strings of same length and alphabet size
+fprintf('done\n\n');
 
-n = (1:maxn)';  % sequence lengths
+if nrmlz && isnan(c(end))
+	fprintf(2,'WARNING: sequence rather long - couldn''t normalise for all lengths\n\n');
+end
 
 % Display time series with quantiles
 
 figure(1); clf
 
+subplot(3,1,1);
 xmax = 1.05*max(abs(x));
-for q = 1:maxq
-	subplot(maxq,1,q);
-	plot(t,x);
-	for k = 1:q
-		yline(qtiles{q}(k),'color','r');
-	end
-	xlim([0,T]);
-	ylim([-xmax xmax]);
-	xlabel('Time (secs)');
-	ylabel(sprintf('q = %d',q));
+plot(t,x);
+for k = 1:q
+	yline(qtiles(k),'color','r');
 end
-% sgtitle('Time series with quantisations'); % only version >= 2018b
+xlim([0,T]);
+ylim([-xmax xmax]);
+xlabel('Time (secs)');
+title(sprintf('Subsampled OU process (%d quantiles)',q));
+grid on
 
-% Estimate spectral density (PSD) of time series
+% Power spectral density (PSD)
 
-[S,f] = pwelch(x,[],[],[],fs);            % estimated PSD (Welch method)
-A     = exp(-a/fs);                       % AR(1) coefficient
-w     = 2*pi*f/fs;                        % normalised frequency
-ST    = abs(1./(1-A*exp(-1i*w))/fs).^2;   % theoretical PSD
-%SOU   = (sig^2)./(a^2+f.^2);             % OU process theoretical PSD
+[S,f] = pwelch(x,[],[],[],fs);                    % estimated PSD (Welch method)
+ST    = abs(1./(1-exp(-(a+2*pi*1i*f)/fs))/fs).^2; % theoretical PSD
 
 % Display PSD and normalised complexities
 
-figure(2); clf
-
-subplot(2,1,1);
+subplot(3,1,2);
 semilogx(f,log([S ST]));
 xlim([f(2) fs/2]); % to Nyqvist frequency
 title(sprintf('Power spectral density (f_s = %gHz)',fs));
@@ -86,16 +77,19 @@ legend('estimated','theoretical');
 xlabel('Frequency (Hz; log-scale)');
 ylabel('Log-power (dB)');
 set(gca,'XTickLabel',num2str(get(gca,'XTick')')); % ridiculous faff to force sensible tick labels
+grid on
 
-subplot(2,1,2);
-semilogx(t,cnorm);
-ylim([0 1.2]);
+subplot(3,1,3);
+if nrmlz
+	semilogx(t,c);
+	ylim([0 1.2]);
+	yline(1,'color','k');
+	ylabel('Complexity');
+else
+	loglog(t,c);
+	ylabel('Complexity (log-scale)');
+end
 xlim([1/fs,T]);
-yline(1,'color','k');
-title(sprintf('Normalised %s complexity',algostr));
+title(algostr);
 xlabel('Time (seconds; log-scale)');
-ylabel('Complexity');
-leg = legend(num2str((1:maxq)','%2d'),'location','southwest');
-leg.Title.Visible = 'on';
-title(leg,'quantiles');
 grid on
