@@ -78,7 +78,7 @@ mtuint_t mt_uint64(mt_t* const pstate)
 		pstate->mt[NN-1] = pstate->mt[MM-1] ^ (x>>1) ^ mag01[(int)(x&UINT64_C(1))];
 
 		pstate->mti = 0;
-    }
+	}
 
 	x = pstate->mt[pstate->mti++];
 
@@ -87,7 +87,7 @@ mtuint_t mt_uint64(mt_t* const pstate)
 	x ^= (x << 37) & UINT64_C(0xFFF7EEE000000000);
 	x ^= (x >> 43);
 
-    return x;
+	return x;
 }
 
 // generates a double-precision pseudo-random normal variate ~ N(0,1)
@@ -96,7 +96,7 @@ double mt_randn(mt_t* const pstate)
 	if (pstate->iset) {
 		pstate->iset = 0;
 		return pstate->gset;
-    }
+	}
 
 	double v1,v2,rsq;
 	do {
