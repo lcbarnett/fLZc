@@ -146,9 +146,9 @@ size_t LZc(const char* const istr, char* const dict)
 	char* w = word;                          // pointer to end of current word (null terminator)
 	for (const char* ch = istr; *ch; ++ch) { // traverse input string (terminating condition equiv to *ch == '\0' !!!)
 		*w++ = *ch;                          // append next input character to word
-        int absent;
-        kh_put(str,h,word,&absent);          // if word not in dictionary,
-        if (absent) {
+		int absent;
+		kh_put(str,h,word,&absent);          // if word not in dictionary,
+		if (absent) {
 			word = ++w;                      // skip past NUL and reinitialise to empty word
 			++c;                             // increment dictionary size
 		}
@@ -173,9 +173,9 @@ void LZc_x(const char* const istr, char* const dict, size_t* const c)
 	char* w = word;                          // pointer to end of current word (null terminator)
 	for (const char* ch = istr; *ch; ++ch) { // traverse input string (terminating condition equiv to *ch == '\0' !!!)
 		*w++ = *ch;                          // append next input character to word
-        int absent;
-        kh_put(str,h,word,&absent);          // if word not in dictionary,
-        if (absent) {
+		int absent;
+		kh_put(str,h,word,&absent);          // if word not in dictionary,
+		if (absent) {
 			word = ++w;                      // skip past NUL and reinitialise to empty word
 			++cc;                            // increment dictionary size
 		}
