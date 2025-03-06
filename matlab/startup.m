@@ -4,32 +4,31 @@ fprintf('[fLZc startup] Initialising fLZc\n');
 
 % Add LZc root dir + appropriate subdirs to path
 
-global fLZc_root;
-fLZc_root = fileparts(mfilename('fullpath')); % directory containing this file
-addpath(genpath(fLZc_root));
-fprintf('[fLZc startup] Added path %s\n',fLZc_root);
+global fLZc_matlab;
+fLZc_matlab = fileparts(mfilename('fullpath')); % directory containing this file
+fLZc_root = fileparts(fLZc_matlab);
+addpath(genpath(fLZc_matlab));
+fprintf('[fLZc startup] Added path %s\n',fLZc_matlab);
+
+global fLZc_data_path;
+fLZc_data_path = fullfile(fLZc_root,'data');
 
 % Binary data files used in *_crand.m: download zip file
 %
 % http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip
 %
-% then extract .mat files into <fLZc_root>/data/
-
-global fLZc_data_path;
-fLZc_data_path = fullfile(fLZc_root,'data');
+% then extract .mat files into fLZc_data_path
 
 % Check if data seems to be there
 
-dl1 = dir([fLZc_data_path filesep '/LZc_rand_A*.mat']);
-df1 = length({dl1.name});
-dl2 = dir([fLZc_data_path filesep '/LZ76c_rand_A*.mat']);
-df2 = length({dl2.name});
-if ~(df1 == 20 && df2 == 20)
+dl = dir([fLZc_data_path filesep 'LZc_rand_A*.mat']);
+df = length({dl.name});
+if df ~= 20
 	fprintf('[fLZc startup]\n');
 	fprintf(2,'[fLZc startup] WARNING: Some Matlab LZc normalisation data files seem to be missing.\n');
 	fprintf(2,'[fLZc startup]          Download from http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip\n');
 	fprintf(2,'[fLZc startup]          and unzip into the directory ''%s''.\n',fLZc_data_path);
-	fprintf(2,'[fLZc startup]          Normalisation will be unavailable (see ''LZc_crand.m'' and ''LZ76c_crand.m'')\n');
+	fprintf(2,'[fLZc startup]          Normalisation will be unavailable (see ''LZc_crand.m'')\n');
 	fprintf('[fLZc startup]\n');
 else
 	fprintf('[fLZc startup] LZc normalisation data appears to be present and correct\n');

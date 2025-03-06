@@ -9,16 +9,15 @@
 
 // Main function
 
-int main(int argc, char* argv[])
+int main()
 {
+/*
 	if (argc < 6) {
 		fprintf(stderr, "Too few arguments\n");
 		exit(EXIT_FAILURE);
 	}
 
 	const int ref = atoi(argv[1]);
-
-	printf("\n*** implementation = %s, %s ***\n\n",idstr,ref ? "REFERENCE" : "WORKING");
 
 	const size_t d = (size_t)atol(argv[2]);
 	printf("alphabet size  = %lu\n",(unsigned long)d);
@@ -75,7 +74,7 @@ int main(int argc, char* argv[])
 
 	for (size_t r=0; r<N; ++r) free(s[r]);
 	free(s);
-
+*/
 	return(EXIT_SUCCESS);
 }
 

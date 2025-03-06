@@ -1,4 +1,4 @@
-function [c,dict] = LZc(s,d,use_mex)
+function [c,dict] = LZc(s,use_mex)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -7,7 +7,6 @@ function [c,dict] = LZc(s,d,use_mex)
 % INPUT
 %
 % s           input character string
-% d           alphabet size (or empty for pessimistic memory usage)
 % use_mex     use c version (default: MUCH faster)
 %
 % OUTPUT
@@ -19,28 +18,22 @@ function [c,dict] = LZc(s,d,use_mex)
 
 assert(ischar(s) && isvector(s),"Input must be a character string");
 
-if nargin < 2 || isempty(d)
-	d = 0;
-else
-	assert(isscalar(d) && isnumeric(d) && d == floor(d),'Alphabet size must be a scalar integer');
-end
-
-if nargin < 3 || isempty(use_mex), use_mex = true; end
+if nargin < 2 || isempty(use_mex), use_mex = true; end
 
 if use_mex
 
 	if nargout > 1
-		[c,dict] = LZc_mex(s,d);
+		[c,dict] = LZc_mex(s);
 	else
-		c = LZc_mex(s,d);
+		c = LZc_mex(s);
 	end
 
 else
 
 	dict = containers.Map;      % the dictionary
 	w = [];                     % initialise current word
-	for ch = s                  % iterate through input characters
-		w = [w ch];             % append current character to current word
+	for i = s                   % iterate through input characters
+		w = [w i];              % append current character to current word
 		if ~isKey(dict,w)       % if current word not already in dictionary...
 			dict(w) = true;     % add to dictionary
 			w = [];             % and reinitialise

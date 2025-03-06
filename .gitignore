@@ -1,6 +1,3 @@
 *.o
 *.obj
-C/data/*
-C/testing/*
-matlab/data/*
-matlab/testing/*
+data/*

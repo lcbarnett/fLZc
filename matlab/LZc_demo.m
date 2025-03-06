@@ -8,14 +8,9 @@ defvar('q',       1         ); % quantisation (1 = binarise around median)
 defvar('fs',      200       ); % sampling frequency (Hz)
 defvar('a',       0.1       ); % OU process decay parameter (> 0); smaller a gives "smoother" process
 defvar('sig',     1         ); % OU process noise std. dev.
-defvar('lz76',    false     ); % Use LZ76 algorithm? (else "standard" LZ)
 defvar('nrmlz',   true      ); % Normalise LZc by random sequence mean?
 
-if lz76
-	if nrmlz, algostr = 'LZ76c (normalised)'; else, algostr = 'LZ76c'; end
-else
-	if nrmlz, algostr = 'LZc (normalised)';   else, algostr = 'LZc';   end
-end
+if nrmlz, algostr = 'LZc (normalised)'; else, algostr = 'LZc';   end
 
 % Generate subsampled Ornstein-Uhlenbeck time series data
 
@@ -31,16 +26,9 @@ fprintf('calculating %s... ',algostr);
 st = tic;
 d = q+1;                          % alphabet size = number of quantiles + 1
 [s,qtiles] = LZc_quantise(x,q);   % quantise noise sequence by q quantiles; store quantiles
-if lz76
-	c = LZ76c_x(s);               % calculate "running" LZ76 complexity (i.e., for all sequence lengths to maximum)
-	if nrmlz
-		c = c./LZ76c_crand(maxn,d); % scale by random string mean complexities
-	end
-else
-	c = LZc_x(s,d);               % calculate "running" LZ complexity (i.e., for all sequence lengths to maximum)
-	if nrmlz
-		c = c./LZc_crand(maxn,d); % scale by random string mean complexities
-	end
+c = LZc_x(s,d);               % calculate "running" LZ complexity (i.e., for all sequence lengths to maximum)
+if nrmlz
+	c = c./LZc_crand(maxn,d); % scale by random string mean complexities
 end
 et = toc(st);
 fprintf('done (%g seconds)\n\n',et);
