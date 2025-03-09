@@ -36,7 +36,7 @@ endif
 MEXEXT = $(shell mexext)
 MEXDIR = ../matlab/mex
 
-MSRC = LZc_mex.c LZc_mex_x.c
+MSRC = LZc_mex.c LZc_mex_x.c LZc_rand_mex.c
 CSRC = LZc.c mt64.c LZc_matlab.c
 MBIN = $(patsubst %.c,$(MEXDIR)/%.$(MEXEXT),$(MSRC))
 MDEP = $(CSRC) $(patsubst %.c,%.h,$(CSRC))
@@ -44,7 +44,7 @@ MDEP = $(CSRC) $(patsubst %.c,%.h,$(CSRC))
 ZSRC = LZc.c mt64.c
 ZOBJ = $(patsubst %.c,.%.$(OBJEXT),$(ZSRC))
 
-TSRC = LZc_test.c LZc_benchmark.c LZc_check.c
+TSRC = LZc_test.c LZc_benchmark.c
 TDEP = LZc.h
 TOBJ = $(patsubst %.c,.%.$(OBJEXT),$(TSRC))
 TBIN = $(patsubst %.c,%$(BINEXT),$(TSRC))

@@ -12,9 +12,10 @@ int main(int argc, char* argv[])
 	const size_t n = strlen(istr);
 	printf("\ninput string (%lu): '%s'\n\n",n,istr);
 
-	char* const dict = calloc(2*n,1);
+	const size_t dlen = 2*n;
+	char* const dict = malloc(dlen);
 
-	const size_t c = LZc(istr,dict);
+	const size_t c = LZc(istr,dict,dlen);
 	printf("\ncomplexity = %lu\n\n",c);
 
 	dict_to_str(dict,c,'|');
