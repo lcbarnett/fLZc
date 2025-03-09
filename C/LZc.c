@@ -30,8 +30,6 @@ size_t LZc(const char* const istr, char* const dict, const size_t dlen)
 	//
 	// dict MUST be large enough - this code does not check! Safe but
 	// pessimistic case is twice the string length.
-	//
-	// c MUST be same size as the input string.
 
 	memset(dict,0,dlen);                     // NUL-fill the dictionary
 	khash_t(str)* const h = kh_init(str);    // create hash table
@@ -71,11 +69,10 @@ void LZc_x(const char* const istr, char* const dict, const size_t dlen, size_t* 
 	kh_destroy(str,h);                       // destroy hash table
 }
 
-void LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean)
+void LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev)
 {
-	// Calculate mean and std. dev. of LZc at all lengths for
-	// random strings of length n with alphabet size d, from
-	// a sample of N random strings
+	// Estimate means and (optionally) standard deviations of LZc for random strings
+	// with alphabet size d up to length n, based on a sample of size N.
 
 	mt_t prng;                     // pseudo-random number generator
 	mt_seed(&prng,(mtuint_t)seed); // initialise PRNG
@@ -102,6 +99,20 @@ void LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, 
 		double cmi = 0.0;
 		for (size_t k=0; k<m; k += n) cmi += (double)ci[k];
 		cmean[i] = cmi/dN;
+	}
+
+	if (csdev != NULL) {
+		const double dN1 = (double)(N-1);
+		for (size_t i=0; i<n; ++i) {
+			const size_t* const ci = c+i;
+			const double cmi = cmean[i];
+			double csi = 0.0;
+			for (size_t k=0; k<m; k += n) {
+				const double x = (double)ci[k]-cmi;
+				csi += x*x;
+			}
+			csdev[i] = csi/dN1;
+		}
 	}
 
 	free(c);
