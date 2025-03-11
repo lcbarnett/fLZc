@@ -69,7 +69,49 @@ void LZc_x(const char* const istr, char* const dict, const size_t dlen, size_t* 
 	kh_destroy(str,h);                       // destroy hash table
 }
 
-void LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev)
+double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev)
+{
+	// Estimate means and (optionally) standard deviations of LZc for random strings
+	// with alphabet size d of length n, based on a sample of size N.
+
+	mt_t prng;                     // pseudo-random number generator
+	mt_seed(&prng,(mtuint_t)seed); // initialise PRNG
+
+	char* const str = malloc(n+1);
+
+	const size_t dlen = 2*n;
+	char* const dict = malloc(dlen);
+
+	double* const c = malloc(N*sizeof(double));
+
+	const double dd = (double)d;
+	for (size_t s=0; s<N; ++s) {
+		for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
+		str[n] = '\0'; // terminate string
+		c[s] = (double)LZc(str,dict,dlen);
+	}
+
+	double cmean = 0.0;
+	for (size_t s=0; s<N; ++s) cmean += c[s];
+	cmean /= (double)N;
+
+	if (csdev != NULL) {
+		*csdev = 0.0;
+		for (size_t s=0; s<N; ++s) {
+			const double x = c[s]-cmean;
+			*csdev += x*x;
+		}
+		*csdev /= (double)(N-1);
+	}
+
+	free(c);
+	free(dict);
+	free(str);
+
+	return cmean;
+}
+
+void LZc_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev)
 {
 	// Estimate means and (optionally) standard deviations of LZc for random strings
 	// with alphabet size d up to length n, based on a sample of size N.
@@ -86,10 +128,9 @@ void LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, 
 	size_t* const c = malloc(m*sizeof(size_t));
 
 	const double dd = (double)d;
-
 	for (size_t s=0; s<N; ++s) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng));
-		str[n] = '\0';
+		for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
+		str[n] = '\0'; // terminate string
 		LZc_x(str,dict,dlen,c+n*s);
 	}
 

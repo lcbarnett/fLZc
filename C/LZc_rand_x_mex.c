@@ -9,14 +9,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 	const size_t   N    = (size_t)   mxGetScalar(prhs[2]);
 	const mtuint_t seed = (mtuint_t) mxGetScalar(prhs[3]);
 
-	if (nlhs > 1) {
-		double csdev;
-		const double cmean = LZc_rand(n,d,N,seed,&csdev);
-		plhs[0] = mxCreateDoubleScalar(cmean); // allocate output value
-		plhs[1] = mxCreateDoubleScalar(csdev); // allocate output value
-	}
-	else {
-		const double cmean = LZc_rand(n,d,N,seed,NULL);
-		plhs[0] = mxCreateDoubleScalar(cmean); // allocate output value
-	}
+	double* const cmean = mxGetPr(plhs[0] = mxCreateDoubleMatrix(n,1,mxREAL)); // allocate output array
+
+	double* const csdev = nlhs > 1 ? mxGetPr(plhs[1] = mxCreateDoubleMatrix(n,1,mxREAL)) : NULL; // allocate output array
+
+	LZc_rand_x(n,d,N,seed,cmean,csdev);
 }

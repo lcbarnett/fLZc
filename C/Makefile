@@ -36,7 +36,7 @@ endif
 MEXEXT = $(shell mexext)
 MEXDIR = ../matlab/mex
 
-MSRC = LZc_mex.c LZc_mex_x.c LZc_rand_mex.c
+MSRC = LZc_mex.c LZc_mex_x.c LZc_rand_mex.c LZc_rand_x_mex.c
 CSRC = LZc.c mt64.c LZc_matlab.c
 MBIN = $(patsubst %.c,$(MEXDIR)/%.$(MEXEXT),$(MSRC))
 MDEP = $(CSRC) $(patsubst %.c,%.h,$(CSRC))

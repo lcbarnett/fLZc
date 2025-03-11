@@ -14,6 +14,8 @@ size_t LZc(const char* const istr, char* const dict, const size_t dlen);
 
 void LZc_x(const char* const istr, char* const dict, const size_t dlen, size_t* const c);
 
-void LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev);
+double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev);
+
+void LZc_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev);
 
 #endif // LZC_H
