@@ -16,5 +16,4 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 	if (nlhs > 1) plhs[1] = dict_to_cvec(dict,ci[n-1]); // optionally output dictionary as cell vector of strings
 	mxFree(ci);                                         // deallocate complexities (integer)
 	mxFree(dict);                                       // deallocate dictionary
-	mxFree(istr);                                       // deallocate input string
 }

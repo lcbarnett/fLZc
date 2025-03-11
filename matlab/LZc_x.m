@@ -16,7 +16,7 @@ function [c,dict] = LZc_x(s,use_mex)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-assert(ischar(s) && isvector(s),"Input must be a character string");
+assert(~isempty(s) && ischar(s) && isvector(s),"Input must be a non-empty character string");
 
 if nargin < 2 || isempty(use_mex), use_mex = true; end
 

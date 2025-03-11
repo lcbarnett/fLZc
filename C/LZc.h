@@ -6,6 +6,10 @@
 #include "khash.h"
 #include "mt64.h"
 
+// Comment out as desired (WARNING: without this, needs a LOT of memory!)
+
+#define LZC_RAND_LOMEM 1
+
 KHASH_SET_INIT_STR(str)
 
 void dict_to_str(char* const dict, const size_t c, const char sepchar);

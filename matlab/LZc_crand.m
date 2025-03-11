@@ -1,31 +1,39 @@
-function [cm,cs,ixf,N,cdesc] = LZc_crand(n,d)
+function [cm,cs,n] = LZc_crand(slen,d)
 
 % Load random string mean complexities (and optionally standard deviations) for alphabet of size d
-% and string lengths n from file of values estimated by Monte Carlo simulation.
+% and string lengths slen from file of values estimated by Monte Carlo simulation.
 
-if isscalar(n)
-	assert(isnumeric(n) && n == floor(n) && n > 0,'Maximum length must be a positive integer');
-	n = 1:n;
+if isscalar(slen)
+	assert(isnumeric(slen) && slen == floor(slen) && slen > 1,'Maximum length must be a positive');
+	slen = 1:slen;
 else
-	assert(isvector(n) && isnumeric(n) && all(n == floor(n)) && all(n > 0),'String lengths must be a vector of positive integers');
+	assert(isvector(slen) && isnumeric(slen) && all(slen == floor(slen)) && all(slen > 0),'String lengths must be a vector of positive integers');
 end
-assert(isscalar(d) && isnumeric(d) &&     d == floor(d)  && d > 0 ,    'Alphabet size must be a positive integer');
-
-numn = length(n);
+assert(isscalar(d) && isnumeric(d) && d == floor(d)  && d > 1,'Alphabet size must be an integer > 1');
 
 global fLZc_data_path;
-load(fullfile(fLZc_data_path,sprintf('LZc_rand_A%02d.mat',d)));
+load(fullfile(fLZc_data_path,sprintf('LZc_rand_a%02d.mat',d)));
 
-of = (n <= N)';    % on file
-iof = find(of);    % indices on file
-nof = n(iof);      % values on file
+% loaded:
+%
+% n     : max string length
+% d     : alphabet size
+% N     : number of samples used for estimates
+% cmean : means               at each string length 1 ... n
+% csdev : standard deviations at each string length 1 ... n
+
+iof = find(slen <= n); % indices on file
+nof = slen(iof);       % values on file
+
+numn = length(slen);
+
+numn
+n
 
 cm = nan(numn,1);
 cm(iof) = cmean(nof);
-% we don't know the asymptotic means; leave as NaNs
 
 if nargout > 1
 	cs = nan(numn,1);
 	cs(iof) = csdev(nof);
-	% we don't know the asymptotic standard deviations; leave as NaNs
 end

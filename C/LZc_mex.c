@@ -13,5 +13,4 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 	plhs[0] = mxCreateDoubleScalar((double)c);       // output LZ complexity (size of dictionary)
 	if (nlhs > 1) plhs[1] = dict_to_cvec(dict,c);    // optionally output dictionary as cell vector of strings
 	mxFree(dict);                                    // deallocate dictionary
-	mxFree(istr);                                    // deallocate input string
 }

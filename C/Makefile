@@ -51,7 +51,8 @@ TBIN = $(patsubst %.c,%$(BINEXT),$(TSRC))
 
 MFLAGS = -std=c99 -march=native
 WFLAGS = -Wall -Wextra -Wconversion -Winline -pedantic-errors
-DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE
+# LZC_RAND_LOMEM for (slightly less efficient, but MUCH less memory) random LZc routines
+DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE -DLZC_RAND_LOMEM
 IFLAGS =
 LIBS   =
 
