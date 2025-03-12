@@ -69,8 +69,6 @@ void LZc_x(const char* const istr, char* const dict, const size_t dlen, size_t* 
 	kh_destroy(str,h);                       // destroy hash table
 }
 
-#ifdef LZC_RAND_LOMEM
-
 double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev)
 {
 	// Estimate means and (optionally) standard deviations of LZc for random strings
@@ -161,99 +159,3 @@ void LZc_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed
 	free(dict);
 	free(str);
 }
-
-#else // not LZC_RAND_LOMEM
-
-double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev)
-{
-	// Estimate means and (optionally) standard deviations of LZc for random strings
-	// with alphabet size d of length n, based on a sample of size N.
-
-	mt_t prng;                     // pseudo-random number generator
-	mt_seed(&prng,(mtuint_t)seed); // initialise PRNG
-
-	char* const str = malloc(n+1);
-
-	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
-
-	double* const c = malloc(N*sizeof(double));
-
-	const double dd = (double)d;
-	for (size_t s=0; s<N; ++s) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
-		str[n] = '\0'; // terminate string
-		c[s] = (double)LZc(str,dict,dlen);
-	}
-
-	double cmean = 0.0;
-	for (size_t s=0; s<N; ++s) cmean += c[s];
-	cmean /= (double)N;
-
-	if (csdev != NULL) {
-		*csdev = 0.0;
-		for (size_t s=0; s<N; ++s) {
-			const double x = c[s]-cmean;
-			*csdev += x*x;
-		}
-		*csdev /= (double)(N-1);
-	}
-
-	free(c);
-	free(dict);
-	free(str);
-
-	return cmean;
-}
-
-void LZc_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev)
-{
-	// Estimate means and (optionally) standard deviations of LZc for random strings
-	// with alphabet size d up to length n, based on a sample of size N.
-
-	mt_t prng;                     // pseudo-random number generator
-	mt_seed(&prng,(mtuint_t)seed); // initialise PRNG
-
-	char* const str = malloc(n+1);
-
-	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
-
-	const size_t m = N*n;
-	size_t* const c = malloc(m*sizeof(size_t));
-
-	const double dd = (double)d;
-	for (size_t s=0; s<N; ++s) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
-		str[n] = '\0'; // terminate string
-		LZc_x(str,dict,dlen,c+n*s);
-	}
-
-	const double dN = (double)N;
-	for (size_t i=0; i<n; ++i) {
-		const size_t* const ci = c+i;
-		double cmi = 0.0;
-		for (size_t k=0; k<m; k += n) cmi += (double)ci[k];
-		cmean[i] = cmi/dN;
-	}
-
-	if (csdev != NULL) {
-		const double dN1 = (double)(N-1);
-		for (size_t i=0; i<n; ++i) {
-			const size_t* const ci = c+i;
-			const double cmi = cmean[i];
-			double csi = 0.0;
-			for (size_t k=0; k<m; k += n) {
-				const double x = (double)ci[k]-cmi;
-				csi += x*x;
-			}
-			csdev[i] = csi/dN1;
-		}
-	}
-
-	free(c);
-	free(dict);
-	free(str);
-}
-
-#endif // LZC_RAND_LOMEM
