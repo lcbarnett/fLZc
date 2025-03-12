@@ -3,16 +3,12 @@
 
 #define UNUSED __attribute__ ((unused))
 
-#include "khashl.h"
+#include "khash.h"
 #include "mt64.h"
 
-KHASHL_SET_INIT(KH_LOCAL, strmap_t, strmap, const char*, kh_hash_str, kh_eq_str)
+KHASH_SET_INIT_STR(str)
 
 void dict_to_str(char* const dict, const size_t c, const char sepchar);
-
-strmap_t* LZc_build_dict(char* const str);
-
-void LZc_destroy_dict(strmap_t* h);
 
 size_t LZc(const char* const istr, char* const dict, const size_t dlen);
 

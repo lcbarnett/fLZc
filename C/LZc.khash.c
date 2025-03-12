@@ -24,81 +24,49 @@ void dict_print(const char* const dict, const size_t c, const char sepchar)
 	}
 }
 
-strmap_t* LZc_build_dict(char* const str)
-{
-	strmap_t* const h = strmap_init();       // create and initialise hash set
-	for (char* p = str; *p; ++p) {           // traverse input string (terminating condition equiv to *p == '\0' !!!)
-		for (char* q = p+1; ; ++q) {       // advance substring pointer
-			const char tmp = *q;
-			*q = '\0';
-			int added;
-			khint_t k = strmap_put(h,p,&added);  // add word to dictionary if not already there
-			if (added) {
-fprintf(stderr,"added [%s]\n",p);
-				kh_key(h,k) = strdup(p);   // skip past '\0' and reinitialise to empty word
-				*q = tmp;
-				p = q-1;
-				break;
-			}
-			*q = tmp;
-		}
-	}
-	return h;                                // return pointer to hash set
-}
-
-void LZc_destroy_dict(strmap_t* h)
-{
-	khint_t k;
-	kh_foreach(h,k) free((char*)kh_key(h,k));
-	strmap_destroy(h);
-}
-
 size_t LZc(const char* const str, char* const dict, const size_t dlen)
 {
-	// LZ78c
+	// Vanilla LZc
 	//
 	// dict MUST be large enough - this code does not check! Safe but
 	// pessimistic case is twice the string length.
 
-	strmap_t* const h = strmap_init();       // create and initialise hash set
 	memset(dict,0,dlen);                     // NUL-fill the dictionary
+	khash_t(str)* const h = kh_init(str);    // create hash table
 	char* word = dict;                       // initialise pointer to beginning of current word
 	char* w = word;                          // pointer to end of current word (null terminator)
 	for (const char* p = str; *p; ++p) {     // traverse input string (terminating condition equiv to *p == '\0' !!!)
 		*w++ = *p;                           // append next input character to word
 		int added;
-		strmap_put(h,word,&added);           // add word to dictionary if not already there
-		if (added) {
-fprintf(stderr,"added [%s]\n",word);
-			word = ++w;               // skip past '\0' and reinitialise to empty word
-		}
+		kh_put(str,h,word,&added);           // add word to dictionary if not already there
+		if (added) word = ++w;               // skip past '\0' and reinitialise to empty word
 	}
-	const size_t c = kh_size(h);             // LZc = size of dictionary
-	strmap_destroy(h);                       // destroy hash set
+	const size_t c = h->size;                // LZc = size of dictionary
+	kh_destroy(str,h);                       // destroy hash table
 	return c;
 }
 
 void LZc_x(const char* const str, char* const dict, const size_t dlen, size_t* const c)
 {
-	// LZ78c
+	// Vanilla LZc - return running LZc
 	//
 	// dict MUST be large enough - this code does not check! Safe but
 	// pessimistic case is twice the string length.
 	//
 	// c MUST be same size as the input string.
 
-	strmap_t* const h = strmap_init();       // create and initialise hash set
 	memset(dict,0,dlen);                     // NUL-fill the dictionary
+	khash_t(str)* const h = kh_init(str);    // create hash table
 	char* word = dict;                       // initialise pointer to beginning of current word
 	char* w = word;                          // pointer to end of current word (null terminator)
 	for (const char* p = str; *p; ++p) {     // traverse input string (terminating condition equiv to *p == '\0' !!!)
 		*w++ = *p;                           // append next input character to word
 		int added;
-		strmap_put(h,word,&added);           // add word to dictionary if not already there
+		kh_put(str,h,word,&added);           // add word to dictionary if not already there
 		if (added) word = ++w;               // skip past '\0' and reinitialise to empty word
-		c[p-str] = kh_size(h);               // set current complexity to dictionary size
+		c[p-str] = h->size;                  // set current complexity to dictionary size
 	}
-	strmap_destroy(h);                       // destroy hash set
+	kh_destroy(str,h);                       // destroy hash table
 }
 
 double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev)

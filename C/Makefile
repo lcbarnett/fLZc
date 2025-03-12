@@ -50,7 +50,9 @@ TOBJ = $(patsubst %.c,.%.$(OBJEXT),$(TSRC))
 TBIN = $(patsubst %.c,%$(BINEXT),$(TSRC))
 
 MFLAGS = -std=c99 -march=native
-WFLAGS = -Wall -Wextra -Wconversion -Winline -pedantic-errors
+# WFLAGS = -Wall -Wextra -Wconversion -Winline -pedantic-errors
+# khashl may well whinge about inlining failures
+WFLAGS = -Wall -Wextra -Wconversion -pedantic-errors
 DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE
 IFLAGS =
 LIBS   =
