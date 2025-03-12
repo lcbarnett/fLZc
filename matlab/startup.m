@@ -20,7 +20,7 @@ fprintf('[fLZc startup] Normalisation data path is %s\n',fLZc_data_path);
 
 % Check if normalisation data available
 
-dl = dir([fLZc_data_path filesep 'LZc_rand_a*.mat']);
+dl = dir([fLZc_data_path filesep 'LZc_rand_d*.mat']);
 abets = cellfun(@str2num,extract({dl.name},digitsPattern));
 nabs = length(abets);
 if nabs == 0
@@ -28,7 +28,7 @@ if nabs == 0
 	fprintf(2,'[fLZc startup] WARNING: No LZc normalisation data files found.\n');
 	fprintf(2,'[fLZc startup]          Download from http://users.sussex.ac.uk/~lionelb/downloads/fLZc_matlab_data.zip\n');
 	fprintf(2,'[fLZc startup]          and unzip into the directory ''%s''.\n',fLZc_data_path);
-	fprintf(2,'[fLZc startup]          Normalisation will be unavailable (see ''LZc_crand.m'')\n');
+	fprintf(2,'[fLZc startup]          Accurate normalisation will be unavailable (see ''LZc_crand.m'')\n');
 	fprintf('[fLZc startup]\n');
 else
 	fprintf('[fLZc startup] Normalisation data found for alphabet sizes %d',abets(1))

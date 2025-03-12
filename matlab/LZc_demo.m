@@ -28,7 +28,7 @@ d = q+1;                          % alphabet size = number of quantiles + 1
 [s,qtiles] = LZc_quantise(x,q);   % quantise noise sequence by q quantiles; store quantiles
 c = LZc_x(s);                     % calculate "running" LZ complexity (i.e., for all sequence lengths to maximum)
 if nrmlz
-	c = c./LZc_crand(maxn,d);     % scale by random string mean complexities
+	c = LZc_normalise(c,d,true);  % normalise by (asymptotic) random LZc
 end
 et = toc(st);
 fprintf('done (%g seconds)\n\n',et);

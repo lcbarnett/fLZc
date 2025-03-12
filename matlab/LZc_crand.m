@@ -12,7 +12,7 @@ end
 assert(isscalar(d) && isnumeric(d) && d == floor(d)  && d > 1,'Alphabet size must be an integer > 1');
 
 global fLZc_data_path;
-load(fullfile(fLZc_data_path,sprintf('LZc_rand_a%02d.mat',d)));
+load(fullfile(fLZc_data_path,sprintf('LZc_rand_d%02d.mat',d)));
 
 % loaded:
 %

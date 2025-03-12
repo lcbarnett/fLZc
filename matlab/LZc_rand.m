@@ -6,12 +6,12 @@ function [cmean,csdev] = LZc_rand(n,d,N,allvals,s)
 % for all lengths up to and including n.
 
 assert(isscalar(n) && isnumeric(n) && n == floor(n) && n > 0,'string length must be a positive integer');
-assert(isscalar(d) && isnumeric(n) && d == floor(d) && d > 1,'alphabet size must be an integer > 1');
+assert(isscalar(d) && isnumeric(d) && d == floor(d) && d > 1,'alphabet size must be an integer > 1');
 
 if nargout > 1
-	assert(isscalar(N) && isnumeric(n) && N == floor(N) && N > 1,'sample size must be an integer > 1');
+	assert(isscalar(N) && isnumeric(N) && N == floor(N) && N > 1,'sample size must be an integer > 1');
 else
-	assert(isscalar(N) && isnumeric(n) && N == floor(N) && N > 0,'sample size must be a nonnegative integer');
+	assert(isscalar(N) && isnumeric(N) && N == floor(N) && N > 0,'sample size must be a nonnegative integer');
 end
 
 if nargin < 4 || isempty(allvals)

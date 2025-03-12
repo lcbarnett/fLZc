@@ -3,23 +3,18 @@
 %
 % Default parameters (may be overriden on command line)
 
-defvar('maxn',       1000       ); % maximum sequence length
-defvar('d',          2          ); % alphabet size
+defvar('n',       10000      ); % sequence length
+defvar('d',       3          ); % alphabet size
 
-cmax = LZc_cmax_x(maxn,d);
-crnd = LZc_crand(1:maxn,d);
+s = char(randi(d,1,n)-1+'0'); % random string of length n with alphabet size d
 
-n = (2:maxn)';
-csca = log(d)*(n./log(n));
-cmax = cmax(2:end)./csca;
-crnd = crnd(2:end)./csca;
+c = LZc_normalise(LZc_x(s),d);
+
+nn = (1:n)';
 
 figure(1); clf
-semilogx(n,[cmax crnd]);
-title(sprintf('Scaling of maximum complexity and random\nstring complexity by log(d)*n/log(n)\n'));
+semilogx(nn,c);
+title(sprintf('Asymptotic normalisation of random sequence\n'));
 xlabel('sequence length (log-scale)');
-ylabel('scaled complexity');
-leg = legend({'maximum','random'},'location','southeast');
-leg.Title.Visible = 'on';
-title(leg,sprintf('d = %d',d));
+ylabel('normalised complexity');
 grid on

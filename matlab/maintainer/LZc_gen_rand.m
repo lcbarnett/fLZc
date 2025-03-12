@@ -13,8 +13,9 @@ st = tic;
 et = toc(st);
 fprintf(' done : computation time = %s\n\n',datestr(seconds(et),'HH:MM:SS.FFF'));
 
+return
 global fLZc_data_path;
-fname = fullfile(fLZc_data_path,sprintf('LZc_rand_a%02d.mat',d));
+fname = fullfile(fLZc_data_path,sprintf('LZc_rand_d%02d.mat',d));
 fprintf('Saving data file ''%s'' ...',fname);
 save(fname,'n','d','N','cmean','csdev');
 l = dir(fname);
