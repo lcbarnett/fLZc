@@ -8,21 +8,20 @@
 
 int main(int argc, char* argv[])
 {
-	char* const  istr = argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]; // input cstring (also try without last A)
-	const size_t n = strlen(istr);
-	printf("\ninput string (%lu): '%s'\n\n",n,istr);
+	char* const  str = argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]; // input cstring (also try without last A)
+	const size_t n = strlen(str);
+	printf("\ninput string (%lu): '%s'\n\n",n,str);
 
-	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
+	const size_t cref = LZc_ref(str);
+	const size_t c    = LZc(str);
+	printf("complexity = %zu    %zu\n\n",cref,c);
 
-	const size_t c = LZc(istr,dict,dlen);
-	printf("\ncomplexity = %lu\n\n",c);
-
-	dict_to_str(dict,c,'|');
-
-	printf("\n%s\n\n",dict);
-
-	free(dict);
+	size_t* const cc = malloc(n*sizeof(size_t));
+	LZc_x(str,cc);
+	printf("complexity =\n");
+	for (size_t i=0; i<n; ++i) printf("\t%zu\n",cc[i]);
+	putchar('\n');
+	free(cc);
 
 	return EXIT_SUCCESS;
 }

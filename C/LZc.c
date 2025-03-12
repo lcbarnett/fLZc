@@ -5,71 +5,111 @@
 #include <math.h>
 #include <string.h>
 
-void dict_to_str(char* const dict, const size_t c, const char sepchar)
+size_t LZc_ref(const char* const str)
 {
-	char* word = dict;
-	for (size_t k = 0; k < c; ++k) {
-		word += (strlen(word)); // :-)
-		*word++ = sepchar;
-	}
-	*--word = '\0';
-}
-
-void dict_print(const char* const dict, const size_t c, const char sepchar)
-{
-	const char* word = dict;
-	for (size_t k = 0; k < c; ++k) {
-		printf("%s%c",word,sepchar);
-		word += (strlen(word)+1); // :-)
-	}
-}
-
-size_t LZc(const char* const istr, char* const dict, const size_t dlen)
-{
-	// Vanilla LZc
+	// LZc algorithm:
 	//
-	// dict MUST be large enough - this code does not check! Safe but
-	// pessimistic case is twice the string length.
+	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
+	// Phys. Rev. A 36(2) pp. 842-848, 1987.
 
-	memset(dict,0,dlen);                     // NUL-fill the dictionary
-	khash_t(str)* const h = kh_init(str);    // create hash table
-	char* word = dict;                       // initialise pointer to beginning of current word
-	char* w = word;                          // pointer to end of current word (null terminator)
-	for (const char* p = istr; *p; ++p) {    // traverse input string (terminating condition equiv to *p == '\0' !!!)
-		*w++ = *p;                           // append next input character to word
-		int added;
-		kh_put(str,h,word,&added);           // add word to dictionary if not already there
-		if (added) word = ++w;               // skip past '\0' and reinitialise to empty word
+	const size_t n = strlen(str);
+	if (n == 1) return 1;
+	size_t i = 0, k = 1, j = 1, K = 1, c = 1;
+	while (true) {
+		if (str[i+k-1] == str[j+k-1]) {
+			++k;
+			if (j+k > n) {
+				++c;
+				break;
+			}
+		}
+		else {
+			if (k > K) K = k;
+			++i;
+			if (i == j) {
+				++c;
+				j += K;
+				if (j+1 > n) break;
+				i = 0;
+				k = 1;
+				K = 1;
+			}
+			else {
+				k = 1;
+			}
+		}
 	}
-	const size_t c = h->size;                // LZc = size of dictionary
-	kh_destroy(str,h);                       // destroy hash table
 	return c;
 }
 
-void LZc_x(const char* const istr, char* const dict, const size_t dlen, size_t* const c)
+size_t LZc(const char* const str)
 {
-	// Vanilla LZc - return running LZc
+	// LZc algorithm:
 	//
-	// dict MUST be large enough - this code does not check! Safe but
-	// pessimistic case is twice the string length.
-	//
-	// c MUST be same size as the input string.
+	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
+	// Phys. Rev. A 36(2) pp. 842-848, 1987.
 
-	memset(dict,0,dlen);                     // NUL-fill the dictionary
-	khash_t(str)* const h = kh_init(str);    // create hash table
-	char* word = dict;                       // initialise pointer to beginning of current word
-	char* w = word;                          // pointer to end of current word (null terminator)
-	for (const char* p = istr; *p; ++p) {    // traverse input string (terminating condition equiv to *p == '\0' !!!)
-		*w++ = *p;                           // append next input character to word
-		int added;
-		kh_put(str,h,word,&added);           // add word to dictionary if not already there
-		if (added) word = ++w;               // skip past '\0' and reinitialise to empty word
-		c[p-istr] = h->size;                 // set current complexity to dictionary size
+	const size_t n = strlen(str);
+	if (n == 1) return 1;
+	size_t c = 1;
+	const char* const pend = str+n; // point past end of string
+	for (const char* p = str+1; p < pend;) {
+		size_t k = 0;
+		size_t w = 0;
+		for (const char* q = str; q < p;) {
+			if (q[k] == p[k]) {
+				++k;
+				if (p+k >= pend) return ++c;
+			}
+			else {
+				if (k > w) w = k;
+				k = 0;
+				++q;
+			}
+		}
+		++c;
+		p += (w+1);
 	}
-	kh_destroy(str,h);                       // destroy hash table
+	return c;
 }
 
-#ifdef LZC_RAND_LOMEM
+void LZc_x(const char* const str, size_t* const c)
+{
+	// LZc algorithm:
+	//
+	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
+	// Phys. Rev. A 36(2) pp. 842-848, 1987.
+	//
+	// This version stores LZc for each sequence length; cc MUST be same size as the input string.
+
+	const size_t n = strlen(str);
+	if (n == 0) return;
+	size_t cc = 1;
+	c[0] = 1;
+	for (size_t i=1; i<n;) {
+		const char* const p = str+i;
+		size_t k = 0;
+		size_t w = 0;
+		for (const char* q = str; q < p;) {
+			if (q[k] == p[k]) {
+				++k;
+				if (i+k >= n) {
+					++cc;
+					for (size_t j=i; j<n; ++j) c[j] = cc;
+					return;
+				}
+			}
+			else {
+				if (k > w) w = k;
+				k = 0;
+				++q;
+			}
+		}
+		++cc;
+		for (size_t j=i; j <= i+w; ++j) c[j] = cc;
+		i += (w+1);
+	}
+}
 
 double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev)
 {
@@ -80,26 +120,25 @@ double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed
 	mt_seed(&prng,(mtuint_t)seed); // initialise PRNG
 
 	char* const str = malloc(n+1);
-
-	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
+	str[n] = '\0'; // terminate string
 
 	const double dd = (double)d;
+	const double da = (double)'a';
+
 	double cmean = 0.0;
 	if (csdev == NULL) {
 		for (size_t s=0; s<N; ++s) {
-			for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
-			str[n] = '\0'; // terminate string
-			cmean += (double)LZc(str,dict,dlen);
+			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+			cmean += (double)LZc(str);
 		}
 		cmean /= (double)N;
 	}
 	else {
 		double csqrs = 0.0;
 		for (size_t s=0; s<N; ++s) {
-			for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
+			for (size_t i=0; i<n; ++i) str[i] = (char)('a'+dd*mt_rand(&prng));
 			str[n] = '\0'; // terminate string
-			const double c = (double)LZc(str,dict,dlen);
+			const double c = (double)LZc(str);
 			cmean += c;
 			csqrs += c*c;
 		}
@@ -107,7 +146,6 @@ double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed
 		*csdev = (csqrs-(double)N*cmean*cmean)/(double)(N-1);
 	}
 
-	free(dict);
 	free(str);
 
 	return cmean;
@@ -122,20 +160,18 @@ void LZc_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed
 	mt_seed(&prng,(mtuint_t)seed); // initialise PRNG
 
 	char* const str = malloc(n+1);
-
-	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
+	str[n] = '\0'; // terminate string
 
 	size_t* const c = malloc(n*sizeof(size_t));
 
 	const double dd = (double)d;
+	const double da = (double)'a';
 
 	if (csdev == NULL) {
 		for (size_t i=0; i<n; ++i) cmean[i] = 0.0;
 		for (size_t s=0; s<N; ++s) {
-			for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
-			str[n] = '\0'; // terminate string
-			LZc_x(str,dict,dlen,c);
+			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+			LZc_x(str,c);
 			for (size_t i=0; i<n; ++i) cmean[i] += (double)c[i];
 		}
 		const double NN = (double)N;
@@ -145,9 +181,8 @@ void LZc_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed
 		for (size_t i=0; i<n; ++i) cmean[i] = 0.0;
 		for (size_t i=0; i<n; ++i) csdev[i] = 0.0;
 		for (size_t s=0; s<N; ++s) {
-			for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
-			str[n] = '\0'; // terminate string
-			LZc_x(str,dict,dlen,c);
+			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+			LZc_x(str,c);
 			for (size_t i=0; i<n; ++i)  cmean[i] += (double)c[i];
 			for (size_t i=0; i<n; ++i)  csdev[i] += ((double)c[i])*((double)c[i]);
 		}
@@ -158,102 +193,5 @@ void LZc_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed
 	}
 
 	free(c);
-	free(dict);
 	free(str);
 }
-
-#else // not LZC_RAND_LOMEM
-
-double LZc_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev)
-{
-	// Estimate means and (optionally) standard deviations of LZc for random strings
-	// with alphabet size d of length n, based on a sample of size N.
-
-	mt_t prng;                     // pseudo-random number generator
-	mt_seed(&prng,(mtuint_t)seed); // initialise PRNG
-
-	char* const str = malloc(n+1);
-
-	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
-
-	double* const c = malloc(N*sizeof(double));
-
-	const double dd = (double)d;
-	for (size_t s=0; s<N; ++s) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
-		str[n] = '\0'; // terminate string
-		c[s] = (double)LZc(str,dict,dlen);
-	}
-
-	double cmean = 0.0;
-	for (size_t s=0; s<N; ++s) cmean += c[s];
-	cmean /= (double)N;
-
-	if (csdev != NULL) {
-		*csdev = 0.0;
-		for (size_t s=0; s<N; ++s) {
-			const double x = c[s]-cmean;
-			*csdev += x*x;
-		}
-		*csdev /= (double)(N-1);
-	}
-
-	free(c);
-	free(dict);
-	free(str);
-
-	return cmean;
-}
-
-void LZc_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev)
-{
-	// Estimate means and (optionally) standard deviations of LZc for random strings
-	// with alphabet size d up to length n, based on a sample of size N.
-
-	mt_t prng;                     // pseudo-random number generator
-	mt_seed(&prng,(mtuint_t)seed); // initialise PRNG
-
-	char* const str = malloc(n+1);
-
-	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
-
-	const size_t m = N*n;
-	size_t* const c = malloc(m*sizeof(size_t));
-
-	const double dd = (double)d;
-	for (size_t s=0; s<N; ++s) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(48+dd*mt_rand(&prng)); // 48 = '0'
-		str[n] = '\0'; // terminate string
-		LZc_x(str,dict,dlen,c+n*s);
-	}
-
-	const double dN = (double)N;
-	for (size_t i=0; i<n; ++i) {
-		const size_t* const ci = c+i;
-		double cmi = 0.0;
-		for (size_t k=0; k<m; k += n) cmi += (double)ci[k];
-		cmean[i] = cmi/dN;
-	}
-
-	if (csdev != NULL) {
-		const double dN1 = (double)(N-1);
-		for (size_t i=0; i<n; ++i) {
-			const size_t* const ci = c+i;
-			const double cmi = cmean[i];
-			double csi = 0.0;
-			for (size_t k=0; k<m; k += n) {
-				const double x = (double)ci[k]-cmi;
-				csi += x*x;
-			}
-			csdev[i] = csi/dN1;
-		}
-	}
-
-	free(c);
-	free(dict);
-	free(str);
-}
-
-#endif // LZC_RAND_LOMEM
