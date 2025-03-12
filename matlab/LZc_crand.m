@@ -27,9 +27,6 @@ nof = slen(iof);       % values on file
 
 numn = length(slen);
 
-numn
-n
-
 cm = nan(numn,1);
 cm(iof) = cmean(nof);
 

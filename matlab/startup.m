@@ -12,11 +12,11 @@ fprintf('[fLZc startup] Added path %s\n',fLZc_matlab);
 fLZc_data_path = fullfile(fLZc_matlab,'data');
 fprintf('[fLZc startup] Normalisation data path is %s\n',fLZc_data_path);
 
-% Binary data files used in *_crand.m: download zip file
+% Binary LZc normalisation data: download zip file (~ 100 MB)
 %
-%    http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip
+%    http://users.sussex.ac.uk/~lionelb/downloads/fLZc_matlab_data.zip
 %
-% then extract .mat files into fLZc_data_path
+% and unzip into fLZc_data_path
 
 % Check if normalisation data available
 
@@ -26,7 +26,7 @@ nabs = length(abets);
 if nabs == 0
 	fprintf('[fLZc startup]\n');
 	fprintf(2,'[fLZc startup] WARNING: No LZc normalisation data files found.\n');
-	fprintf(2,'[fLZc startup]          Download from http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip\n');
+	fprintf(2,'[fLZc startup]          Download from http://users.sussex.ac.uk/~lionelb/downloads/fLZc_matlab_data.zip\n');
 	fprintf(2,'[fLZc startup]          and unzip into the directory ''%s''.\n',fLZc_data_path);
 	fprintf(2,'[fLZc startup]          Normalisation will be unavailable (see ''LZc_crand.m'')\n');
 	fprintf('[fLZc startup]\n');
