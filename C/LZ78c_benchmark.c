@@ -11,17 +11,12 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc < 4) {
-		fprintf(stderr, "Too few arguments\n");
-		exit(EXIT_FAILURE);
-	}
-
-	const size_t n = (size_t)atol(argv[1]);
-	const int    d = atoi(argv[2]);
-	const size_t N = (size_t)atol(argv[3]);
+	const size_t n = argc > 1 ? (size_t)atol(argv[1]) : 10000;
+	const int    d = argc > 2 ? atoi(argv[2])         : 3;
+	const size_t N = argc > 3 ? (size_t)atol(argv[3]) : 10000;
 
 	printf("\nn = %zu\n",n);
-	printf("d = %d\n", d);
+	printf("d = %d\n",   d);
 	printf("N = %zu\n\n",N);
 
 	mt_t prng;        // pseudo-random number generator
