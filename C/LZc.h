@@ -6,7 +6,8 @@
 #include "khashl.h"
 #include "mt64.h"
 
-KHASHL_SET_INIT(KH_LOCAL, strmap_t, strmap, const char*, kh_hash_str, kh_eq_str)
+// KHASHL_SET_INIT(KH_LOCAL, strmap_t, strmap, const char*, kh_hash_str, kh_eq_str)
+KHASHL_MAP_INIT(KH_LOCAL, strmap_t, strmap, const char*, int, kh_hash_str, kh_eq_str)
 
 void dict_to_str(char* const dict, const size_t c, const char sepchar);
 
