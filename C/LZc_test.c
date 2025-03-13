@@ -8,8 +8,9 @@
 
 int main(int argc, char* argv[])
 {
-//	char* const str = argc < 2 ? strdup("ABBBAABABBBABBABAAAABABABBBAA") : argv[1]; // input cstring (also try without last A)
-	char* const str = argc < 2 ? strdup("caacbaccaaccababbaacacc") : argv[1]; // input cstring (also try without last A)
+//	char* const str = strdup(argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]); // input cstring (also try without last A)
+//	char* const str = strdup(argc < 2 ? "caacbaccaaccababbaacacc" : argv[1]); // input cstring (also try without last A)
+	char* const str = strdup(argc < 2 ? "aabbbabbaaababbbabababbbcc" : argv[1]); // input cstring (also try without last A)
 	const size_t n = strlen(str);
 	printf("\ninput string (%lu): '%s'\n\n",n,str);
 
@@ -31,7 +32,7 @@ int main(int argc, char* argv[])
 
 	printf("complexity = %lu\n\n",cc);
 
-	if (argc < 2) free(str);
+	free(str);
 
 	return EXIT_SUCCESS;
 }

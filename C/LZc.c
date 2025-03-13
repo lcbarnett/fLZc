@@ -26,24 +26,30 @@ void dict_print(const char* const dict, const size_t c, const char sepchar)
 
 strmap_t* LZc_build_dict(char* const str)
 {
-	strmap_t* const h = strmap_init();       // create and initialise hash set
-	for (char* p = str; *p; ++p) {           // traverse input string (terminating condition equiv to *p == '\0' !!!)
-		for (char* q = p+1; ; ++q) {       // advance substring pointer
-			const char tmp = *q;
+	strmap_t* const h = strmap_init(); // create and initialise hash set
+	int added;
+	char qchar;
+	char* p = str;
+	while (1) {
+		char* q = p+1;
+		while (1) {
+			qchar = *q;
 			*q = '\0';
-			int added;
-			khint_t k = strmap_put(h,p,&added);  // add word to dictionary if not already there
+			khint_t k = strmap_put(h,p,&added);
 			if (added) {
 fprintf(stderr,"added [%s]\n",p);
-				kh_key(h,k) = strdup(p);   // skip past '\0' and reinitialise to empty word
-				*q = tmp;
-				p = q-1;
+				kh_key(h,k) = strdup(p);
+				p = q;
+				*q = qchar;
 				break;
 			}
-			*q = tmp;
+			*q = qchar;
+			if (*q == 0) break;
+			++q;
 		}
+		if (*q == 0) break;
 	}
-	return h;                                // return pointer to hash set
+	return h; // return pointer to hash set
 }
 
 void LZc_destroy_dict(strmap_t* h)
