@@ -1,4 +1,4 @@
-#include "LZc_matlab.h"
+#include "LZ78c_matlab.h"
 
 // Main function
 
@@ -13,5 +13,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 
 	double* const csdev = nlhs > 1 ? mxGetPr(plhs[1] = mxCreateDoubleMatrix(n,1,mxREAL)) : NULL; // allocate output array
 
-	LZc_rand_x(n,d,N,seed,cmean,csdev);
+	LZ78c_rand_x(n,d,N,seed,cmean,csdev);
 }

@@ -1,4 +1,4 @@
-#include "LZc.h"
+#include "LZ78c.h"
 #include "mt64.h"
 
 #include <stdlib.h>
@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	char* const dict = malloc(dlen);
 
 	char* const str = malloc(n+1);
-	str[n] = '\0'; // terminate string
+	str[n] = 0; // NUL-terminate string
 
 	size_t* const c = malloc(n*sizeof(size_t));
 
@@ -44,13 +44,13 @@ int main(int argc, char* argv[])
 	double cmean = 0.0;
 	for (size_t k=0; k<N; ++k) {
 		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
-		LZc_x(str,dict,dlen,c);
+		LZ78c_x(str,dict,dlen,c);
 		cmean += (double)c[n-1];
 	}
 	cmean /= (double)N;
 	const clock_t tend = clock();
 	printf(" time (seconds) = %.4f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC);
-	printf("Mean LZc = %.2f\n\n",cmean);;
+	printf("Mean LZ78c = %.2f\n\n",cmean);;
 
 	free(c);
 	free(str);

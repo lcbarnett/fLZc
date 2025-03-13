@@ -1,4 +1,4 @@
-# Makefile for LZc mex and test targets
+# Makefile for LZ78c mex and test targets
 
 ifdef ComSpec
 	OS = WIN
@@ -36,16 +36,16 @@ endif
 MEXEXT = $(shell mexext)
 MEXDIR = ../matlab/mex
 
-MSRC = LZc_mex.c LZc_mex_x.c LZc_rand_mex.c LZc_rand_x_mex.c
-CSRC = LZc.c mt64.c LZc_matlab.c
+MSRC = LZ78c_mex.c LZ78c_mex_x.c LZ78c_rand_mex.c LZ78c_rand_x_mex.c
+CSRC = LZ78c.c mt64.c LZ78c_matlab.c
 MBIN = $(patsubst %.c,$(MEXDIR)/%.$(MEXEXT),$(MSRC))
 MDEP = $(CSRC) $(patsubst %.c,%.h,$(CSRC))
 
-ZSRC = LZc.c mt64.c
+ZSRC = LZ78c.c mt64.c
 ZOBJ = $(patsubst %.c,.%.$(OBJEXT),$(ZSRC))
 
-TSRC = LZc_test.c LZc_benchmark.c
-TDEP = LZc.h
+TSRC = LZ78c_test.c LZ78c_benchmark.c
+TDEP = LZ78c.h
 TOBJ = $(patsubst %.c,.%.$(OBJEXT),$(TSRC))
 TBIN = $(patsubst %.c,%$(BINEXT),$(TSRC))
 

@@ -1,4 +1,4 @@
-#include "LZc_matlab.h"
+#include "LZ78c_matlab.h"
 
 #include <string.h>
 

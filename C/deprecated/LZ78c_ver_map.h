@@ -6,10 +6,16 @@
 #include "khashl.h"
 #include "mt64.h"
 
-// KHASHL_SET_INIT(KH_LOCAL, strmap_t, strmap, const char*, kh_hash_str, kh_eq_str)
-KHASHL_MAP_INIT(KH_LOCAL, strmap_t, strmap, const char*, int, kh_hash_str, kh_eq_str)
+//KHASHL_SET_INIT(KH_LOCAL, strmap_t, strmap, const char*, kh_hash_str, kh_eq_str)
+KHASHL_CMAP_INIT(KH_LOCAL, strmap_t, strmap, const char*, size_t, kh_hash_str, kh_eq_str)
 
 void dict_to_str(char* const dict, const size_t c, const char sepchar);
+
+void dict_print(const char* const dict, const size_t c, const char sepchar);
+
+void print_dict(const strmap_t* const h, const char sepchar, const int width);
+
+void dict_to_c(const strmap_t* const h, size_t* const c, const size_t n);
 
 strmap_t* LZc_build_dict(char* const str);
 
