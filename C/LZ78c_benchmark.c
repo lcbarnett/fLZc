@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	mt_seed(&prng,0); // initialise PRNG
 
 	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
+	char* const dbuf = malloc(dlen);
 
 	char* const str = malloc(n+1);
 	str[n] = 0; // NUL-terminate string
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 	double cmean = 0.0;
 	for (size_t k=0; k<N; ++k) {
 		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
-		LZ78c_x(str,dict,dlen,c);
+		LZ78c_x(str,dbuf,dlen,c);
 		cmean += (double)c[n-1];
 	}
 	cmean /= (double)N;
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
 	free(c);
 	free(str);
-	free(dict);
+	free(dbuf);
 
 	return(EXIT_SUCCESS);
 }

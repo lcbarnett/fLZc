@@ -16,14 +16,14 @@ int main(int argc, char* argv[])
 
 
 	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
+	char* const dbuf = malloc(dlen);
 	size_t* const cc = malloc(n*sizeof(size_t));
-	LZ78c_x(str,dict,dlen,cc);
+	LZ78c_x(str,dbuf,dlen,cc);
 	const size_t c = cc[n-1];
 	printf("*** complexity = %lu\n\n",c);
-	dict_print(dict,c,sepchar);
+	dict_print(dbuf,c,sepchar);
 	printf("\n\n");
-	free(dict);
+	free(dbuf);
 
 	for (size_t i=0; i<n; ++i)printf("%8zu\n",cc[i]);
 	printf("\n");

@@ -5,11 +5,11 @@
 #include <math.h>
 #include <string.h>
 
-void dict_to_str(char* const dict, const size_t c, const char sepchar)
+void dict_to_str(char* const dbuf, const size_t c, const char sepchar)
 {
 	// replace seprating NULs with seperator char
 
-	char* word = dict;
+	char* word = dbuf;
 	for (size_t k = 0; k < c; ++k) {
 		word += (strlen(word)); // :-)
 		*word++ = sepchar;
@@ -17,9 +17,9 @@ void dict_to_str(char* const dict, const size_t c, const char sepchar)
 	*--word = 0; // NUL-terminate string
 }
 
-void dict_print(const char* const dict, const size_t c, const char sepchar)
+void dict_print(const char* const dbuf, const size_t c, const char sepchar)
 {
-	const char* word = dict;
+	const char* word = dbuf;
 	putchar(sepchar);
 	for (size_t k = 0; k < c; ++k) {
 		printf("%s%c",word,sepchar);
@@ -27,53 +27,53 @@ void dict_print(const char* const dict, const size_t c, const char sepchar)
 	}
 }
 
-size_t LZ78c(const char* const str, char* const dict, const size_t dlen)
+size_t LZ78c(const char* const str, char* const dbuf, const size_t dlen)
 {
 	// LZ78c
 	//
 	// str MUST be NUL-terminated.
 	//
-	// dict MUST be large enough - this code does not check! Safe but
+	// dbuf MUST be large enough - this code does not check! Safe but
 	// pessimistic case is twice the string length.
 
-	strmap_t* const h = strmap_init();       // create and initialise hash set
-	memset(dict,0,dlen);                     // NUL-fill the dictionary
-	char* word = dict;                       // initialise pointer to beginning of current word
+	strmap_t* const dict = strmap_init();    // create and initialise dictionary
+	memset(dbuf,0,dlen);                     // NUL-fill the dictionary storage buffer
+	char* word = dbuf;                       // initialise pointer to beginning of current word
 	char* w = word;                          // pointer to end of current word (null terminator)
 	int added;                               // flag for strmap_put
 	for (const char* p = str; *p; ++p) {     // traverse input string (terminating condition equiv to *p == 0 = '\0' !!!)
 		*w++ = *p;                           // append next input character to word
-		strmap_put(h,word,&added);           // add word to dictionary if not already there
+		strmap_put(dict,word,&added);        // add word to dictionary if not already there
 		if (added) word = ++w;               // skip past NUL and reinitialise to empty word
 	}
-	const size_t c = kh_size(h);             // LZ78c = size of dictionary
-	strmap_destroy(h);                       // destroy hash set
+	const size_t c = kh_size(dict);          // LZ78c = size of dictionary
+	strmap_destroy(dict);                    // destroy dictionary
 	return c;
 }
 
-void LZ78c_x(const char* const str, char* const dict, const size_t dlen, size_t* const c)
+void LZ78c_x(const char* const str, char* const dbuf, const size_t dlen, size_t* const c)
 {
 	// LZ78c
 	//
 	// str MUST be NUL-terminated.
 	//
-	// dict MUST be large enough - this code does not check! Safe but
+	// dbuf MUST be large enough - this code does not check! Safe but
 	// pessimistic case is twice the string length.
 	//
 	// c MUST be same size as the input string.
 
-	strmap_t* const h = strmap_init();       // create and initialise hash set
-	memset(dict,0,dlen);                     // NUL-fill the dictionary
-	char* word = dict;                       // initialise pointer to beginning of current word
+	strmap_t* const dict = strmap_init();    // create and initialise dictionary
+	memset(dbuf,0,dlen);                     // NUL-fill the dictionary storage buffer
+	char* word = dbuf;                       // initialise pointer to beginning of current word
 	char* w = word;                          // pointer to end of current word (null terminator)
 	int added;                               // flag for strmap_put
 	for (const char* p = str; *p; ++p) {     // traverse input string (terminating condition equiv to *p == 0 ='\0' !!!)
 		*w++ = *p;                           // append next input character to word
-		strmap_put(h,word,&added);           // add word to dictionary if not already there
+		strmap_put(dict,word,&added);        // add word to dictionary if not already there
 		if (added) word = ++w;               // skip past NUL and reinitialise to empty word
-		c[p-str] = kh_size(h);               // set current complexity to dictionary size
+		c[p-str] = kh_size(dict);            // set current complexity to dictionary size
 	}
-	strmap_destroy(h);                       // destroy hash set
+	strmap_destroy(dict);                    // destroy dictionary
 }
 
 double LZ78c_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev)
@@ -88,7 +88,7 @@ double LZ78c_rand(const size_t n, const int d, const size_t N, const mtuint_t se
 	str[n] = 0; // NUL-terminate string
 
 	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
+	char* const dbuf = malloc(dlen);
 
 	const double dd = (double)d;
 	const double da = (double)'a';
@@ -97,7 +97,7 @@ double LZ78c_rand(const size_t n, const int d, const size_t N, const mtuint_t se
 	if (csdev == NULL) {
 		for (size_t s=0; s<N; ++s) {
 			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
-			cmean += (double)LZ78c(str,dict,dlen);
+			cmean += (double)LZ78c(str,dbuf,dlen);
 		}
 		cmean /= (double)N;
 	}
@@ -105,7 +105,7 @@ double LZ78c_rand(const size_t n, const int d, const size_t N, const mtuint_t se
 		double csqrs = 0.0;
 		for (size_t s=0; s<N; ++s) {
 			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
-			const double c = (double)LZ78c(str,dict,dlen);
+			const double c = (double)LZ78c(str,dbuf,dlen);
 			cmean += c;
 			csqrs += c*c;
 		}
@@ -113,7 +113,7 @@ double LZ78c_rand(const size_t n, const int d, const size_t N, const mtuint_t se
 		*csdev = (csqrs-(double)N*cmean*cmean)/(double)(N-1);
 	}
 
-	free(dict);
+	free(dbuf);
 	free(str);
 
 	return cmean;
@@ -131,7 +131,7 @@ void LZ78c_rand_x(const size_t n, const int d, const size_t N, const mtuint_t se
 	str[n] = 0; // NUL-terminate string
 
 	const size_t dlen = 2*n;
-	char* const dict = malloc(dlen);
+	char* const dbuf = malloc(dlen);
 
 	size_t* const c = malloc(n*sizeof(size_t));
 
@@ -143,7 +143,7 @@ void LZ78c_rand_x(const size_t n, const int d, const size_t N, const mtuint_t se
 		for (size_t s=0; s<N; ++s) {
 			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
 			str[n] = 0; // NUL-terminate string
-			LZ78c_x(str,dict,dlen,c);
+			LZ78c_x(str,dbuf,dlen,c);
 			for (size_t i=0; i<n; ++i) cmean[i] += (double)c[i];
 		}
 		const double NN = (double)N;
@@ -155,7 +155,7 @@ void LZ78c_rand_x(const size_t n, const int d, const size_t N, const mtuint_t se
 		for (size_t s=0; s<N; ++s) {
 			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
 			str[n] = 0; // NUL-terminate string
-			LZ78c_x(str,dict,dlen,c);
+			LZ78c_x(str,dbuf,dlen,c);
 			for (size_t i=0; i<n; ++i)  cmean[i] += (double)c[i];
 			for (size_t i=0; i<n; ++i)  csdev[i] += ((double)c[i])*((double)c[i]);
 		}
@@ -166,6 +166,6 @@ void LZ78c_rand_x(const size_t n, const int d, const size_t N, const mtuint_t se
 	}
 
 	free(c);
-	free(dict);
+	free(dbuf);
 	free(str);
 }
