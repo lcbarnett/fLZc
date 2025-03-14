@@ -1,3 +1,4 @@
 *.o
 *.obj
 matlab/data/*
+matlab/mex/*
