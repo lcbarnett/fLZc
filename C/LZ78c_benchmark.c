@@ -11,6 +11,8 @@
 
 int main(int argc, char* argv[])
 {
+	// Benchmark static vs dynamic dictionaries
+
 	const size_t   n = argc > 1 ? (size_t)atol(argv[1])   : 10000;
 	const int      d = argc > 2 ? atoi(argv[2])           : 3;
 	const size_t   N = argc > 3 ? (size_t)atol(argv[3])   : 10000;
@@ -19,9 +21,9 @@ int main(int argc, char* argv[])
 	printf("\nstring length = %zu\n",n);
 	printf("alphabet size = %d\n",   d);
 	printf("sample size   = %zu\n",  N);
-	printf("random seed   = %zu%s\n\n",s,s?"":" (random random seed)");
+	printf("random seed   = %zu%s\n\n",s,s?"":" (random random seed :-)");
 
-	mt_t prng;        // pseudo-random number generator
+	mt_t prng; // pseudo-random number generator
 
 	char* const str = malloc(n+1);
 	str[n] = 0; // NUL-terminate string
@@ -47,7 +49,7 @@ int main(int argc, char* argv[])
 	}
 	cmeans /= (double)N;
 	tend = clock();
-	printf(" time = %.4f seconds : mean LZ78c = %.2f\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeans);
+	printf(" time = %.4f seconds : mean LZ78c = %.4f\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeans);
 	free(sdic);
 
 	strset_t* ddic = strset_init();
@@ -63,7 +65,7 @@ int main(int argc, char* argv[])
 	}
 	cmeand /= (double)N;
 	tend = clock();
-	printf(" time = %.4f seconds : mean LZ78c = %.2f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeand);
+	printf(" time = %.4f seconds : mean LZ78c = %.4f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeand);
 	dd_destroy(ddic);
 
 	free(c);

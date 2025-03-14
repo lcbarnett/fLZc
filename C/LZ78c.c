@@ -187,7 +187,7 @@ size_t LZ78cd(char* const str, strset_t* const ddic)
 	//
 	// str MUST be NUL-terminated.
 	//
-	// hash set ddic must be initialised (allocated), and must be deallocated after use!
+	// hash set ddic must be initialised (allocated) with dd_destroy(), and must be deallocated after use!
 
 	dd_clear(ddic);                                // clear dynamic dictionary
 	int added;                                     // flag for strset_put

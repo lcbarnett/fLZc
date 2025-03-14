@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[])
 {
-	// Demonstrate static vs dynamic dictionaries
+	// Demonstrate static vs dynamic dictionaries (see also LZ78c_benchmark.c)
 
 	char* const stra = strdup(argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]); // input cstring
 	const size_t na = strlen(stra);
