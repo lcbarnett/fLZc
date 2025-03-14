@@ -12,9 +12,10 @@ int main(int argc, char* argv[])
 	const size_t n = strlen(str);
 	printf("\ninput string (%lu): '%s'\n\n",n,str);
 
-	const size_t cref = LZc_ref(str);
-	const size_t c    = LZc(str);
-	printf("complexity = %zu    %zu\n\n",cref,c);
+	const size_t cks = LZc_ks(str);
+	const size_t cwp = LZc_wp(str);
+	const size_t c   = LZc   (str);
+	printf("complexity = %zu    %zu    %zu\n\n",cks,cwp,c);
 
 	size_t* const cc = malloc(n*sizeof(size_t));
 	LZc_x(str,cc);

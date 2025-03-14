@@ -10,9 +10,9 @@
 
 // Comment out as desired (WARNING: without this, needs a LOT of memory!)
 
-size_t LZc_ref(const char* const str);
-
-size_t LZc(const char* const str);
+size_t LZc_ks(const char* const str);
+size_t LZc_wp(const char* const str);
+size_t LZc   (const char* const str);
 
 void LZc_x(const char* const str, size_t* const c);
 

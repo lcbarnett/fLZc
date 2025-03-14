@@ -11,39 +11,54 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc < 4) {
-		fprintf(stderr, "Too few arguments\n");
-		exit(EXIT_FAILURE);
-	}
+	// Benchmark static vs dynamic dictionaries
 
-	const size_t n = (size_t)atol(argv[1]);
-	const int    d = atoi(argv[2]);
-	const size_t N = (size_t)atol(argv[3]);
+	const size_t   n = argc > 1 ? (size_t)atol(argv[1])   : 10000;
+	const int      d = argc > 2 ? atoi(argv[2])           : 3;
+	const size_t   N = argc > 3 ? (size_t)atol(argv[3])   : 1000;
+	const mtuint_t s = argc > 4 ? (mtuint_t)atol(argv[4]) : 0;
 
-	printf("n = %zu\n",n);
-	printf("d = %d\n", d);
-	printf("N = %zu\n\n",N);
+	printf("\nstring length = %zu\n",n);
+	printf("alphabet size = %d\n",   d);
+	printf("sample size   = %zu\n",  N);
+	printf("random seed   = %zu%s\n\n",s,s?"":" (random random seed :-)");
 
-	mt_t prng;        // pseudo-random number generator
-	mt_seed(&prng,0); // initialise PRNG
+	mt_t prng; // pseudo-random number generator
+
+	char* const str = malloc(n+1);
+	str[n] = 0; // NUL-terminate string
 
 	const double dd = (double)d;
-	const double da = (double)'a';
-	char* const str = malloc(n+1);
-	size_t e = 0;
-	str[n] = '\0'; // terminate string
+	const double da = (double)'0';
+
+	clock_t tstart, tend;
+
+	mt_seed(&prng,s); // initialise PRNG
+	printf("Starting reference run ...");
+	fflush(stdout);
+	tstart = clock();
+	double cmeans = 0.0;
 	for (size_t k=0; k<N; ++k) {
 		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
-		const size_t cref = LZc_ref(str);
-		const size_t c    = LZc(str);
-		printf("%s : %3zu    %3zu",str,cref,c);
-		if (c != cref) {
-			printf(" ***");
-			++e;
-		}
-		putchar('\n');
+		cmeans += (double)LZc_wp(str);
 	}
-	printf("\n%zu errors\n\n",e);
+	cmeans /= (double)N;
+	tend = clock();
+	printf(" time = %.4f seconds : mean LZ78c = %.4f\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeans);
+
+	mt_seed(&prng,s); // initialise PRNG
+	printf("Starting optimised run ...");
+	fflush(stdout);
+	tstart = clock();
+	double cmeand = 0.0;
+	for (size_t k=0; k<N; ++k) {
+		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+		cmeand += (double)LZc(str);
+	}
+	cmeand /= (double)N;
+	tend = clock();
+	printf(" time = %.4f seconds : mean LZ78c = %.4f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeand);
+
 	free(str);
 
 	return(EXIT_SUCCESS);

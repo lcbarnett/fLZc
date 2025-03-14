@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string.h>
 
-size_t LZc_ref(const char* const str)
+size_t LZc_ks(const char* const str)
 {
 	// LZc algorithm:
 	//
@@ -42,12 +42,39 @@ size_t LZc_ref(const char* const str)
 	return c;
 }
 
+size_t LZc_wp(const char* const str)
+{
+	// LZc algorithm:
+	//
+	// Wikipedia :-O
+
+	const size_t n = strlen(str);
+	size_t i = 0, c = 1, u = 1, k = 0;
+	size_t kmax = k;
+	while (u+k < n) {
+		if (str[i+k] == str[u+k]) ++k;
+		else {
+			kmax = kmax > k ? kmax : k; // vmax = max(v,vmax);
+			++i;
+			if (i == u) { // all the pointers have been treated
+				++c;
+				u += (kmax+1);
+				k = 0;
+				i = 0;
+				kmax = k;
+			}
+			else k = 0;
+		}
+	}
+	if (k != 0) ++c;
+	return c;
+}
+
 size_t LZc(const char* const str)
 {
 	// LZc algorithm:
 	//
-	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
-	// Phys. Rev. A 36(2) pp. 842-848, 1987.
+	// Somewhat optimised
 
 	const size_t n = strlen(str);
 	if (n == 1) return 1;
