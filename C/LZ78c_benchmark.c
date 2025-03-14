@@ -16,16 +16,12 @@ int main(int argc, char* argv[])
 	const size_t   N = argc > 3 ? (size_t)atol(argv[3])   : 10000;
 	const mtuint_t s = argc > 4 ? (mtuint_t)atol(argv[4]) : 0;
 
-	printf("\nn = %zu\n",n);
-	printf("d = %d\n",   d);
-	printf("N = %zu\n",  N);
-	printf("s = %zu\n\n",s);
+	printf("\nstring length = %zu\n",n);
+	printf("alphabet size = %d\n",   d);
+	printf("sample size   = %zu\n",  N);
+	printf("random seed   = %zu%s\n\n",s,s?"":" (random random seed)");
 
 	mt_t prng;        // pseudo-random number generator
-	mt_seed(&prng,s); // initialise PRNG
-
-	const size_t sdlen = 2*n;
-	char* const sdic = malloc(sdlen);
 
 	char* const str = malloc(n+1);
 	str[n] = 0; // NUL-terminate string
@@ -35,23 +31,43 @@ int main(int argc, char* argv[])
 	const double dd = (double)d;
 	const double da = (double)'0';
 
-	printf("Starting run...");
+	clock_t tstart, tend;
+
+	const size_t sdlen = 2*n;
+	char* const sdic = malloc(sdlen);
+	mt_seed(&prng,s); // initialise PRNG
+	printf("Starting static  run ...");
 	fflush(stdout);
-	const clock_t tstart = clock();
-	double cmean = 0.0;
+	tstart = clock();
+	double cmeans = 0.0;
 	for (size_t k=0; k<N; ++k) {
 		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
 		LZ78cs_x(str,sdic,sdlen,c);
-		cmean += (double)c[n-1];
+		cmeans += (double)c[n-1];
 	}
-	cmean /= (double)N;
-	const clock_t tend = clock();
-	printf(" time (seconds) = %.4f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC);
-	printf("Mean LZ78c = %.2f\n\n",cmean);;
+	cmeans /= (double)N;
+	tend = clock();
+	printf(" time = %.4f seconds : mean LZ78c = %.2f\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeans);
+	free(sdic);
+
+	strset_t* ddic = strset_init();
+	mt_seed(&prng,s); // initialise PRNG
+	printf("Starting dynamic run ...");
+	fflush(stdout);
+	tstart = clock();
+	double cmeand = 0.0;
+	for (size_t k=0; k<N; ++k) {
+		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+		LZ78cd_x(str,ddic,c);
+		cmeand += (double)c[n-1];
+	}
+	cmeand /= (double)N;
+	tend = clock();
+	printf(" time = %.4f seconds : mean LZ78c = %.2f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeand);
+	dd_destroy(ddic);
 
 	free(c);
 	free(str);
-	free(sdic);
 
 	return(EXIT_SUCCESS);
 }
