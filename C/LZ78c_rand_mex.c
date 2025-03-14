@@ -11,12 +11,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 
 	if (nlhs > 1) {
 		double csdev;
-		const double cmean = LZ78c_rand(n,d,N,seed,&csdev);
+		const double cmean = LZ78cs_rand(n,d,N,seed,&csdev);
 		plhs[0] = mxCreateDoubleScalar(cmean); // allocate output value
 		plhs[1] = mxCreateDoubleScalar(csdev); // allocate output value
 	}
 	else {
-		const double cmean = LZ78c_rand(n,d,N,seed,NULL);
+		const double cmean = LZ78cs_rand(n,d,N,seed,NULL);
 		plhs[0] = mxCreateDoubleScalar(cmean); // allocate output value
 	}
 }

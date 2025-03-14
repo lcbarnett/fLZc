@@ -4,6 +4,6 @@
 #include "mex.h"
 #include "LZ78c.h"
 
-mxArray* dict_to_cvec(const char* const dict, const size_t c);
+mxArray* sdic_to_cvec(const char* const dict, const size_t c);
 
 #endif // LZ78C_MATLAB_H

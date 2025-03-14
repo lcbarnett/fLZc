@@ -11,19 +11,21 @@
 
 int main(int argc, char* argv[])
 {
-	const size_t n = argc > 1 ? (size_t)atol(argv[1]) : 10000;
-	const int    d = argc > 2 ? atoi(argv[2])         : 3;
-	const size_t N = argc > 3 ? (size_t)atol(argv[3]) : 10000;
+	const size_t   n = argc > 1 ? (size_t)atol(argv[1])   : 10000;
+	const int      d = argc > 2 ? atoi(argv[2])           : 3;
+	const size_t   N = argc > 3 ? (size_t)atol(argv[3])   : 10000;
+	const mtuint_t s = argc > 4 ? (mtuint_t)atol(argv[4]) : 0;
 
 	printf("\nn = %zu\n",n);
 	printf("d = %d\n",   d);
-	printf("N = %zu\n\n",N);
+	printf("N = %zu\n",  N);
+	printf("s = %zu\n\n",s);
 
 	mt_t prng;        // pseudo-random number generator
-	mt_seed(&prng,0); // initialise PRNG
+	mt_seed(&prng,s); // initialise PRNG
 
-	const size_t dlen = 2*n;
-	char* const dbuf = malloc(dlen);
+	const size_t sdlen = 2*n;
+	char* const sdic = malloc(sdlen);
 
 	char* const str = malloc(n+1);
 	str[n] = 0; // NUL-terminate string
@@ -31,7 +33,7 @@ int main(int argc, char* argv[])
 	size_t* const c = malloc(n*sizeof(size_t));
 
 	const double dd = (double)d;
-	const double da = (double)'a';
+	const double da = (double)'0';
 
 	printf("Starting run...");
 	fflush(stdout);
@@ -39,7 +41,7 @@ int main(int argc, char* argv[])
 	double cmean = 0.0;
 	for (size_t k=0; k<N; ++k) {
 		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
-		LZ78c_x(str,dbuf,dlen,c);
+		LZ78cs_x(str,sdic,sdlen,c);
 		cmean += (double)c[n-1];
 	}
 	cmean /= (double)N;
@@ -49,7 +51,7 @@ int main(int argc, char* argv[])
 
 	free(c);
 	free(str);
-	free(dbuf);
+	free(sdic);
 
 	return(EXIT_SUCCESS);
 }

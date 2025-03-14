@@ -6,18 +6,42 @@
 #include "khashl.h"
 #include "mt64.h"
 
-KHASHL_SET_INIT(KH_LOCAL, strmap_t, strmap, const char*, kh_hash_str, kh_eq_str)
+KHASHL_CSET_INIT(KH_LOCAL, strset_t, strset, const char*, kh_hash_str, kh_eq_str)
 
-void dict_to_str(char* const dbuf, const size_t c, const char sepchar);
+// Static dictionary
 
-void dict_print(const char* const dbuf, const size_t c, const char sepchar);
+void sdic_to_str(char* const dbuf, const size_t c, const char sepchar);
 
-size_t LZ78c(const char* const istr, char* const dbuf, const size_t dlen);
+void sdic_print(const char* const dbuf, const size_t c, const char sepchar);
 
-void LZ78c_x(const char* const istr, char* const dbuf, const size_t dlen, size_t* const c);
+size_t LZ78cs(const char* const istr, char* const dbuf, const size_t dlen);
 
-double LZ78c_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev);
+void LZ78cs_x(const char* const istr, char* const dbuf, const size_t dlen, size_t* const c);
 
-void LZ78c_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev);
+double LZ78cs_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev);
+
+void LZ78cs_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev);
+
+// Dynamic dictionary
+
+void ddic_print(const strset_t* const ddic, const char sepchar);
+
+size_t LZ78cd(char* const str, strset_t* const ddic);
+
+void LZ78cd_x(char* const str, strset_t* const ddic, size_t* const c);
+
+static inline void dd_clear(strset_t* ddic)
+{
+	khint_t k;
+	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
+	strset_clear(ddic);
+}
+
+static inline void dd_destroy(strset_t* ddic)
+{
+	khint_t k;
+	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
+	strset_destroy(ddic);
+}
 
 #endif // LZ78C_H
