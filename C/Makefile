@@ -51,7 +51,7 @@ MDEP = $(CSRC) $(patsubst %.c,%.h,$(CSRC))
 ifdef MATLABSTANDALONES
 	NSRC = LZ78c_randmv.c
 	NBIN = $(patsubst %.c,%$(BINEXT),$(NSRC))
-	NDEP = $(CSRC) $(patsubst %.c,%.h,$(CSRC))
+	NDEP = $(CSRC) $(NSRC) $(patsubst %.c,%.h,$(CSRC))
 endif
 
 TSRC = LZ78c_test.c LZ78c_benchmark.c
@@ -85,7 +85,7 @@ else
 endif
 
 GCCFLAGS = $(MFLAGS) $(OFLAGS) $(WFLAGS) $(DFLAGS) $(IFLAGS)
-MEXFLAGS = -O -largeArrayDims
+MEXFLAGS = -O -R2018a
 
 CC  = gcc
 MEX = mex

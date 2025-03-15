@@ -1,6 +1,6 @@
-#include "LZ78c_matlab.h"
-
 #include <string.h>
+
+#include "LZ78c_matlab.h"
 
 mxArray* sdic_to_cvec(const char* const sdic, const size_t c)
 {

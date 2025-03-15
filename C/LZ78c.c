@@ -1,9 +1,9 @@
-#include "LZ78c.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+
+#include "LZ78c.h"
 
 // Static dictionary
 

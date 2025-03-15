@@ -1,7 +1,7 @@
 #ifndef LZ78C_MATLAB_H
 #define LZ78C_MATLAB_H
 
-#include "mex.h"
+#include <mex.h>
 
 #include "LZ78c.h"
 
