@@ -18,10 +18,6 @@ size_t LZ78cs(const char* const istr, char* const dbuf, const size_t dlen);
 
 void LZ78cs_x(const char* const istr, char* const dbuf, const size_t dlen, size_t* const c);
 
-double LZ78cs_rand(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const csdev);
-
-void LZ78cs_rand_x(const size_t n, const int d, const size_t N, const mtuint_t seed, double* const cmean, double* const csdev);
-
 // Dynamic dictionary
 
 void ddic_print(const strset_t* const ddic, const char sepchar);
