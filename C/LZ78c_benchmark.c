@@ -1,11 +1,11 @@
-#include "LZ78c.h"
-#include "mt64.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
+
+#include "LZ78c.h"
+#include "mt64.h"
 
 // Main function
 
@@ -18,7 +18,8 @@ int main(int argc, char* argv[])
 	const size_t   N = argc > 3 ? (size_t)atol(argv[3])   : 10000;
 	const mtuint_t s = argc > 4 ? (mtuint_t)atol(argv[4]) : 0;
 
-	printf("\nstring length = %zu\n",n);
+	printf("\n*** LZ78c benchmark test: static vs dynamic dictionary ***\n\n");
+	printf("string length = %zu\n",n);
 	printf("alphabet size = %d\n",   d);
 	printf("sample size   = %zu\n",  N);
 	printf("random seed   = %zu%s\n\n",s,s?"":" (random random seed :-)");

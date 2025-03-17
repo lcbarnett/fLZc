@@ -1,7 +1,26 @@
-# Makefile for LZc mex and standalone targets
+# NOTE 1: Standalone binary executables are placed in the `bin' directory. Matlab
+# mex binaries are placed in the `../matlab/mex' directory.
 #
-# NOTE: to compile the Matlab-based standalones (see NSRC below)
-# MATLABSTANDALONES must be defined when calling `make'.
+# NOTE 2: To build the  standalone binary executables and mex binaries, you will
+# need to define an environmental variable called MATLAB_PATH which points to the
+# root path of your Matlab installation; then build with
+#
+#     make
+#
+# NOTE 3: The maintainer binary executables (see NBIN) are not compiled by default,
+# as they are mostly for the benefit of the maintainer. Build with
+#
+#     make maint
+#
+# The executables will have to be run (on Linux, MacOS) with
+#
+#     LD_LIBRARY_PATH=$MATLAB_PATH/bin/glnxa64 bin/<executable>
+#
+# (thanks Matlab! ...I tried to hard-code the library path, but failed
+# miserably; for reasons unknown, -Wl, rpath= ... does not appear to work.)
+#
+# This targets Linux, but may well work on MacOS too; Windows probably requires
+# more hoop-jumping; the maintainer would appreciate any feedback on this.
 
 ifdef ComSpec
 	OS = WIN
@@ -36,124 +55,125 @@ ifeq ($(OS),WIN)
 	OBJEXT  = obj
 endif
 
-MEXEXT = $(shell mexext)
-MEXDIR = ../matlab/mex
+CC  = gcc
 
-CSRC = LZ78c.c mt64.c LZ78c_matlab.c
+MEX      = mex
+MEXEXT   = $(shell mexext)
+MEXDIR   = ../matlab/mex
+MEXIFLAG = -I$(MATLAB_PATH)/extern/include
 
-ZSRC = LZ78c.c mt64.c
-ZOBJ = $(patsubst %.c,.%.$(OBJEXT),$(ZSRC))
+REPDEP = sed -i -e '1s,\($*\)\.o[ :]*,\1.o \.$*.d: ,' \.$*.d
 
-MSRC = LZ78c_mex.c LZ78c_x_mex.c
-MBIN = $(patsubst %.c,$(MEXDIR)/%.$(MEXEXT),$(MSRC))
-MDEP = $(CSRC) $(patsubst %.c,%.h,$(CSRC))
+BINDIR = bin
 
-ifdef MATLABSTANDALONES
-	NSRC = LZ78c_randmv.c
-	NBIN = $(patsubst %.c,%$(BINEXT),$(NSRC))
-	NDEP = $(CSRC) $(NSRC) $(patsubst %.c,%.h,$(CSRC))
-endif
+CSRC = mt64.c LZ76c.c LZ76c_matlab.c  LZ78c.c LZ78c_matlab.c
+COBJ = $(patsubst %.c,.%.$(OBJEXT),$(CSRC))
+CDEP = $(patsubst %.o,%.d,$(COBJ))
 
-TSRC = LZ78c_test.c LZ78c_benchmark.c
-TDEP = LZ78c.h
+TSRC = LZ76c_benchmark.c LZ76c_test.c LZ78c_benchmark.c LZ78c_test.c
 TOBJ = $(patsubst %.c,.%.$(OBJEXT),$(TSRC))
-TBIN = $(patsubst %.c,%$(BINEXT),$(TSRC))
+TDEP = $(patsubst %.o,%.d,$(TOBJ))
+TBIN = LZ76c_benchmark$(BINEXT) LZ76c_test$(BINEXT) LZ78c_benchmark$(BINEXT) LZ78c_test$(BINEXT)
+TBIP = $(patsubst %,$(BINDIR)/%,$(TBIN))
+
+NSRC = LZ76c_randmv.c LZ78c_randmv.c
+NBIN = LZ76c_randmv LZ78c_randmv
+NBIP = $(patsubst %,$(BINDIR)/%,$(NBIN))
+
+MSRC = LZ76c_mex.c LZ76c_x_mex.c Z78/LZ78c_mex.c LZ78c_x_mex.c
+MBIN = LZ76c_mex.$(MEXEXT) LZ76c_x_mex.$(MEXEXT) LZ78c_mex.$(MEXEXT) LZ78c_x_mex.$(MEXEXT)
+MBIP = $(patsubst %,$(MEXDIR)/%,$(MBIN))
 
 MFLAGS = -std=c99 -march=native
 WFLAGS = -Wall -Wextra -Wconversion -pedantic-errors
 DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE
-IFLAGS =
-
-ifdef MATLABSTANDALONES
-	IMFLAGS = -I$(MATLAB_PATH)/extern/include
-endif
-
-LIBS   =
 
 ifeq ($(OS),WIN)
 	OFLAGS = -O3
 	MEXCFLAGS = COMPFLAGS
 	DFLAGS := $(DFLAGS) -DWIN
 	RM = del /F /Q
-	RMBIN = $(subst /,\,$(MBIN))
+	RTBIP = $(subst /,\,$(TBIP))
+	RNBIP = $(subst /,\,$(NBIP))
+	RMBIP = $(subst /,\,$(MBIP))
+	LDFLAGS = $(OFLAGS)
 else
 	OFLAGS = -O3 -flto
 	MEXCFLAGS = CFLAGS
 	RM = rm -f
-	RMBIN = $(MBIN)
-	LIBS:= $(LIBS) -lm
+	RTBIP = $(TBIP)
+	RNBIP = $(NBIP)
+	RMBIP = $(MBIP)
+	LDFLAGS = $(OFLAGS) -lm
 endif
 
 GCCFLAGS = $(MFLAGS) $(OFLAGS) $(WFLAGS) $(DFLAGS) $(IFLAGS)
 MEXFLAGS = -O -R2018a
 
-CC  = gcc
-MEX = mex
+.PHONY: all clean diag
 
-.PHONY: all mex test clean mex-clean test-clean diag
+all: $(TBIP) $(MBIP)
 
-all: $(MBIN) $(NBIN) $(TBIN)
+test: $(TBIP)
 
-mex: $(MBIN)
+mex: $(MBIP)
 
-test: $(TBIN)
+maint: $(NBIP)
 
 clean:
-	$(RM) $(RMBIN) $(NBIN) $(TOBJ) $(ZOBJ) $(TBIN)
+	$(RM) $(COBJ) $(TOBJ) $(CDEP) $(TDEP) $(RTBIP) $(RNBIP) $(RMBIP)
 
-mex-clean:
-	$(RM) $(RMBIN)
+$(COBJ): .%.o: %.c
+	$(CC) -c -MMD -MP $(GCCFLAGS) $(MEXIFLAG) $< -o $@
+	@$(REPDEP)
 
-test-clean:
-	$(RM) $(TOBJ) $(ZOBJ) $(TBIN)
+$(TOBJ): $(COBJ)
+$(TOBJ): .%.o: %.c
+	$(CC) -c -MMD -MP $(GCCFLAGS) $< -o $@
+	@$(REPDEP)
+
+$(TBIP): bin/%: .%.o
+	$(CC) $(COBJ) $< $(LDFLAGS) -o $@
+
+$(NBIP): $(COBJ)
+$(NBIP): $(BINDIR)/%: %.c
+	$(MEX) -client engine $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS)" -outdir $(BINDIR) $(COBJ) $<
+
+$(MEXDIR)/%.$(MEXEXT): %.c
+	$(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR) $(COBJ) $<
+
+-include $(CDEP)
+-include $(TDEP)
 
 diag:
+	@echo
 	@echo "*** OS        = " $(OS) [$(ComSpec)]
 	@echo
 	@echo "*** CSRC      = " $(CSRC)
+	@echo "*** COBJ      = " $(COBJ)
+	@echo "*** CDEP      = " $(CDEP)
 	@echo
 	@echo "*** TSRC      = " $(TSRC)
-	@echo "*** TBIN      = " $(TBIN)
 	@echo "*** TOBJ      = " $(TOBJ)
 	@echo "*** TDEP      = " $(TDEP)
-	@echo
-	@echo "*** ZSRC      = " $(ZSRC)
-	@echo "*** ZOBJ      = " $(ZOBJ)
-	@echo
-	@echo "*** MSRC      = " $(MSRC)
-	@echo "*** MBIN      = " $(MBIN)
-	@echo "*** RMBIN     = " $(RMBIN)
-	@echo "*** MDEP      = " $(MDEP)
+	@echo "*** TBIN      = " $(TBIN)
+	@echo "*** TBIP      = " $(TBIP)
 	@echo
 	@echo "*** NSRC      = " $(NSRC)
 	@echo "*** NBIN      = " $(NBIN)
-	@echo "*** NDEP      = " $(NDEP)
+	@echo "*** NBIP      = " $(NBIP)
+	@echo
+	@echo "*** MSRC      = " $(MSRC)
+	@echo "*** MBIN      = " $(MBIN)
+	@echo "*** MBIP      = " $(MBIP)
+	@echo
+	@echo "*** CC        = " $(CC)
+	@echo "*** GCCFLAGS  = " $(GCCFLAGS)
+	@echo "*** LDFLAGS   = " $(LDFLAGS)
 	@echo
 	@echo "*** MEXFLAGS  = " $(MEXFLAGS)
 	@echo "*** MEXCFLAGS = " $(MEXCFLAGS)
 	@echo "*** MEXEXT    = " $(MEXEXT)
 	@echo "*** MEXDIR    = " $(MEXDIR)
-	@echo
-	@echo "*** CC        = " $(CC) -c $(GCCFLAGS)
 	@echo "*** MEX       = " $(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR)
-
-$(MEXDIR)/%.$(MEXEXT): %.c $(MDEP)
-	$(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR) $< $(CSRC)
-
-ifdef MATLABSTANDALONES
-$(NBIN): $(NDEP)
-	$(MEX) -client engine $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) $(IMFLAGS)" $(LIBS) $(NSRC) $(CSRC)
-endif
-
-$(ZOBJ): $(TDEP)
-
-$(ZOBJ): .%.$(OBJEXT): %.c
-	$(CC) -c $(GCCFLAGS) $< -o $@
-
-$(TOBJ): $(ZOBJ)
-
-$(TOBJ): .%.$(OBJEXT): %.c
-	$(CC) -c $(GCCFLAGS) $< -o $@
-
-$(TBIN): %$(BINEXT): .%.$(OBJEXT)
-	$(CC) $(GCCFLAGS) $< $(LIBS) $(ZOBJ) -o $@
+	@echo

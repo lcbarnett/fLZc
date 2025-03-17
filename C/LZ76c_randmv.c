@@ -1,16 +1,5 @@
-// NOTE: this will only be compiled if MATLABSTANDALONES is defined when
-// running `make'. This requires that the environmental variable MATLAB_PATH
-// is set to point to your matlab instllation root; see Makefile. No worries,
-// it's basically for the maintainer anyway.
-//
-// The executable will have to be run with
-//
-//    LD_LIBRARY_PATH=$MATLAB_PATH/bin/glnxa64 ./LZ78c_randmv
-//
-// (thanks Matlab!) ... this may work on MacOS too, no clue about Windows.
-//
-// PS. I tried to hard-code the library path, but failed miserably; for
-// reasons unknown, -Wl, rpath= ... does not appear to work.
+// NOTE: This is not compiled by default, as it is mostly for the benefit of
+// the maintainer. See `Makefile' for build details.
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,7 +11,7 @@
 #include <mat.h>
 #include <mex.h>
 
-#include "LZ78c.h"
+#include "LZ76c.h"
 #include "mt64.h"
 
 // Main function
@@ -40,16 +29,14 @@ void tfmt(char* const tstr, const size_t tsmaxlen, const double t /* secs */)
 
 int main(int argc, char* argv[])
 {
-	// Estimate means and (optionally) variances of LZ78c for random strings with
+	// Estimate means and (optionally) variances of LZ76c for random strings with
 	// with alphabet size d up to length n, based on a sample of size N, and store
 	// results as a .mat file.
-	//
-	// We use sdic rather than ddic, as it is somewhat more efficient in this scenario.
 
 	const int         v = argc > 1 ? atoi(argv[1])           : 1;
-	const size_t      n = argc > 2 ? (size_t)atol(argv[2])   : 10000;
+	const size_t      n = argc > 2 ? (size_t)atol(argv[2])   : 1000;
 	const int         d = argc > 3 ? atoi(argv[3])           : 3;
-	const size_t      N = argc > 4 ? (size_t)atol(argv[4])   : 1000;
+	const size_t      N = argc > 4 ? (size_t)atol(argv[4])   : 100;
 	const mtuint_t    s = argc > 5 ? (mtuint_t)atol(argv[5]) : 0;
 	const char* const D = argc > 6 ? argv[6]                 : "/tmp";
 
@@ -65,9 +52,6 @@ int main(int argc, char* argv[])
 
 	char* const str = malloc(n+1);
 	str[n] = 0; // NUL-terminate string
-
-	const size_t sdlen = 2*n;
-	char* const sdic = malloc(sdlen);
 
 	size_t* const c = malloc(n*sizeof(size_t));
 
@@ -87,7 +71,7 @@ int main(int argc, char* argv[])
 		for (size_t s=0; s<N; ++s) {
 			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
 			str[n] = 0; // NUL-terminate string
-			LZ78cs_x(str,sdic,sdlen,c);
+			LZ76c_x(str,c);
 			for (size_t i=0; i<n; ++i) cmean[i] += (double)c[i];
 		}
 		const double NN = (double)N;
@@ -99,7 +83,7 @@ int main(int argc, char* argv[])
 		for (size_t s=0; s<N; ++s) {
 			for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
 			str[n] = 0; // NUL-terminate string
-			LZ78cs_x(str,sdic,sdlen,c);
+			LZ76c_x(str,c);
 			for (size_t i=0; i<n; ++i)  cmean[i] +=  (double)c[i];
 			for (size_t i=0; i<n; ++i)  cvar[i]  += ((double)c[i])*((double)c[i]);
 		}
@@ -110,7 +94,6 @@ int main(int argc, char* argv[])
 	}
 	const clock_t tend = clock();
 	free(c);
-	free(sdic);
 	free(str);
 
 	const size_t sbuflen = 1000;
@@ -119,7 +102,7 @@ int main(int argc, char* argv[])
 	tfmt(sbuf,sbuflen,(double)(tend-tstart)/(double)CLOCKS_PER_SEC);
 	printf(" done in %s\n\n",sbuf);
 
-	snprintf(sbuf,sbuflen,"%s/LZ78c_rand%s_n%zu_d%02d_N%zu.mat",D,v?"mv":"m",n,d,N);
+	snprintf(sbuf,sbuflen,"%s/LZ76c_rand%s_n%zu_d%02d_N%zu.mat",D,v?"mv":"m",n,d,N);
 	printf("Saving results to %s ...",sbuf); fflush(stdout);
 	MATFile* const pf = matOpen(sbuf, "w");
 	if (pf == NULL) {
