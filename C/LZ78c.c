@@ -7,28 +7,6 @@
 
 // Static dictionary
 
-void sdic_to_str(char* const sdic, const size_t c, const char sepchar)
-{
-	// replace seprating NULs with seperator char
-
-	char* word = sdic;
-	for (size_t k = 0; k < c; ++k) {
-		word += (strlen(word)); // :-)
-		*word++ = sepchar;
-	}
-	*--word = 0; // NUL-terminate string
-}
-
-void sdic_print(const char* const sdic, const size_t c, const char sepchar)
-{
-	const char* word = sdic;
-	putchar(sepchar);
-	for (size_t k = 0; k < c; ++k) {
-		printf("%s%c",word,sepchar);
-		word += (strlen(word)+1); // :-)
-	}
-}
-
 size_t LZ78cs(const char* const str, char* const sdic, const size_t sdlen)
 {
 	// LZ78c - static dictionary
@@ -79,13 +57,6 @@ void LZ78cs_x(const char* const str, char* const sdic, const size_t sdlen, size_
 }
 
 // Dynamic dictionary
-
-void ddic_print(const strset_t* const ddic, const char sepchar)
-{
-	putchar(sepchar);
-	khint_t k;
-	kh_foreach(ddic,k) printf("%s%c",kh_key(ddic,k),sepchar);
-}
 
 size_t LZ78cd(char* const str, strset_t* const ddic)
 {

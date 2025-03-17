@@ -1,4 +1,4 @@
-#include "LZ76c_matlab.h"
+#include "LZ76c.h"
 
 // Main function
 

@@ -7,25 +7,12 @@
 #include <math.h>
 #include <time.h>
 
-#include <matrix.h>
 #include <mat.h>
-#include <mex.h>
 
-#include "LZ78c.h"
 #include "mt64.h"
+#include "LZ78c.h"
 
 // Main function
-
-void tfmt(char* const tstr, const size_t tsmaxlen, const double t /* secs */)
-{
-	const double xsecs  = floor(t);          // total whole seconds
-	const double xmins  = floor(xsecs/60.0); // total whole minutes
-	const double xhrs   = floor(xmins/60.0); // total whole hours
-	const double secs   = t - xmins*60.0;
-	const int    mins   = (int)floor(xmins - xhrs*60.0);
-	const int    hrs    = (int)floor(xhrs);
-	snprintf(tstr,tsmaxlen,"%d:%d:%.4f",hrs,mins,secs); // h:m:s
-}
 
 int main(int argc, char* argv[])
 {
@@ -37,14 +24,14 @@ int main(int argc, char* argv[])
 
 	const int         v = argc > 1 ? atoi(argv[1])           : 1;
 	const size_t      n = argc > 2 ? (size_t)atol(argv[2])   : 10000;
-	const int         d = argc > 3 ? atoi(argv[3])           : 3;
+	const int         a = argc > 3 ? atoi(argv[3])           : 3;
 	const size_t      N = argc > 4 ? (size_t)atol(argv[4])   : 1000;
 	const mtuint_t    s = argc > 5 ? (mtuint_t)atol(argv[5]) : 0;
 	const char* const D = argc > 6 ? argv[6]                 : "/tmp";
 
 	printf("\ncalc. variance   = %s\n",v ? "yes" : "no");
 	printf("string length    = %zu\n",n);
-	printf("alphabet size    = %d\n",   d);
+	printf("alphabet size    = %d\n",   a);
 	printf("sample size      = %zu\n",  N);
 	printf("random seed      = %zu%s\n",s,s?"":" (random random seed :-)");
 	printf("output directory = %s\n\n",D);
@@ -66,7 +53,7 @@ int main(int argc, char* argv[])
 	mxArray* const pcvar = v ? mxCreateDoubleMatrix(n,1,mxREAL) : NULL;
 	double*  const cvar  = v ? mxGetDoubles(pcvar) : NULL;
 
-	const double dd = (double)d;
+	const double dd = (double)a;
 	const double da = (double)'0';
 
 	printf("Calculating means%s ...",v ? " and variances" : ""); fflush(stdout);
@@ -108,7 +95,7 @@ int main(int argc, char* argv[])
 	tfmt(sbuf,sbuflen,(double)(tend-tstart)/(double)CLOCKS_PER_SEC);
 	printf(" done in %s\n\n",sbuf);
 
-	snprintf(sbuf,sbuflen,"%s/LZ78c_rand%s_n%zu_d%02d_N%zu.mat",D,v?"mv":"m",n,d,N);
+	snprintf(sbuf,sbuflen,"%s/LZ78c_rand%s_n%zu_a%02d_N%zu.mat",D,v?"mv":"m",n,a,N);
 	printf("Saving results to %s ...",sbuf); fflush(stdout);
 	MATFile* const pf = matOpen(sbuf, "w");
 	if (pf == NULL) {
@@ -122,19 +109,19 @@ int main(int argc, char* argv[])
 		fprintf(stderr," failed to write variable 'n'\n");
 		return(EXIT_FAILURE);
 	}
-	p = mxCreateDoubleScalar((double)d);
-	if (matPutVariable(pf,"d",p) != 0) {
-		fprintf(stderr," failed to write variable 'd'\n");
+	p = mxCreateDoubleScalar((double)a);
+	if (matPutVariable(pf,"a",p) != 0) {
+		fprintf(stderr," failed to write variable 'a'\n");
 		return(EXIT_FAILURE);
 	}
 	p = mxCreateDoubleScalar((double)N);
 	if (matPutVariable(pf,"N",p) != 0) {
-		fprintf(stderr," failed to write variable 'd'\n");
+		fprintf(stderr," failed to write variable 'N'\n");
 		return(EXIT_FAILURE);
 	}
 	p = mxCreateDoubleScalar((double)s);
 	if (matPutVariable(pf,"s",p) != 0) {
-		fprintf(stderr," failed to write variable 'd'\n");
+		fprintf(stderr," failed to write variable 's'\n");
 		return(EXIT_FAILURE);
 	}
 	mxDestroyArray(p);

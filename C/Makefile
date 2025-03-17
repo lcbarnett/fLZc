@@ -1,9 +1,9 @@
 # NOTE 1: Standalone binary executables are placed in the `bin' directory. Matlab
 # mex binaries are placed in the `../matlab/mex' directory.
 #
-# NOTE 2: To build the  standalone binary executables and mex binaries, you will
-# need to define an environmental variable called MATLAB_PATH which points to the
-# root path of your Matlab installation; then build with
+# NOTE 2: For the build to work, you will need to set an environmental variable
+# called MATLAB_PATH which points to the root path of your Matlab installation;
+# then build with
 #
 #     make
 #
@@ -12,15 +12,20 @@
 #
 #     make maint
 #
-# The executables will have to be run (on Linux, MacOS) with
+# The executables will have to be run (on Linux, MacOS[?]) with
 #
 #     LD_LIBRARY_PATH=$MATLAB_PATH/bin/glnxa64 bin/<executable>
 #
-# (thanks Matlab! ...I tried to hard-code the library path, but failed
-# miserably; for reasons unknown, -Wl, rpath= ... does not appear to work.)
+# or, alternatively,
 #
-# This targets Linux, but may well work on MacOS too; Windows probably requires
-# more hoop-jumping; the maintainer would appreciate any feedback on this.
+#     export LD_LIBRARY_PATH=$MATLAB_PATH/bin/glnxa64
+#
+# before running. (I tried to hard-link the library path, but failed miserably;
+# despite many, many hours down various hideous rabbit-holes, I cannot get
+# -Wl, rpath= ... to work. Thanks, Matlab :-/)
+#
+# This palaver targets Linux, but may well work on MacOS too; Windows probably
+# requires more hoopla; the maintainer would appreciate any feedback on this.
 
 ifdef ComSpec
 	OS = WIN
@@ -61,10 +66,11 @@ BINDIR = bin
 MEX      = mex
 MEXEXT   = $(shell mexext)
 MEXDIR   = ../matlab/mex
+MEXINC   = $(MATLAB_PATH)/extern/include
 
 REPDEP = sed -i -e '1s,\($*\)\.o[ :]*,\1.o \.$*.d: ,' \.$*.d
 
-CSRC = mt64.c LZ76c.c LZ76c_matlab.c  LZ78c.c LZ78c_matlab.c
+CSRC = mt64.c utils.c LZ76c.c  LZ78c.c
 COBJ = $(patsubst %.c,.%.$(OBJEXT),$(CSRC))
 CDEP = $(patsubst %.o,%.d,$(COBJ))
 
@@ -105,7 +111,7 @@ else
 	LDFLAGS = $(OFLAGS) -lm
 endif
 
-GCCFLAGS = $(MFLAGS) $(OFLAGS) $(WFLAGS) $(DFLAGS) $(IFLAGS)
+GCCFLAGS = $(MFLAGS) $(OFLAGS) $(WFLAGS) $(DFLAGS)
 MEXFLAGS = -O -R2018a
 
 .PHONY: all clean diag
@@ -122,12 +128,12 @@ clean:
 	$(RM) $(COBJ) $(TOBJ) $(CDEP) $(TDEP) $(RTBIP) $(RNBIP) $(RMBIP)
 
 $(COBJ): .%.o: %.c
-	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MATLAB_PATH)/extern/include $< -o $@
+	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MEXINC) $< -o $@
 	@$(REPDEP)
 
 $(TOBJ): $(COBJ)
 $(TOBJ): .%.o: %.c
-	$(CC) -c -MMD -MP $(GCCFLAGS) $< -o $@
+	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MEXINC) $< -o $@
 	@$(REPDEP)
 
 $(TBIP): bin/%: .%.o

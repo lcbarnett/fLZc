@@ -3,10 +3,8 @@
 
 #define UNUSED __attribute__ ((unused))
 
-#include "khashl.h"
+#include "utils.h"
 #include "mt64.h"
-
-KHASHL_CSET_INIT(KH_LOCAL, strset_t, strset, const char*, kh_hash_str, kh_eq_str)
 
 // Static dictionary
 
