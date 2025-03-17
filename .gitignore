@@ -1,5 +1,6 @@
 *.o
 *.obj
+*.d
 bin/*
 matlab/mex/*
 matlab/data/*
