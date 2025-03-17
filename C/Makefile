@@ -55,16 +55,14 @@ ifeq ($(OS),WIN)
 	OBJEXT  = obj
 endif
 
-CC  = gcc
+CC     = gcc
+BINDIR = bin
 
 MEX      = mex
 MEXEXT   = $(shell mexext)
 MEXDIR   = ../matlab/mex
-MEXIFLAG = -I$(MATLAB_PATH)/extern/include
 
 REPDEP = sed -i -e '1s,\($*\)\.o[ :]*,\1.o \.$*.d: ,' \.$*.d
-
-BINDIR = bin
 
 CSRC = mt64.c LZ76c.c LZ76c_matlab.c  LZ78c.c LZ78c_matlab.c
 COBJ = $(patsubst %.c,.%.$(OBJEXT),$(CSRC))
@@ -124,7 +122,7 @@ clean:
 	$(RM) $(COBJ) $(TOBJ) $(CDEP) $(TDEP) $(RTBIP) $(RNBIP) $(RMBIP)
 
 $(COBJ): .%.o: %.c
-	$(CC) -c -MMD -MP $(GCCFLAGS) $(MEXIFLAG) $< -o $@
+	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MATLAB_PATH)/extern/include $< -o $@
 	@$(REPDEP)
 
 $(TOBJ): $(COBJ)
