@@ -24,6 +24,20 @@ void LZ76c_maxv(size_t* const n, const size_t len, double* const cmax, const int
 
 void tfmt(char* const tstr, const size_t tsmaxlen, const double t /* secs */);
 
+static inline void dd_clear(strset_t* ddic)
+{
+	khint_t k;
+	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
+	strset_clear(ddic);
+}
+
+static inline void dd_destroy(strset_t* ddic)
+{
+	khint_t k;
+	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
+	strset_destroy(ddic);
+}
+
 void sdic_to_str(char* const sdic, const size_t c, const char sepchar);
 
 void sdic_print(const char* const sdic, const size_t c, const char sepchar);

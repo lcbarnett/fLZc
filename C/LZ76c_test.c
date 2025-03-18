@@ -6,7 +6,7 @@
 
 // Main function
 
-static const int ntests = 2;
+static const int ntests = 3;
 
 int test1(int argc, char* argv[])
 {
@@ -70,6 +70,31 @@ int test2(int argc, char* argv[])
 	return EXIT_SUCCESS;
 }
 
+int test3(int argc, char* argv[])
+{
+	char* const  str = strdup(argc < 2 ? "0001101001000101" : argv[1]); // input cstring (also try without last A)
+	const size_t n = strlen(str);
+	printf("\ninput string (%lu): '%s'\n\n",n,str);
+
+	const char sepchar = '\n';
+
+	strset_t* ddic = strset_init();
+
+	int nonx;
+	const size_t c = LZ76_dict(str,ddic,&nonx);
+
+	printf("LZ76c = %zu%s\n",c,nonx?" (non-exhaustive)":"");
+
+	ddic_print(ddic,sepchar);
+	putchar('\n');
+
+	free(str);
+
+	dd_destroy(ddic);
+
+	return EXIT_SUCCESS;
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc < 2) {
@@ -85,6 +110,7 @@ int main(int argc, char* argv[])
 	switch (test) {
 		case 1 : return test1(argc-1,argv+1);
 		case 2 : return test2(argc-1,argv+1);
+		case 3 : return test3(argc-1,argv+1);
 	}
 	return(EXIT_FAILURE); // shouldn't get here!
 }
