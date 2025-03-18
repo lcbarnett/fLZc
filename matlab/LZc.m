@@ -18,6 +18,7 @@ function [c,dict,nonx] = LZc(s,ver,dstatic)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+assert(nargin > 1,"Must supply Lempel-Ziv version (76 or 78)');
 assert(~isempty(s) && ischar(s) && isvector(s),"Input must be a non-empty character string");
 
 switch ver

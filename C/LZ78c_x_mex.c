@@ -6,7 +6,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 {
 	char* const istr = mxArrayToString(prhs[0]);           // create input cstring
 	const size_t n = mxGetNumberOfElements(prhs[0]);       // string length
-	const int static_dict = (int)mxGetScalar(prhs[1]);     // number of oscillators
+	const bool static_dict = (bool)mxGetScalar(prhs[1]);   // static dictionary? (else dynamic)
 	size_t* const c = malloc(n*sizeof(size_t));            // allocate complexities (integer)
 	if (static_dict) {                                     // static dictionary? (else dynamic)
 		const size_t sdlen = 2*n;                          // static dictionary length

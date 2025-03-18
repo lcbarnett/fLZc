@@ -5,7 +5,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs[])
 {
 	char* const str = mxArrayToString(prhs[0]); // create input cstring
-	size_t c;                                   LZ complexity
+	size_t c;                                   // LZ complexity
 	if (nlhs > 1) {
 		strset_t* ddic = strset_init();         // allocate and initialise dynamic dictionary (hash set)
 		int nonx;                               // non-exhaustive flag
