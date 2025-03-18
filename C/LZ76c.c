@@ -100,7 +100,45 @@ size_t LZ76c(const char* const str)
 	return c;
 }
 
-size_t LZ76_dict(const char* const str, strset_t* const ddic, int* const nonx)
+void LZ76c_x(const char* const str, size_t* const c)
+{
+	// LZ76c algorithm:
+	//
+	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
+	// Phys. Rev. A 36(2) pp. 842-848, 1987.
+	//
+	// This version stores LZ76c for each sequence length; c MUST be same size as the input string.
+
+	const size_t n = strlen(str);
+	if (n == 0) return;
+	size_t cc = 1;
+	c[0] = 1;
+	for (size_t i=1; i<n;) {
+		const char* const p = str+i;
+		size_t k = 0;
+		size_t w = 0;
+		for (const char* q = str; q < p;) {
+			if (q[k] == p[k]) {
+				++k;
+				if (i+k >= n) {
+					++cc;
+					for (size_t j=i; j<n; ++j) c[j] = cc;
+					return;
+				}
+			}
+			else {
+				if (k > w) w = k;
+				k = 0;
+				++q;
+			}
+		}
+		++cc;
+		for (size_t j=i; j <= i+w; ++j) c[j] = cc;
+		i += (w+1);
+	}
+}
+
+size_t LZ76c_d(const char* const str, strset_t* const ddic, int* const nonx)
 {
 	// LZ76c algorithm:
 	//
@@ -147,42 +185,4 @@ size_t LZ76_dict(const char* const str, strset_t* const ddic, int* const nonx)
 	}
 	if (!added) *nonx = 1; // last word was already in the dictionary; non-exhaustive
 	return c;
-}
-
-void LZ76c_x(const char* const str, size_t* const c)
-{
-	// LZ76c algorithm:
-	//
-	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
-	// Phys. Rev. A 36(2) pp. 842-848, 1987.
-	//
-	// This version stores LZ76c for each sequence length; c MUST be same size as the input string.
-
-	const size_t n = strlen(str);
-	if (n == 0) return;
-	size_t cc = 1;
-	c[0] = 1;
-	for (size_t i=1; i<n;) {
-		const char* const p = str+i;
-		size_t k = 0;
-		size_t w = 0;
-		for (const char* q = str; q < p;) {
-			if (q[k] == p[k]) {
-				++k;
-				if (i+k >= n) {
-					++cc;
-					for (size_t j=i; j<n; ++j) c[j] = cc;
-					return;
-				}
-			}
-			else {
-				if (k > w) w = k;
-				k = 0;
-				++q;
-			}
-		}
-		++cc;
-		for (size_t j=i; j <= i+w; ++j) c[j] = cc;
-		i += (w+1);
-	}
 }

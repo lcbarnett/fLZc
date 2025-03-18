@@ -1,8 +1,8 @@
-#include "LZ78c.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "LZ78c.h"
 
 // Main function
 

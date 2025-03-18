@@ -1,12 +1,11 @@
-#include "LZ76c.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-// Main function
+#include "LZ76c.h"
+#include "mt64.h"
 
-static const int ntests = 3;
+// Tests
 
 int test1(int argc, char* argv[])
 {
@@ -81,7 +80,7 @@ int test3(int argc, char* argv[])
 	strset_t* ddic = strset_init();
 
 	int nonx;
-	const size_t c = LZ76_dict(str,ddic,&nonx);
+	const size_t c = LZ76c_d(str,ddic,&nonx);
 
 	printf("LZ76c = %zu%s\n",c,nonx?" (non-exhaustive)":"");
 
@@ -94,6 +93,10 @@ int test3(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 }
+
+// Main function
+
+static const int ntests = 3;
 
 int main(int argc, char* argv[])
 {
