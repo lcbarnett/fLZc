@@ -1,3 +1,5 @@
+// #include <mex.h>
+
 #include "LZ78c.h"
 
 // Main function
@@ -5,9 +7,9 @@
 void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs[])
 {
 	char* const istr = mxArrayToString(prhs[0]);         // create input cstring
-	const int static_dict = (int)mxGetScalar(prhs[1]);   // number of oscillators
+	const bool static_dict = (bool)mxGetScalar(prhs[1]); // static dictionary? (else dynamic)
 	size_t c;                                            // LZ78c complexity
-	if (static_dict) {                                   // static dictionary? (else dynamic)
+	if (static_dict) {                                   // static dictionary
 		const size_t n = mxGetNumberOfElements(prhs[0]); // string length
 		const size_t sdlen = 2*n;                        // static dictionary length
 		char* const sdic = malloc(sdlen);                // allocate static dictionary

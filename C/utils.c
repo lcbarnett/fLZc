@@ -78,7 +78,8 @@ void ddic_print(const strset_t* const ddic, const char sepchar)
 mxArray* ddic_to_cvec(const strset_t* const ddic)
 {
 	mxArray* const cvec = mxCreateCellMatrix(kh_size(ddic),1); // should be destroyed (somewhere)
-	khint_t k;
-	kh_foreach(ddic,k) mxSetCell(cvec,k,mxCreateString(kh_key(ddic,k)));
+	khint_t k; // NOTE: khashl iterators are not generally sequential!!!
+	mwIndex i = 0;
+	kh_foreach(ddic,k) mxSetCell(cvec,i++,mxCreateString(kh_key(ddic,k)));
 	return cvec;
 }
