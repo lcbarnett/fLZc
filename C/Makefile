@@ -143,6 +143,7 @@ $(NBIP): $(COBJ)
 $(NBIP): $(BINDIR)/%: %.c
 	$(MEX) -client engine $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS)" -outdir $(BINDIR) $(COBJ) $<
 
+$(MBIP): $(COBJ)
 $(MEXDIR)/%.$(MEXEXT): %.c
 	$(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR) $(COBJ) $<
 

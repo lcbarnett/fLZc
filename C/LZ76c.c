@@ -14,7 +14,7 @@ size_t LZ76c_ks(const char* const str)
 
 	const size_t n = strlen(str);
 	if (n == 1) return 1;
-	size_t i = 0, k = 1, j = 1, K = 1, c = 1;
+	size_t i = 0, k = 1, j = 1, kmax = 1, c = 1;
 	while (true) {
 		if (str[i+k-1] == str[j+k-1]) {
 			++k;
@@ -24,15 +24,15 @@ size_t LZ76c_ks(const char* const str)
 			}
 		}
 		else {
-			if (k > K) K = k;
+			if (k > kmax) kmax = k;
 			++i;
 			if (i == j) {
 				++c;
-				j += K;
+				j += kmax;
 				if (j+1 > n) break;
 				i = 0;
 				k = 1;
-				K = 1;
+				kmax = 1;
 			}
 			else {
 				k = 1;
@@ -54,7 +54,7 @@ size_t LZ76c_wp(const char* const str)
 	while (u+k < n) {
 		if (str[i+k] == str[u+k]) ++k;
 		else {
-			kmax = kmax > k ? kmax : k; // vmax = max(v,vmax);
+			if (k > kmax) kmax = k;
 			++i;
 			if (i == u) { // all the pointers have been treated
 				++c;
@@ -78,11 +78,11 @@ size_t LZ76c(const char* const str)
 
 	const size_t n = strlen(str);
 	if (n == 1) return 1;
-	size_t c = 1;
+	size_t k, w, c = 1;
 	const char* const pend = str+n; // point past end of string
 	for (const char* p = str+1; p < pend;) {
-		size_t k = 0;
-		size_t w = 0;
+		k = 0;
+		w = 0;
 		for (const char* q = str; q < p;) {
 			if (q[k] == p[k]) {
 				++k;
@@ -111,12 +111,12 @@ void LZ76c_x(const char* const str, size_t* const c)
 
 	const size_t n = strlen(str);
 	if (n == 0) return;
-	size_t cc = 1;
+	size_t k, w, cc = 1;
 	c[0] = 1;
 	for (size_t i=1; i<n;) {
 		const char* const p = str+i;
-		size_t k = 0;
-		size_t w = 0;
+		k = 0;
+		w = 0;
 		for (const char* q = str; q < p;) {
 			if (q[k] == p[k]) {
 				++k;
@@ -138,7 +138,7 @@ void LZ76c_x(const char* const str, size_t* const c)
 	}
 }
 
-size_t LZ76c_d(const char* const str, strset_t* const ddic, int* const nonx)
+size_t LZ76c_d(char* const str, strset_t* const ddic, int* const nonx)
 {
 	// LZ76c algorithm:
 	//
@@ -147,28 +147,29 @@ size_t LZ76c_d(const char* const str, strset_t* const ddic, int* const nonx)
 	// Note that the last word may be "non-exhaustive" (see Lempel & Ziv '76),
 	// in which case it is already in the dictionary and hence not added again.
 	// In this case the dictionary size will be one less than the complexity;
-	//  we set a flag `nonx' to indicate this condition..
+	// we set a flag `nonx' to indicate this condition.
 	//
 	// Remember to destroy the dictionary after use!
 
 	dd_clear(ddic);
 	const size_t n = strlen(str);
 	int added;                              // flag for strset_put
+	khint_t i;                              // hash set iterator
 	*nonx = 0;                              // non-exhaustive flag; false until we know otherwise
 	strset_put(ddic,strndup(str,1),&added); // add first character to dictionary
 	if (n == 1) return 1;
-	size_t c = 1;
-	const char* const pend = str+n;               // point past end of string
-	for (const char* p = str+1; p < pend;) {
-		size_t k = 0;
-		size_t w = 0;
+	size_t k, w, c = 1;
+	const char* const pend = str+n;         // point past end of string
+	for (char* p = str+1; p < pend;) {
+		k = 0;
+		w = 0;
 		for (const char* q = str; q < p;) {
 			if (q[k] == p[k]) {
 				++k;
 				if (p+k >= pend) {
 					++c;
-					strset_put(ddic,strndup(p,(size_t)(pend-p)),&added); // add current word to dictionary if not already there
-					if (!added) *nonx = 1; // last word was already in the dictionary; non-exhaustive
+					i = strset_put(ddic,p,&added); // check if word already in dictionary (p is last word, so already null-terminated)
+					if (added) kh_key(ddic,i) = strdup(p); else *nonx = 1; // if not, copy into dictionary
 					return c;
 				}
 			}
@@ -179,9 +180,13 @@ size_t LZ76c_d(const char* const str, strset_t* const ddic, int* const nonx)
 			}
 		}
 		++c;
-		const char* const word = p; // word to add to dictionary
-		p += (w+1);
-		strset_put(ddic,strndup(word,w+1),&added); // add current word to dictionary if not already there
+		const char* const word = p;       // word to add to dictionary
+		p += (w+1);                       // end of word
+		const char psave = *p;            // save char at end of word
+		*p = 0;                           // NUL-terminate word
+		i = strset_put(ddic,word,&added); // check if word already in dictionary
+		if (added) kh_key(ddic,i) = strdup(word); // if not, copy into dictionary
+		*p = psave;                       // restore char at end of word
 	}
 	if (!added) *nonx = 1; // last word was already in the dictionary; non-exhaustive
 	return c;
