@@ -31,7 +31,8 @@ fprintf('[fLZc startup] Initialised (you may re-run `startup'' at any time)\n');
 
 function check_norm_data(ver)
 
-	dl = dir([fLZc_data_path filesep 'LZ' ver 'c_rand_d*.mat']);
+	global fLZc_data_path
+	dl = dir([fLZc_data_path filesep 'LZ' ver 'c_rand_a*.mat']);
 	abets = cellfun(@str2num,extract({dl.name},digitsPattern));
 	nabs = length(abets);
 	if nabs == 0

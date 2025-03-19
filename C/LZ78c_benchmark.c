@@ -31,8 +31,8 @@ int main(int argc, char* argv[])
 
 	size_t* const c = malloc(n*sizeof(size_t));
 
-	const double dd = (double)d;
-	const double da = (double)'0';
+	const double aa = (double)d;
+	const double a0 = (double)'0';
 
 	clock_t tstart, tend;
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	tstart = clock();
 	double cmeans = 0.0;
 	for (size_t k=0; k<N; ++k) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+		for (size_t i=0; i<n; ++i) str[i] = (char)(a0+aa*mt_rand(&prng));
 		LZ78cs_x(str,sdic,sdlen,c);
 		cmeans += (double)c[n-1];
 	}
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 	tstart = clock();
 	double cmeand = 0.0;
 	for (size_t k=0; k<N; ++k) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+		for (size_t i=0; i<n; ++i) str[i] = (char)(a0+aa*mt_rand(&prng));
 		LZ78cd_x(str,ddic,c);
 		cmeand += (double)c[n-1];
 	}

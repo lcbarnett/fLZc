@@ -29,8 +29,8 @@ int main(int argc, char* argv[])
 	char* const str = malloc(n+1);
 	str[n] = 0; // NUL-terminate string
 
-	const double dd = (double)d;
-	const double da = (double)'0';
+	const double aa = (double)d;
+	const double a0 = (double)'0';
 
 	clock_t tstart, tend;
 
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	tstart = clock();
 	double cmeans = 0.0;
 	for (size_t k=0; k<N; ++k) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+		for (size_t i=0; i<n; ++i) str[i] = (char)(a0+aa*mt_rand(&prng));
 		cmeans += (double)LZ76c_wp(str);
 	}
 	cmeans /= (double)N;
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	tstart = clock();
 	double cmeand = 0.0;
 	for (size_t k=0; k<N; ++k) {
-		for (size_t i=0; i<n; ++i) str[i] = (char)(da+dd*mt_rand(&prng));
+		for (size_t i=0; i<n; ++i) str[i] = (char)(a0+aa*mt_rand(&prng));
 		cmeand += (double)LZ76c(str);
 	}
 	cmeand /= (double)N;

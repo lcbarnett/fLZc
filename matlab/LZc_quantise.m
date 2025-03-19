@@ -1,6 +1,6 @@
 function [s,qtiles] = LZc_quantise(x,q,use_qtiles,numsym)
 
-% Quantise data sequence x (column vector) into q quantiles (so number of symbols = q+1).
+% Quantise data sequence x (column vector) into q quantiles (so alphabet size = q+1).
 %
 % q = 0 is allowed, if trivial (yields constant string on 1 symbol).
 %
@@ -11,7 +11,8 @@ function [s,qtiles] = LZc_quantise(x,q,use_qtiles,numsym)
 if nargin < 3 || isempty(use_qtiles), use_qtiles = true; end % default: calculate quantiles
 if nargin < 4 || isempty(numsym),     numsym     = true; end % default: numeric symbols
 
-assert(iscolumn(x),'Input must be a column vector');
+assert(isvector(x),'Input must be a column vector');
+x = (:); % ensure column vector
 n = length(x);
 
 if use_qtiles
