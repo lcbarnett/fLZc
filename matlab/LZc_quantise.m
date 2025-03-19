@@ -12,7 +12,7 @@ if nargin < 3 || isempty(use_qtiles), use_qtiles = true; end % default: calculat
 if nargin < 4 || isempty(numsym),     numsym     = true; end % default: numeric symbols
 
 assert(isvector(x),'Input must be a column vector');
-x = (:); % ensure column vector
+x = x(:); % ensure column vector
 n = length(x);
 
 if use_qtiles
