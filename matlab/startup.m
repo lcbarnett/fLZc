@@ -32,9 +32,8 @@ fprintf('[fLZc startup] Initialised (you may re-run `startup'' at any time)\n');
 function check_norm_data(ver)
 
 	global fLZc_data_path
-	dl = dir([fLZc_data_path filesep 'LZ' ver 'c_rand_a*.mat']);
-	abets = cellfun(@str2num,extract({dl.name},digitsPattern));
-	nabs = length(abets);
+	dfiles = {dir([fLZc_data_path filesep 'LZ' ver 'c_rand_a*.mat']).name};
+	nabs = length(dfiles);
 	if nabs == 0
 		fprintf('[fLZc startup]\n');
 		fprintf(2,'[fLZc startup] WARNING: No LZ%sc normalisation data files found.\n',ver);
@@ -43,9 +42,13 @@ function check_norm_data(ver)
 		fprintf(2,'[fLZc startup]          Accurate normalisation will be unavailable (see ''LZc_crand.m'')\n');
 		fprintf('[fLZc startup]\n');
 	else
-		fprintf('[fLZc startup] Normalisation data found for alphabet sizes %d',abets(1))
+		fprintf('[fLZc startup] LZ%sc normalisation data found for alphabet sizes',ver)
+		i = 1;
+		astr = extractBetween(dfiles{i},'rand_a','.mat');
+		fprintf(' %d',str2num(astr{1}));
 		for i = 2:nabs
-			fprintf(', %d',abets(i));
+			astr = extractBetween(dfiles{i},'rand_a','.mat');
+			fprintf(', %d',str2num(astr{1}));
 		end
 		fprintf('\n');
 	end

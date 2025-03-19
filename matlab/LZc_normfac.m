@@ -44,8 +44,9 @@ if asymp
 
 	if ver == 76
 
-		e  = (loga + log(1+logan))./logn;
-		cm = n./((1-e).*logan);
+%		e  = (loga + log(1+logan))./logn;
+%		cm = n./((1-e).*logan);
+		cm = n./(logan);
 
 	else
 
@@ -60,8 +61,12 @@ else
 	global fLZc_data_path;
 	cmean = [];
 	cvar  = [];
-	fname = fullfile(fLZc_data_path,sprintf('LZ%sc_rand_a%02d.mat',ver,a))
-	load(fname);
+	fname = fullfile(fLZc_data_path,sprintf('LZ%dc_rand_a%02d.mat',ver,a));
+	try
+		load(fname);
+	catch
+		error('\n\t*** No data found for alphabet size %d ***',a);
+	end
 
 	% loaded:
 	%
