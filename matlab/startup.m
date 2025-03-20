@@ -18,7 +18,7 @@ fprintf('[fLZc startup] Normalisation data path is %s\n',fLZc_data_path);
 
 % Binary LZc normalisation data: download zip file (~ 100 MB)
 %
-%    http://users.sussex.ac.uk/~lionelb/downloads/fLZc_matlab_data.zip
+%    http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip
 %
 % and unzip into fLZc_data_path
 
@@ -37,7 +37,7 @@ function check_norm_data(ver)
 	if nabs == 0
 		fprintf('[fLZc startup]\n');
 		fprintf(2,'[fLZc startup] WARNING: No LZ%sc normalisation data files found.\n',ver);
-		fprintf(2,'[fLZc startup]          Download from http://users.sussex.ac.uk/~lionelb/downloads/fLZc_matlab_data.zip\n');
+		fprintf(2,'[fLZc startup]          Download from http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip\n');
 		fprintf(2,'[fLZc startup]          and unzip into the directory ''%s''.\n',fLZc_data_path);
 		fprintf(2,'[fLZc startup]          Accurate normalisation will be unavailable (see ''LZc_crand.m'')\n');
 		fprintf('[fLZc startup]\n');

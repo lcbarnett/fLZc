@@ -8,7 +8,7 @@ function [cm,cv] = LZc_normfac(n,a,ver,asymp)
 % for random sequences with the supplied lengths and alphabet size from data files, as
 % available. Binary normalisation data may be downloaded from:
 %
-%    http://users.sussex.ac.uk/~lionelb/downloads/fLZc_matlab_data.zip
+%    http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip
 %
 % and should be unzipped into fLZc_data_path (see startup.m). If requested values are
 % not available, NaNs are returned.
