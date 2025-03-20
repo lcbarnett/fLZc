@@ -1,5 +1,7 @@
 function [s,qtiles] = LZc_quantise(x,q,use_qtiles,numsym)
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 % Quantise data sequence x (column vector) into q quantiles (so alphabet size = q+1).
 %
 % q = 0 is allowed, if trivial (yields constant string on 1 symbol).
@@ -7,6 +9,8 @@ function [s,qtiles] = LZc_quantise(x,q,use_qtiles,numsym)
 % If q is a vector, then don't do actual quantiles: instead, q(k) = k-th quantisation level.
 %
 % s returns the quantised symbol string, qtiles the quantisation levels used (normally quantiles).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 3 || isempty(use_qtiles), use_qtiles = true; end % default: calculate quantiles
 if nargin < 4 || isempty(numsym),     numsym     = true; end % default: numeric symbols

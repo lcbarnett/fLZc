@@ -1,19 +1,25 @@
-% LZc demo script: calculate LZ-complexity at all sequence lengths for a
-% subsampled stationary Ornstein-Uhlenbeck process.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% LZc demo script: calculate and plot LZ76c and LZ78c at all sequence lengths
+% for a subsampled stationary zero-mean Ornstein-Uhlenbeck process.
+%
 %
 % Default parameters (may be overriden on command line)
 
 defvar('T',       600       ); % length of process (seconds)
 defvar('fs',      200       ); % sampling frequency (Hz)
 defvar('oudec',   0.1       ); % OU process decay parameter (> 0); set to Inf for white noise
-defvar('sig',     1         ); % OU process noise std. dev.
 defvar('a',       2         ); % LZc alphabet size (a = 2 for binarisation around median)
 defvar('cnorm',   1         ); % LZc normalisation: 0 - none; 1 - random mean; 2 asymptotic upper bound
+defvar('logs',    false     ); % display sequence length on a log scale?
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Generate subsampled Ornstein-Uhlenbeck time series data
 
 fprintf('\ngenerating stationary OU time series... ');
-[x,t] = ouproc(oudec,sig,fs,T);
+[x,t] = ouproc(oudec,1,fs,T);
 maxn = length(x);
 alln = (1:maxn)';
 fprintf('done (%d observations)\n\n',maxn);
@@ -77,17 +83,23 @@ grid on
 % Display complexity vs time (sequence length)
 
 subplot(2,1,2);
+cmax = max([max(c76);max(c78)]);
+plot(t,[c76 c78]);
+ylim([0 1.05*cmax]);
+xlim([0,T]);
+title(sprintf('LZ76c and LZ78c (%s)\n\nalphabet size = %d, %d observations\n',normstr,a,maxn));
+if logs
+	xscale('log');
+	xlabel('Time (seconds; log-scale)');
+else
+	xlabel('Time (seconds)');
+end
 if cnorm > 0
-	semilogx(t,[c76 c78]);
-	ylim([0 1.2]);
 	yline(1,'color','k');
 	ylabel('Complexity');
 else
-	loglog(t,[c76 c78]);
+	yscale('log');
 	ylabel('Complexity (log-scale)');
 end
 legend('LZ76c','LZ78c');
-xlim([1/fs,T]);
-title(sprintf('LZ76c and LZ78c (%s)\n\nalphabet size = %d, %d observations\n',normstr,a,maxn));
-xlabel('Time (seconds; log-scale)');
 grid on

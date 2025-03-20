@@ -38,6 +38,11 @@ if nargin < 4 || isempty(asymp), asymp = false; end % default: use random data f
 
 if asymp
 
+	% not entirely correct -temporarily unavailable
+
+	error('Sorry, asymptotic bounds not currently implemented');
+
+%{
 	loga = log(a);
 	logn = log(n);
 	logan = logn/loga;
@@ -46,16 +51,16 @@ if asymp
 
 %		e  = (loga + log(1+logan))./logn;
 %		cm = n./((1-e).*logan);
-		cm = n./(logan);
+		cm = n./logan;
 
 	else
 
-		cm = n./(logan);
+		cm = n./logan;
 
 	end
 
 	cv = [];
-
+%}
 else
 
 	global fLZc_data_path;

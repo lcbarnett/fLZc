@@ -1,6 +1,6 @@
 function [c,dict,nonx] = LZc(s,ver,dstatic)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Lempl-Ziv complexity
 %
@@ -16,7 +16,7 @@ function [c,dict,nonx] = LZc(s,ver,dstatic)
 % dict     the dictionary
 % nonx     "non-exhaustive" flag" (LZ76 only; see Lempel & Ziv '76)
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 assert(nargin > 1,"Must supply Lempel-Ziv version (76 or 78)');
 assert(~isempty(s) && ischar(s) && isvector(s),"Input must be a non-empty character string");

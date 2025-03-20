@@ -68,8 +68,9 @@ grid on
 
 subplot(2,1,2);
 if cnorm > 0
+	cmax = max([max(c76);max(c78)]);
 	semilogx(t,c);
-	ylim([0 1.2]);
+	ylim([0 1.05*cmax)]);
 	yline(1,'color','k');
 	ylabel('Complexity');
 else
