@@ -53,4 +53,5 @@ switch ver
 		nonx = [];
 
 	otherwise, error('Lempel-Ziv version must be 76 or 78');
+
 end

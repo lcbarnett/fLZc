@@ -1,6 +1,7 @@
 #include "LZ76c.h"
 
-// Main function
+// NOTE: do not call this mex-function directly in your Matlab code; it does no
+// input checks whatsoever! Rather, us the Matlab wrapper matlab/LZc_x.m
 
 void mexFunction(int UNUSED nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs[])
 {

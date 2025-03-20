@@ -1,6 +1,7 @@
 #include "LZ78c.h"
 
-// Main function
+// NOTE: do not call this mex-function directly in your Matlab code; it does no
+// input checks whatsoever! Rather, us the Matlab wrapper matlab/LZc_x.m
 
 void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs[])
 {
@@ -25,5 +26,4 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 	double* const cd = mxGetPr(plhs[0] = mxCreateDoubleMatrix(n,1,mxREAL)); // create (double) output vector for complexities
 	for (size_t i=0; i<n; ++i) cd[i] = (double)(c[i]);     // copy integer complexities to (double) output
 	free(c);                                               // deallocate complexities (integer)
-
 }

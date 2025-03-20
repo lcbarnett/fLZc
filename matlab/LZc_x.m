@@ -1,8 +1,8 @@
-function c = LZc(s,ver,dstatic)
+function c = LZc_x(s,ver,dstatic)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Lempl-Ziv complexity
+% Lempl-Ziv complexity at all sequence lengths
 %
 % INPUT
 %
@@ -12,7 +12,7 @@ function c = LZc(s,ver,dstatic)
 %
 % OUTPUT
 %
-% c        LZ complexities at all sequence lengths
+% c        vector of LZ complexities at all sequence lengths along s
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -34,4 +34,5 @@ switch ver
 		c = LZ78c_x_mex(s,dstatic);
 
 	otherwise, error('Lempel-Ziv version must be 76 or 78');
+
 end
