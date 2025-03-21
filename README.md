@@ -25,5 +25,5 @@ LZc_demo
 email: lionelb@sussex.ac.uk
 
 [^1]: [A. Lempel and J. Ziv, On the Complexity of Finite Sequences, IEEE Trans. Info Theor. 22(1), 1976](https://ieeexplore.ieee.org/document/1055501).
-[^2]: [A. Lempel and J. Ziv, Compression of Individual Sequences via Variable-Rate Coding, IEEE Trans. Info Theor. 24(5), 1976](https://ieeexplore.ieee.org/document/1055934).
+[^2]: [A. Lempel and J. Ziv, Compression of Individual Sequences via Variable-Rate Coding, IEEE Trans. Info Theor. 24(5), 1978](https://ieeexplore.ieee.org/document/1055934).
 [^3]: Building targets POSIX environments, and has been tested on Linux and MacOS. Not so sure about Windows (note that [Visual Studio for Windows](https://visualstudio.microsoft.com/vs/features/cplusplus/) does *not* support C99; you are probably better off with [MinGW](https://sourceforge.net/projects/mingw/)).
