@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <math.h>
+#include <assert.h>
 
 #include <mat.h>
 

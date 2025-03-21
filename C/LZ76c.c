@@ -138,38 +138,53 @@ void LZ76c_x(const char* const str, size_t* const c)
 	}
 }
 
-size_t LZ76c_d(char* const str, strset_t* const ddic, int* const nonx)
+const char* strdupt(const char* const word, const char tag)
+{
+	// Duplicate word with tag character
+	const size_t n = strlen(word);   // length of word
+	char* const tword = malloc(n+2); // allocate extra space for the tag character
+	strcpy(tword,word);              // copy last word into tagged word buffer
+	tword[n] = tag;                  // insert the tag
+	return tword;                    // remember to deallocate !!!
+}
+
+size_t LZ76c_d(char* const str, strset_t* const ddic)
 {
 	// LZ76c algorithm:
 	//
 	// This version builds the dictionary
 	//
 	// Note that the last word may be "non-exhaustive" (see Lempel & Ziv '76),
-	// in which case it is already in the dictionary and hence not added again.
-	// In this case the dictionary size will be one less than the complexity;
-	// we set a flag `nonx' to indicate this condition.
+	// in which case it is already in the dictionary and hence would not be
+	// added again; the dictionary size would thus be one less than the
+	// complexity. In this function, in the non-exhaustive case we "tag" the
+	// last word with a unique character (which mustn't be in the alphabet!)
+	// and then add it to the dictionary, so that complexity always equals
+	//  dictionary size.
 	//
 	// Remember to destroy the dictionary after use!
 
 	dd_clear(ddic);
 	const size_t n = strlen(str);
 	int added;                              // flag for strset_put
-	khint_t i;                              // hash set iterator
-	*nonx = 0;                              // non-exhaustive flag; false until we know otherwise
+	khint_t i;                              // strset_t iterator
 	strset_put(ddic,strndup(str,1),&added); // add first character to dictionary
 	if (n == 1) return 1;
 	size_t k, w, c = 1;
 	const char* const pend = str+n;         // point past end of string
-	for (char* p = str+1; p < pend;) {
+	char* p = str+1;
+	while (p < pend) {
 		k = 0;
 		w = 0;
 		for (const char* q = str; q < p;) {
 			if (q[k] == p[k]) {
 				++k;
-				if (p+k >= pend) {
+				if (p+k >= pend) { // last word
 					++c;
 					i = strset_put(ddic,p,&added); // check if word already in dictionary (p is last word, so already null-terminated)
-					if (added) kh_key(ddic,i) = strdup(p); else *nonx = 1; // if not, copy into dictionary
+					// if last word wasn't in the dictionary, just add it; else tag and then add it
+					if (added) kh_key(ddic,i) = strdup(p); else strset_put(ddic,strdupt(p,TAGCHAR),&added);
+					assert(c == kh_size(ddic));
 					return c;
 				}
 			}
@@ -188,6 +203,8 @@ size_t LZ76c_d(char* const str, strset_t* const ddic, int* const nonx)
 		if (added) kh_key(ddic,i) = strdup(word); // if not, copy into dictionary
 		*p = psave;                       // restore char at end of word
 	}
-	if (!added) *nonx = 1; // last word was already in the dictionary; non-exhaustive
+	// if last word was in the dictionary, tag and then add it
+	if (!added) strset_put(ddic,strdupt(p-(w+1),TAGCHAR),&added);
+	assert(c == kh_size(ddic));
 	return c;
 }

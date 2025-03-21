@@ -37,7 +37,6 @@ int test2(int argc, char* argv[])
 	size_t* const c1 = malloc(n*sizeof(size_t));
 	size_t* const c2 = malloc(n*sizeof(size_t));
 
-
 	LZ76c_x(str,c1);
 
 	for (size_t i=0; i<n; ++i) {
@@ -75,17 +74,13 @@ int test3(int argc, char* argv[])
 	const size_t n = strlen(str);
 	printf("\ninput string (%lu): '%s'\n\n",n,str);
 
-	const char sepchar = '\n';
-
 	strset_t* ddic = strset_init();
 
-	int nonx;
-	const size_t c = LZ76c_d(str,ddic,&nonx);
+	const size_t c = LZ76c_d(str,ddic);
 
-	printf("LZ76c = %zu%s\n",c,nonx?" (non-exhaustive)":"");
-
-	ddic_print(ddic,sepchar);
-	putchar('\n');
+	printf("LZ76c = %zu : ",c);
+	ddic_print(ddic,'|');
+	printf("\n\n");
 
 	free(str);
 
