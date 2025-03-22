@@ -13,10 +13,9 @@ int test1(int argc, char* argv[])
 	const size_t n = strlen(str);
 	printf("\ninput string (%lu): '%s'\n\n",n,str);
 
-	const size_t cks = LZ76c_ks(str);
-	const size_t cwp = LZ76c_wp(str);
-	const size_t c   = LZ76c   (str);
-	printf("complexity = %zu    %zu    %zu\n\n",cks,cwp,c);
+	const size_t cref = LZ76c_ref(str);
+	const size_t c    = LZ76c    (str);
+	printf("complexity = %zu    %zu\n\n",cref,c);
 
 	size_t* const cc = malloc(n*sizeof(size_t));
 	LZ76c_x(str,cc);
@@ -70,17 +69,20 @@ int test2(int argc, char* argv[])
 
 int test3(int argc, char* argv[])
 {
-	char* const  str = strdup(argc < 2 ? "0001101001000101" : argv[1]); // input cstring (also try without last A)
+	char* const  str = strdup(argc < 2 ? "00010100001010010010111110001011" : argv[1]); // input cstring (also try without last A)
 	const size_t n = strlen(str);
 	printf("\ninput string (%lu): '%s'\n\n",n,str);
 
 	strset_t* ddic = strset_init();
 
-	const size_t c = LZ76c_d(str,ddic);
-
-	printf("LZ76c = %zu : ",c);
-	ddic_print(ddic,'|');
-	printf("\n\n");
+	for (size_t k = 0; k < n; ++k) {
+		str[n-k] = 0;
+		const size_t c = LZ76c_d(str,ddic);
+		printf("LZ76c = %3zu : ",c);
+		ddic_print(ddic,'|');
+		putchar('\n');
+	}
+	putchar('\n');
 
 	free(str);
 

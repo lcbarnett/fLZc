@@ -8,8 +8,39 @@
 #include <mat.h>
 
 #include "khashl.h"
+#include "mt64.h"
 
 KHASHL_CSET_INIT(KH_LOCAL, strset_t, strset, const char*, kh_hash_str, kh_eq_str)
+
+typedef struct idic_node { // very basic single-linked list
+	char* word;
+	struct idic_node*     next;
+} idic_t;
+
+static inline idic_t* idic_push(idic_t* idic, char* const word)
+{
+	if (idic == NULL) { // first push
+		idic = malloc(sizeof(idic_t));
+	}
+	else {
+		idic->next = malloc(sizeof(idic_t));
+		idic = idic->next;
+	}
+	idic->word = word;
+	idic->next = NULL;
+	return idic;
+}
+
+static inline void idic_destroy(idic_t* const idic)
+{
+	idic_t* p = idic;
+	while (p != NULL) {
+		idic_t* pold = p;
+		p = pold->next;
+		free(pold->word);
+		free(pold);
+	}
+}
 
 static inline double LZ76c_max(const size_t n, const int d)
 {
@@ -48,5 +79,7 @@ mxArray* sdic_to_cvec(const char* const sdic, const size_t c);
 void ddic_print(const strset_t* const ddic, const char sepchar);
 
 mxArray* ddic_to_cvec(const strset_t* const ddic);
+
+void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng);
 
 #endif // UTILS_H

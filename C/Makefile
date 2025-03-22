@@ -90,6 +90,7 @@ MBIP = $(patsubst %,$(MEXDIR)/%,$(MBIN))
 
 MFLAGS = -std=c99 -march=native
 WFLAGS = -Wall -Wextra -Wconversion -pedantic-errors
+# DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE
 DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE -DNDEBUG
 
 ifeq ($(OS),WIN)

@@ -83,3 +83,12 @@ mxArray* ddic_to_cvec(const strset_t* const ddic)
 	kh_foreach(ddic,k) mxSetCell(cvec,i++,mxCreateString(kh_key(ddic,k)));
 	return cvec;
 }
+
+void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng)
+{
+	//NOTE: string buffer `str' MUST have length > n (probably n+1)!!!
+	const double aa = (double)a;
+	const double ao = (double)aoff;
+	for (size_t i=0; i<n; ++i) str[i] = (char)(ao+aa*mt_rand(prng));
+	str[n] = 0; // NUL-terminate
+}

@@ -30,7 +30,4 @@ inline double mt_rand(mt_t* const pstate)
 	return (double)(mt_uint64(pstate) >> 11) * (1.0/9007199254740992.0);
 }
 
-// generates a double-precision pseudo-random normal variate ~ N(0,1)
-double mt_randn(mt_t* const pstate);
-
 #endif // MT64_H

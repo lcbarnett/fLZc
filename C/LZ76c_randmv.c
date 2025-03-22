@@ -34,11 +34,10 @@ int main(int argc, char* argv[])
 	printf("random seed      = %zu%s\n",s,s?"":" (random random seed :-)");
 	printf("output directory = %s\n\n",D);
 
-	mt_t prng;                  // pseudo-random number generator
-	mt_seed(&prng,(mtuint_t)s); // initialise PRNG
+	mt_t rng;                  // pseudo-random number generator
+	mt_seed(&rng,(mtuint_t)s); // initialise PRNG
 
-	char* const str = malloc(n+1);
-	str[n] = 0; // NUL-terminate string
+	char* const str  = malloc(n+1); // no need to NUL-terminate; we're going to randomise it
 
 	size_t* const c = malloc(n*sizeof(size_t));
 
@@ -48,16 +47,12 @@ int main(int argc, char* argv[])
 	mxArray* const pcvar = v ? mxCreateDoubleMatrix(n,1,mxREAL) : NULL;
 	double*  const cvar  = v ? mxGetDoubles(pcvar) : NULL;
 
-	const double aa = (double)a;
-	const double a0 = (double)'0';
-
 	printf("Calculating means%s ...",v ? " and variances" : ""); fflush(stdout);
 	const clock_t tstart = clock();
 	if (cvar == NULL) {
 		for (size_t i=0; i<n; ++i) cmean[i] = 0.0;
 		for (size_t s=0; s<N; ++s) {
-			for (size_t i=0; i<n; ++i) str[i] = (char)(a0+aa*mt_rand(&prng));
-			str[n] = 0; // NUL-terminate string
+			make_random_string(str,n,a,'0',&rng);
 			LZ76c_x(str,c);
 			for (size_t i=0; i<n; ++i) cmean[i] += (double)c[i];
 		}
@@ -68,8 +63,7 @@ int main(int argc, char* argv[])
 		for (size_t i=0; i<n; ++i) cmean[i] = 0.0;
 		for (size_t i=0; i<n; ++i) cvar[i]  = 0.0;
 		for (size_t s=0; s<N; ++s) {
-			for (size_t i=0; i<n; ++i) str[i] = (char)(a0+aa*mt_rand(&prng));
-			str[n] = 0; // NUL-terminate string
+			make_random_string(str,n,a,'0',&rng);
 			LZ76c_x(str,c);
 			for (size_t i=0; i<n; ++i)  cmean[i] +=  (double)c[i];
 			for (size_t i=0; i<n; ++i)  cvar[i]  += ((double)c[i])*((double)c[i]);
