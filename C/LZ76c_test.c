@@ -91,9 +91,24 @@ int test3(int argc, char* argv[])
 	return EXIT_SUCCESS;
 }
 
+int test4(int UNUSED argc, char UNUSED * argv[])
+{
+	idic_t* p = idic_push(NULL,strdup("Hellow"));
+	idic_t* const idic = p; // bottom of the dictionary
+	p = idic_push(p,strdup("how"));
+	p = idic_push(p,strdup("are"));
+	p = idic_push(p,strdup("you?"));
+
+	idic_print(idic,'|');
+
+	idic_destroy(idic);
+
+	return EXIT_SUCCESS;
+}
+
 // Main function
 
-static const int ntests = 3;
+static const int ntests = 4;
 
 int main(int argc, char* argv[])
 {
@@ -111,6 +126,7 @@ int main(int argc, char* argv[])
 		case 1 : return test1(argc-1,argv+1);
 		case 2 : return test2(argc-1,argv+1);
 		case 3 : return test3(argc-1,argv+1);
+		case 4 : return test4(argc-1,argv+1);
 	}
 	return(EXIT_FAILURE); // shouldn't get here!
 }

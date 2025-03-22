@@ -37,11 +37,11 @@ void tfmt(char* const tstr, const size_t tsmaxlen, const double t /* secs */)
 
 void sdic_to_str(char* const sdic, const size_t c, const char sepchar)
 {
-	// replace seprating NULs with seperator char
-
+	// replace separating NULs with seperator char
+	// c is the size of the dictionary; i.e., the LZc :-)
 	char* word = sdic;
 	for (size_t k = 0; k < c; ++k) {
-		word += (strlen(word)); // :-)
+		word += strlen(word); // :-)
 		*word++ = sepchar;
 	}
 	*--word = 0; // NUL-terminate string
@@ -49,22 +49,18 @@ void sdic_to_str(char* const sdic, const size_t c, const char sepchar)
 
 void sdic_print(const char* const sdic, const size_t c, const char sepchar)
 {
-	const char* word = sdic;
+	// c is the size of the dictionary; i.e., the LZc :-)
 	putchar(sepchar);
-	for (size_t k = 0; k < c; ++k) {
-		printf("%s%c",word,sepchar);
-		word += (strlen(word)+1); // :-)
-	}
+	size_t k = 0;
+	for (const char* word = sdic; k < c; ++k, word += strlen(word)+1) printf("%s%c",word,sepchar);
 }
 
 mxArray* sdic_to_cvec(const char* const sdic, const size_t c)
 {
+	// c is the size of the dictionary; i.e., the LZc :-)
 	mxArray* const cvec = mxCreateCellMatrix(c,1); // should be destroyed (somewhere)
-	const char* word = sdic;
-	for (size_t k = 0; k < c; ++k) {
-		mxSetCell(cvec,k,mxCreateString(word));
-		word += (strlen(word)+1); // :-)
-	}
+	size_t k = 0;
+	for (const char* word = sdic; k < c; ++k, word += strlen(word)+1) mxSetCell(cvec,k,mxCreateString(word));
 	return cvec;
 }
 
@@ -84,9 +80,25 @@ mxArray* ddic_to_cvec(const strset_t* const ddic)
 	return cvec;
 }
 
+void idic_print(const idic_t* const idic, const char sepchar)
+{
+	putchar(sepchar);
+	for (const idic_t* p = idic; p != NULL; p = p->next)printf("%s%c",p->word,sepchar);
+}
+
+mxArray* idic_to_cvec(const idic_t* const idic, const size_t c)
+{
+	// c is the size of the dictionary; i.e., the LZc :-)
+	mxArray* const cvec = mxCreateCellMatrix(c,1); // should be destroyed (somewhere)
+	mwIndex i = 0;
+	for (const idic_t* p = idic; p != NULL; p = p->next) mxSetCell(cvec,i++,mxCreateString(p->word));
+	return cvec;
+}
+
 void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng)
 {
-	//NOTE: string buffer `str' MUST have length > n (probably n+1)!!!
+	// Create a uniform random string on a dictionary of a consecutive characters starting at aoff
+	// NOTE: string buffer `str' MUST have length > n (probably n+1)!!!
 	const double aa = (double)a;
 	const double ao = (double)aoff;
 	for (size_t i=0; i<n; ++i) str[i] = (char)(ao+aa*mt_rand(prng));

@@ -33,12 +33,13 @@ static inline idic_t* idic_push(idic_t* idic, char* const word)
 
 static inline void idic_destroy(idic_t* const idic)
 {
-	idic_t* p = idic;
-	while (p != NULL) {
-		idic_t* pold = p;
-		p = pold->next;
-		free(pold->word);
-		free(pold);
+	// burn our bridges behind us
+	idic_t* pnext = idic;
+	while (pnext != NULL) {
+		idic_t* const p = pnext;
+		pnext = p->next;
+		free(p->word);
+		free(p);
 	}
 }
 
@@ -79,6 +80,10 @@ mxArray* sdic_to_cvec(const char* const sdic, const size_t c);
 void ddic_print(const strset_t* const ddic, const char sepchar);
 
 mxArray* ddic_to_cvec(const strset_t* const ddic);
+
+void idic_print(const idic_t* const idic, const char sepchar);
+
+mxArray* idic_to_cvec(const idic_t* const idic, const size_t c);
 
 void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng);
 
