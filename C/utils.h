@@ -38,6 +38,9 @@ static inline void idic_destroy(idic_t* const idic)
 	while (pnext != NULL) {
 		idic_t* const p = pnext;
 		pnext = p->next;
+#ifndef NDEBUG
+		fprintf(stderr,"freeing word [%s]\n",p->word);
+#endif
 		free(p->word);
 		free(p);
 	}

@@ -93,13 +93,16 @@ int test3(int argc, char* argv[])
 
 int test4(int UNUSED argc, char UNUSED * argv[])
 {
-	idic_t* p = idic_push(NULL,strdup("Hellow"));
+	idic_t* p = idic_push(NULL,strdup("Hello!"));
 	idic_t* const idic = p; // bottom of the dictionary
-	p = idic_push(p,strdup("how"));
+	p = idic_push(p,strdup("How"));
 	p = idic_push(p,strdup("are"));
 	p = idic_push(p,strdup("you?"));
 
+	putchar('\n');
 	idic_print(idic,'|');
+	putchar('\n');
+	putchar('\n');
 
 	idic_destroy(idic);
 
