@@ -1,7 +1,7 @@
 # fLZc
  [Lempel-Ziv complexity](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv_complexity) (LZc) is a measure associated with sequences of symbols, and is related (but _not_ identical) to [Kolmogorov complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). Note that it does not necessarily measure "complexity" in the colloquial sense; rather, it measures roughly how simple a sequence is to describe, or how "compressible" a sequence is (indeed, Lempel-Ziv algorithms are widely used for compressing data). The more "random" a sequence, the higher it tends to score.
 
-There are many flavours of Lempel-Ziv algorithms. The __fLZc (fast Lempel-Ziv complexity) library__ is written in C, with a [Matlab](https://uk.mathworks.com/) interface: it computes LZ76c [^1] and LZ78c [^2], with optional normalisation.
+The __fLZc (fast Lempel-Ziv complexity) library__ is written in C, with a [Matlab](https://uk.mathworks.com/) interface. LZc comes in many flavours; the __fLZc__ computes the canonical LZ76c [^1] and LZ78c [^2] versions, with optional normalisation.
 
 ### Building
 You will need the [Make](https://www.gnu.org/software/make/) build tool installed on your system, a suitable C99 compiler (e.g., [GCC](https://gcc.gnu.org/) or [Clang](https://clang.llvm.org/)), and the Matlab `mex` and `makemex` executables on your system execution path. You will also need to set up an environmental variable `MATLAB_PATH` which contains the root path of your Matlab installation. [^3]
