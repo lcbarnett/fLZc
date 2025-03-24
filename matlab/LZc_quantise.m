@@ -8,16 +8,30 @@ function [s,qtiles] = LZc_quantise(x,q,use_qtiles,numsym)
 %
 % If q is a vector, then don't do actual quantiles: instead, q(k) = k-th quantisation level.
 %
+% If q is the string 'mean', then binarise around the mean, rather than by quantiles
+%
 % s returns the quantised symbol string, qtiles the quantisation levels used (normally quantiles).
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if nargin < 3 || isempty(use_qtiles), use_qtiles = true; end % default: calculate quantiles
-if nargin < 4 || isempty(numsym),     numsym     = true; end % default: numeric symbols
-
 assert(isvector(x),'Input must be a column vector');
 x = x(:); % ensure column vector
 n = length(x);
+
+if ischar(q) && strcmpi(q,'mean') % binarise around the mean (rather than median)
+	qtiles = mean(x);
+	z = zeros(1,n);
+	z(x > qtiles) = 1;
+	if numsym
+		s = char(48+z); % '0', '1', '2', ...
+	else
+		s = char(97+z); % 'a', 'b', 'c', ...
+	end
+	return
+end
+
+if nargin < 3 || isempty(use_qtiles), use_qtiles = true; end % default: calculate quantiles
+if nargin < 4 || isempty(numsym),     numsym     = true; end % default: numeric symbols
 
 if use_qtiles
 	assert(isnumeric(q) && q == floor(q) && q >= 0,'Number of quantiles must be a non-negative integer');
