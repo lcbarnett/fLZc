@@ -73,45 +73,27 @@ int test3(int argc, char* argv[])
 	const size_t n = strlen(str);
 	printf("\ninput string (%lu): '%s'\n\n",n,str);
 
-	strset_t* ddic = strset_init();
+	strmap_t* ddic = strmap_init();
 
 	for (size_t k = 0; k < n; ++k) {
 		str[n-k] = 0;
 		const size_t c = LZ76c_d(str,ddic);
 		printf("LZ76c = %3zu : ",c);
-		ddic_print(ddic,'|');
+		ddm_print(ddic,'|');
 		putchar('\n');
 	}
 	putchar('\n');
 
 	free(str);
 
-	dd_destroy(ddic);
-
-	return EXIT_SUCCESS;
-}
-
-int test4(int UNUSED argc, char UNUSED * argv[])
-{
-	idic_t* p = idic_push(NULL,strdup("Hello!"));
-	idic_t* const idic = p; // bottom of the dictionary
-	p = idic_push(p,strdup("How"));
-	p = idic_push(p,strdup("are"));
-	p = idic_push(p,strdup("you?"));
-
-	putchar('\n');
-	idic_print(idic,'|');
-	putchar('\n');
-	putchar('\n');
-
-	idic_destroy(idic);
+	ddm_destroy(ddic);
 
 	return EXIT_SUCCESS;
 }
 
 // Main function
 
-static const int ntests = 4;
+static const int ntests = 3;
 
 int main(int argc, char* argv[])
 {
@@ -129,7 +111,6 @@ int main(int argc, char* argv[])
 		case 1 : return test1(argc-1,argv+1);
 		case 2 : return test2(argc-1,argv+1);
 		case 3 : return test3(argc-1,argv+1);
-		case 4 : return test4(argc-1,argv+1);
 	}
 	return(EXIT_FAILURE); // shouldn't get here!
 }

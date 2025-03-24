@@ -64,14 +64,14 @@ mxArray* sdic_to_cvec(const char* const sdic, const size_t c)
 	return cvec;
 }
 
-void ddic_print(const strset_t* const ddic, const char sepchar)
+void dds_print(const strset_t* const ddic, const char sepchar)
 {
 	putchar(sepchar);
 	khint_t k;
 	kh_foreach(ddic,k) printf("%s%c",kh_key(ddic,k),sepchar);
 }
 
-mxArray* ddic_to_cvec(const strset_t* const ddic)
+mxArray* dds_to_cvec(const strset_t* const ddic)
 {
 	mxArray* const cvec = mxCreateCellMatrix(kh_size(ddic),1); // should be destroyed (somewhere)
 	khint_t k; // NOTE: khashl iterators are not generally sequential!!!
@@ -80,18 +80,30 @@ mxArray* ddic_to_cvec(const strset_t* const ddic)
 	return cvec;
 }
 
-void idic_print(const idic_t* const idic, const char sepchar)
+void ddm_print(const strmap_t* const ddic, const char sepchar)
 {
+	const size_t c = kh_size(ddic);
+	const char** const darray = malloc(c*sizeof(const char*));
+	// build sorted array
+	khint_t k;
+	kh_foreach(ddic,k) darray[kh_val(ddic,k)] = kh_key(ddic,k);
+	// print from sorted array
 	putchar(sepchar);
-	for (const idic_t* p = idic; p != NULL; p = p->next)printf("%s%c",p->word,sepchar);
+	for (size_t i = 0; i < c; ++i) printf("%s%c",darray[i],sepchar);
+	free(darray);
 }
 
-mxArray* idic_to_cvec(const idic_t* const idic, const size_t c)
+mxArray* ddm_to_cvec(const strmap_t* const ddic)
 {
-	// c is the size of the dictionary; i.e., the LZc :-)
-	mxArray* const cvec = mxCreateCellMatrix(c,1); // should be destroyed (somewhere)
-	mwIndex i = 0;
-	for (const idic_t* p = idic; p != NULL; p = p->next) mxSetCell(cvec,i++,mxCreateString(p->word));
+	const size_t c = kh_size(ddic);
+	const char** const darray = malloc(c*sizeof(const char*));
+	// build sorted array
+	khint_t k;
+	kh_foreach(ddic,k) darray[kh_val(ddic,k)] = kh_key(ddic,k);
+	// assign to cell array from sorted array
+	mxArray* const cvec = mxCreateCellMatrix(kh_size(ddic),1); // should be destroyed (somewhere)
+	for (size_t i = 0; i < c; ++i) mxSetCell(cvec,i,mxCreateString(darray[i]));
+	free(darray);
 	return cvec;
 }
 

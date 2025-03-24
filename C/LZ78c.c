@@ -66,7 +66,7 @@ size_t LZ78cd(char* const str, strset_t* const ddic)
 	//
 	// hash set ddic must be initialised (allocated) with dd_destroy(), and must be deallocated after use!
 
-	dd_clear(ddic);                                // clear dynamic dictionary
+	dds_clear(ddic);                               // clear dynamic dictionary
 	int added;                                     // flag for strset_put
 	char wchar;                                    // temp storage for current word one-past-end
 	char* p = str;                                 // current word start
@@ -103,7 +103,7 @@ void LZ78cd_x(char* const str, strset_t* const ddic, size_t* const c)
 	//
 	// c MUST be same size as the input string.
 
-	dd_clear(ddic);                                // clear dynamic dictionary
+	dds_clear(ddic);                               // clear dynamic dictionary
 	int added;                                     // flag for strset_put
 	char wchar;                                    // temp storage for current word one-past-end
 	char* p = str;                                 // current word start

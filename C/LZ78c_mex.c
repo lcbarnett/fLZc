@@ -19,8 +19,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 	else {                                               // dynamic dictionary
 		strset_t* ddic = strset_init();                  // allocate and initialise dynamic dictionary (hash set)
 		c = LZ78cd(str,ddic);                            // LZ78 algorithm: build the dictionary
-		if (nlhs > 1) plhs[1] = ddic_to_cvec(ddic);      // optionally output dictionary as cell vector of strings
-		dd_destroy(ddic);                                // deallocate dynamic dictionary
+		if (nlhs > 1) plhs[1] = dds_to_cvec(ddic);       // optionally output dictionary as cell vector of strings
+		dds_destroy(ddic);                               // deallocate dynamic dictionary
 	}
 	mxFree(str);                                         // deallocate string
 	plhs[0] = mxCreateDoubleScalar((double)c);           // output LZc

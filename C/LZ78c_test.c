@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
 	size_t* const cc2a = malloc(na*sizeof(size_t));
 	LZ78cd_x(stra,ddic,cc2a);
-	ddic_print(ddic,sepchar);
+	dds_print(ddic,sepchar);
 	printf("\n\n");
 
 	printf("*** complexity a =\n");
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
 	size_t* const cc2b = malloc(nb*sizeof(size_t));
 	LZ78cd_x(strb,ddic,cc2b);
-	ddic_print(ddic,sepchar);
+	dds_print(ddic,sepchar);
 	printf("\n\n");
 
 	printf("*** complexity b =\n");
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 	free(cc1b);
 	free(strb);
 
-	dd_destroy(ddic);
+	dds_destroy(ddic);
 
 	return EXIT_SUCCESS;
 }

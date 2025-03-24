@@ -9,6 +9,10 @@
 
 typedef uint64_t mtuint_t;
 
+// format specifier for mtuint_t
+
+#define PRImtui PRIu64
+
 #define NN 312
 typedef struct {
 	mtuint_t mt[NN];

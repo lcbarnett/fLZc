@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	printf("alphabet size   =  %d\n",     a);
 	printf("alphabet offset = '%c'\n",    o);
 	printf("sample size     =  %zu\n",    N);
-	printf("random seed     =  %zu%s\n\n",(size_t)s,s?"":" (random random seed :-)");
+	printf("random seed     =  %"PRImtui"%s\n\n",s,s?"":" (random random seed :-)");
 
 	mt_t rng; // pseudo-random number generator
 

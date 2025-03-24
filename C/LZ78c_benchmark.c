@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <inttypes.h>
 #include <time.h>
 
 #include "LZ78c.h"
@@ -24,7 +25,7 @@ int main(int argc, char* argv[])
 	printf("alphabet size   =  %d\n",     a);
 	printf("alphabet offset = '%c'\n",    o);
 	printf("sample size     =  %zu\n",    N);
-	printf("random seed     =  %zu%s\n\n",(size_t)s,s?"":" (random random seed :-)");
+	printf("random seed     =  %"PRImtui"%s\n\n",s,s?"":" (random random seed :-)");
 
 	mt_t rng; // pseudo-random number generator
 
@@ -65,7 +66,7 @@ int main(int argc, char* argv[])
 	cmeand /= (double)N;
 	tend = clock();
 	printf(" time = %.4f seconds : mean LZ78c = %.4f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeand);
-	dd_destroy(ddic);
+	dds_destroy(ddic);
 
 	free(c);
 	free(str);

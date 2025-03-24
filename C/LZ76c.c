@@ -116,7 +116,7 @@ const char* strdupt(const char* const word, const char tag)
 	return tword;                    // remember to deallocate !!!
 }
 
-size_t LZ76c_d(char* const str, strset_t* const ddic)
+size_t LZ76c_d(char* const str, strmap_t* const ddic)
 {
 	// LZ76c algorithm: dictionary version
 	//
@@ -128,28 +128,31 @@ size_t LZ76c_d(char* const str, strset_t* const ddic)
 	// character (which mustn't be in the alphabet!) and then add it to the
 	// dictionary, so that complexity always equals  dictionary size.
 	//
+	// The LZc value is stored along with each word in the dictionary,so
+	// that the hash map can later be sorted in word addition order.
+	//
 	// Remember to destroy the dictionary after use!
 
-	dd_clear(ddic);
-	const size_t n = strlen(str);
-	int added;                              // flag for strset_put
-	khint_t i;                              // strset_t iterator
-	strset_put(ddic,strndup(str,1),&added); // add first character to dictionary
-	if (n == 1) return 1;
-	size_t k, w, c = 1;
-	const char* const pend = str+n;         // point past end of string
-	char* p = str+1;
+	ddm_clear(ddic);                // clear dictionary, in case it's not empty
+	const size_t n = strlen(str);   // string length
+	int added;                      // flag for strmap_put
+	size_t k, w, c = 0;             // some counters
+	khint_t i = strmap_put(ddic,strndup(str,1),&added); // add first character to dictionary
+	kh_val(ddic,i) = c++;           // store complexity in dictionary, and increment
+	if (n == 1) return 1;           // may as well
+	const char* const pend = str+n; // point past end of string
+	char* p = str+1;                // next character
 	while (p < pend) {
 		k = 0;
 		w = 0;
 		for (const char* q = str; q < p;) {
 			if (q[k] == p[k]) {
 				++k;
-				if (p+k >= pend) { // last word, so p is already null-terminated
-					++c;
-					i = strset_put(ddic,p,&added); // check if already in dictionary
-					// if wasn't in dictionary, just add; else tag and then add
-					if (added) kh_key(ddic,i) = strdup(p); else strset_put(ddic,strdupt(p,TAGCHAR),&added);
+				if (p+k >= pend) {                 // last word, so p is already null-terminated
+					i = strmap_put(ddic,p,&added); // check if already in dictionary if it wasn't
+										           // just add it; if it was, tag and then add
+					if (added) kh_key(ddic,i) = strdup(p); else i = strmap_put(ddic,strdupt(p,TAGCHAR),&added);
+					kh_val(ddic,i) = c++;          // store complexity in dictionary, and increment
 					assert(c == kh_size(ddic));
 					return c;
 				}
@@ -160,17 +163,15 @@ size_t LZ76c_d(char* const str, strset_t* const ddic)
 				++q;
 			}
 		}
-		++c;
-		const char* const word = p;           // word to add to dictionary
-		p += (w+1);                           // end of word
-		const char psave = *p;                // save char at end of word
-		*p = 0;                               // NUL-terminate word
-		strset_put(ddic,strdup(word),&added); // add to dictionary
-		assert(added);                        // word should NOT have been in dictionary!
-		*p = psave;                           // restore char at end of word
+		const char* const word = p; // word to add to dictionary
+		p += (w+1);                 // end of word
+		const char psave = *p;      // save char at end of word
+		*p = 0;                     // NUL-terminate word
+		i = strmap_put(ddic,strdup(word),&added); // add to dictionary
+		kh_val(ddic,i) = c++;       // store complexity in dictionary, and increment
+		assert(added);              // word should NOT have been in dictionary!
+		*p = psave;                 // restore char at end of word
 	}
-	// if last word was in the dictionary, tag and then add it
-//	if (!added) strset_put(ddic,strdupt(p-(w+1),TAGCHAR),&added);
 	assert(c == kh_size(ddic));
 	return c;
 }
