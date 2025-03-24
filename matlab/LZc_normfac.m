@@ -37,63 +37,38 @@ assert(ver == 76 || ver == 78,'Lempel-Ziv version must be 76 or 78');
 if nargin < 4 || isempty(asymp), asymp = false; end % default: use random data files
 
 if asymp
+	error('Sorry, asymptotic bounds not currently implemented (and actually not that great for normalisation anyway)');
+end
 
-	% not entirely correct -temporarily unavailable
+global fLZc_data_path;
+cmean = [];
+cvar  = [];
+fname = fullfile(fLZc_data_path,sprintf('LZ%dc_rand_a%02d.mat',ver,a));
+try
+	load(fname);
+catch
+	error('\n\t*** No data found for alphabet size %d ***',a);
+end
 
-	error('Sorry, asymptotic bounds not currently implemented');
+% loaded:
+%
+% nmax   : max string length
+% asize  : alphabet size
+% nsamps : number of samples used for estimates
+% rseed  : random seed
+% cmean  : means     at each string length 1 ... nmax
+% cvar   : (optionally) variances at each string length 1 ... nmax
 
-%{
-	loga = log(a);
-	logn = log(n);
-	logan = logn/loga;
+iof = find(n <= nmax); % indices on file
+nof = n(iof);          % values on file
 
-	if ver == 76
+numn = length(n);
 
-%		e  = (loga + log(1+logan))./logn;
-%		cm = n./((1-e).*logan);
-		cm = n./logan;
+cm = nan(numn,1);
+cm(iof) = cmean(nof);
 
-	else
-
-		cm = n./logan;
-
-	end
-
-	cv = [];
-%}
-else
-
-	global fLZc_data_path;
-	cmean = [];
-	cvar  = [];
-	fname = fullfile(fLZc_data_path,sprintf('LZ%dc_rand_a%02d.mat',ver,a));
-	try
-		load(fname);
-	catch
-		error('\n\t*** No data found for alphabet size %d ***',a);
-	end
-
-	% loaded:
-	%
-	% nmax   : max string length
-	% asize  : alphabet size
-	% nsamps : number of samples used for estimates
-	% rseed  : random seed
-	% cmean  : means     at each string length 1 ... nmax
-	% cvar   : (optionally) variances at each string length 1 ... nmax
-
-	iof = find(n <= nmax); % indices on file
-	nof = n(iof);          % values on file
-
-	numn = length(n);
-
-	cm = nan(numn,1);
-	cm(iof) = cmean(nof);
-
-	if nargout > 1
-		assert(~isempty(cvar),'Sorry, ''%s'' does not contain variances',fname);
-		cv = nan(numn,1);
-		cv(iof) = cvar(nof);
-	end
-
+if nargout > 1
+	assert(~isempty(cvar),'Sorry, ''%s'' does not contain variances',fname);
+	cv = nan(numn,1);
+	cv(iof) = cvar(nof);
 end
