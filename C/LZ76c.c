@@ -105,17 +105,6 @@ void LZ76c_x(const char* const str, size_t* const c)
 	}
 }
 
-const char* strdupt(const char* const word, const char tag)
-{
-	// Duplicate word with tag character
-	const size_t n = strlen(word);   // length of word
-	char* const tword = malloc(n+2); // allocate extra space for the tag character
-	strcpy(tword,word);              // copy last word into tagged word buffer
-	tword[n] = tag;                  // insert the tag
-	tword[n+1] = 0;                  // NUL-terminate
-	return tword;                    // remember to deallocate !!!
-}
-
 size_t LZ76c_d(char* const str, strmap_t* const ddic)
 {
 	// LZ76c algorithm: dictionary version
