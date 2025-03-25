@@ -35,7 +35,19 @@ void tfmt(char* const tstr, const size_t tsmaxlen, const double t /* secs */)
 	snprintf(tstr,tsmaxlen,"%d:%d:%.4f",hrs,mins,secs); // h:m:s
 }
 
-void sdic_to_str(char* const sdic, const size_t c, const char sepchar)
+void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng)
+{
+	// Create a uniform random string on a dictionary of a consecutive characters starting at aoff
+	// NOTE: string buffer `str' MUST have length > n (probably n+1)!!!
+	const double aa = (double)a;
+	const double ao = (double)aoff;
+	for (size_t i=0; i<n; ++i) str[i] = (char)(ao+aa*mt_rand(prng));
+	str[n] = 0; // NUL-terminate
+}
+
+// Static dictionary
+
+void sd_to_str(char* const sdic, const size_t c, const char sepchar)
 {
 	// replace separating NULs with seperator char
 	// c is the size of the dictionary; i.e., the LZc :-)
@@ -47,7 +59,7 @@ void sdic_to_str(char* const sdic, const size_t c, const char sepchar)
 	*--word = 0; // NUL-terminate string
 }
 
-void sdic_print(const char* const sdic, const size_t c, const char sepchar)
+void sd_print(const char* const sdic, const size_t c, const char sepchar)
 {
 	// c is the size of the dictionary; i.e., the LZc :-)
 	putchar(sepchar);
@@ -55,7 +67,7 @@ void sdic_print(const char* const sdic, const size_t c, const char sepchar)
 	for (const char* word = sdic; k < c; ++k, word += strlen(word)+1) printf("%s%c",word,sepchar);
 }
 
-mxArray* sdic_to_cvec(const char* const sdic, const size_t c)
+mxArray* sd_to_cvec(const char* const sdic, const size_t c)
 {
 	// c is the size of the dictionary; i.e., the LZc :-)
 	mxArray* const cvec = mxCreateCellMatrix(c,1); // should be destroyed (somewhere)
@@ -64,14 +76,16 @@ mxArray* sdic_to_cvec(const char* const sdic, const size_t c)
 	return cvec;
 }
 
-void dds_print(const strset_t* const ddic, const char sepchar)
+// Dynamic dictionary (hash set - cannot sort)
+
+void ds_print(const strset_t* const ddic, const char sepchar)
 {
 	putchar(sepchar);
 	khint_t k;
 	kh_foreach(ddic,k) printf("%s%c",kh_key(ddic,k),sepchar);
 }
 
-mxArray* dds_to_cvec(const strset_t* const ddic)
+mxArray* ds_to_cvec(const strset_t* const ddic)
 {
 	mxArray* const cvec = mxCreateCellMatrix(kh_size(ddic),1); // should be destroyed (somewhere)
 	khint_t k; // NOTE: khashl iterators are not generally sequential!!!
@@ -80,7 +94,9 @@ mxArray* dds_to_cvec(const strset_t* const ddic)
 	return cvec;
 }
 
-void ddm_print(const strmap_t* const ddic, const char sepchar)
+// Dynamic dictionary (hash map - can sort)
+
+void dm_print(const strmap_t* const ddic, const char sepchar)
 {
 	const size_t c = kh_size(ddic);
 	const char** const darray = malloc(c*sizeof(const char*));
@@ -93,7 +109,7 @@ void ddm_print(const strmap_t* const ddic, const char sepchar)
 	free(darray);
 }
 
-mxArray* ddm_to_cvec(const strmap_t* const ddic)
+mxArray* dm_to_cvec(const strmap_t* const ddic)
 {
 	const size_t c = kh_size(ddic);
 	const char** const darray = malloc(c*sizeof(const char*));
@@ -105,14 +121,4 @@ mxArray* ddm_to_cvec(const strmap_t* const ddic)
 	for (size_t i = 0; i < c; ++i) mxSetCell(cvec,i,mxCreateString(darray[i]));
 	free(darray);
 	return cvec;
-}
-
-void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng)
-{
-	// Create a uniform random string on a dictionary of a consecutive characters starting at aoff
-	// NOTE: string buffer `str' MUST have length > n (probably n+1)!!!
-	const double aa = (double)a;
-	const double ao = (double)aoff;
-	for (size_t i=0; i<n; ++i) str[i] = (char)(ao+aa*mt_rand(prng));
-	str[n] = 0; // NUL-terminate
 }

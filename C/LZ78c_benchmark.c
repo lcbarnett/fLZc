@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	double cmeans = 0.0;
 	for (size_t k=0; k<N; ++k) {
 		make_random_string(str,n,a,o,&rng);
-		LZ78cs_x(str,sdic,sdlen,c);
+		LZ78c_sd_x(str,sdic,sdlen,c);
 		cmeans += (double)c[n-1];
 	}
 	cmeans /= (double)N;
@@ -60,13 +60,13 @@ int main(int argc, char* argv[])
 	double cmeand = 0.0;
 	for (size_t k=0; k<N; ++k) {
 		make_random_string(str,n,a,o,&rng);
-		LZ78cd_x(str,ddic,c);
+		LZ78c_ds_x(str,ddic,c);
 		cmeand += (double)c[n-1];
 	}
 	cmeand /= (double)N;
 	tend = clock();
 	printf(" time = %.4f seconds : mean LZ78c = %.4f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeand);
-	dds_destroy(ddic);
+	ds_destroy(ddic);
 
 	free(c);
 	free(str);

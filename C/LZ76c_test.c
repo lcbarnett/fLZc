@@ -77,16 +77,16 @@ int test3(int argc, char* argv[])
 
 	for (size_t k = 0; k < n; ++k) {
 		str[n-k] = 0;
-		const size_t c = LZ76c_d(str,ddic);
+		const size_t c = LZ76c_dm(str,ddic);
 		printf("LZ76c = %3zu : ",c);
-		ddm_print(ddic,'|');
+		dm_print(ddic,'|');
 		putchar('\n');
 	}
 	putchar('\n');
 
 	free(str);
 
-	ddm_destroy(ddic);
+	dm_destroy(ddic);
 
 	return EXIT_SUCCESS;
 }

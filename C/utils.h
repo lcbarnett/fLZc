@@ -27,33 +27,7 @@ void LZ76c_maxv(size_t* const n, const size_t len, double* const cmax, const int
 
 void tfmt(char* const tstr, const size_t tsmaxlen, const double t /* secs */);
 
-static inline void dds_clear(strset_t* ddic)
-{
-	khint_t k;
-	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
-	strset_clear(ddic);
-}
-
-static inline void dds_destroy(strset_t* ddic)
-{
-	khint_t k;
-	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
-	strset_destroy(ddic);
-}
-
-static inline void ddm_clear(strmap_t* ddic)
-{
-	khint_t k;
-	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
-	strmap_clear(ddic);
-}
-
-static inline void ddm_destroy(strmap_t* ddic)
-{
-	khint_t k;
-	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
-	strmap_destroy(ddic);
-}
+void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng);
 
 // Like strdup(), but adds a "tag" character to the end of the copied string
 
@@ -72,20 +46,52 @@ static inline const char* strdupt(const char* const word, const char tag)
 
 #define TAGCHAR ('*')
 
-void sdic_to_str(char* const sdic, const size_t c, const char sepchar);
+// Static dictionary
 
-void sdic_print(const char* const sdic, const size_t c, const char sepchar);
+static inline void ds_clear(strset_t* ddic)
+{
+	khint_t k;
+	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
+	strset_clear(ddic);
+}
 
-mxArray* sdic_to_cvec(const char* const sdic, const size_t c);
+static inline void ds_destroy(strset_t* ddic)
+{
+	khint_t k;
+	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
+	strset_destroy(ddic);
+}
 
-void dds_print(const strset_t* const ddic, const char sepchar);
+void sd_to_str(char* const sdic, const size_t c, const char sepchar);
 
-mxArray* dds_to_cvec(const strset_t* const ddic);
+void sd_print(const char* const sdic, const size_t c, const char sepchar);
 
-void ddm_print(const strmap_t* const ddic, const char sepchar);
+mxArray* sd_to_cvec(const char* const sdic, const size_t c);
 
-mxArray* ddm_to_cvec(const strmap_t* const ddic);
+// Dynamic dictionary (hash set - cannot sort)
 
-void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng);
+void ds_print(const strset_t* const ddic, const char sepchar);
+
+mxArray* ds_to_cvec(const strset_t* const ddic);
+
+// Dynamic dictionary (hash map - can sort)
+
+static inline void dm_clear(strmap_t* ddic)
+{
+	khint_t k;
+	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
+	strmap_clear(ddic);
+}
+
+static inline void dm_destroy(strmap_t* ddic)
+{
+	khint_t k;
+	kh_foreach(ddic,k) free((char*)kh_key(ddic,k));
+	strmap_destroy(ddic);
+}
+
+void dm_print(const strmap_t* const ddic, const char sepchar);
+
+mxArray* dm_to_cvec(const strmap_t* const ddic);
 
 #endif // UTILS_H

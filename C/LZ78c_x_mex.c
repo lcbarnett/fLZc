@@ -12,15 +12,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 	if (static_dict) {                                     // static dictionary? (else dynamic)
 		const size_t sdlen = 2*n;                          // static dictionary length
 		char* const sdic = malloc(sdlen);                  // allocate static dictionary
-		LZ78cs_x(str,sdic,sdlen,c);                        // LZ78 algorithm: build the dictionary
-		if (nlhs > 1) plhs[1] = sdic_to_cvec(sdic,c[n-1]); // optionally output dictionary as cell vector of strings
+		LZ78c_sd_x(str,sdic,sdlen,c);                      // LZ78 algorithm: build the dictionary
+		if (nlhs > 1) plhs[1] = sd_to_cvec(sdic,c[n-1]);   // optionally output dictionary as cell vector of strings
 		free(sdic);                                        // deallocate static dictionary
 	}
 	else {                                                 // dynamic dictionary
 		strset_t* ddic = strset_init();                    // allocate and initialise dynamic dictionary (hash set)
-		LZ78cd_x(str,ddic,c);                              // LZ78 algorithm: build the dictionary
-		if (nlhs > 1) plhs[1] = dds_to_cvec(ddic);        // optionally output dictionary as cell vector of strings
-		dds_destroy(ddic);                                 // deallocate dynamic dictionary
+		LZ78c_ds_x(str,ddic,c);                            // LZ78 algorithm: build the dictionary
+		if (nlhs > 1) plhs[1] = ds_to_cvec(ddic);          // optionally output dictionary as cell vector of strings
+		ds_destroy(ddic);                                  // deallocate dynamic dictionary
 	}
 	mxFree(str);                                           // deallocate string
 	double* const cd = mxGetPr(plhs[0] = mxCreateDoubleMatrix(n,1,mxREAL)); // create (double) output vector for complexities
