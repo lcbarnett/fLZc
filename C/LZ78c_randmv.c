@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 		for (size_t i=0; i<n; ++i) cmean[i] = 0.0;
 		for (size_t s=0; s<N; ++s) {
 			make_random_string(str,n,a,'0',&rng);
-			LZ78cs_x(str,sdic,sdlen,c);
+			LZ78c_sd_x(str,sdic,sdlen,c);
 			for (size_t i=0; i<n; ++i) cmean[i] += (double)c[i];
 		}
 		const double NN = (double)N;
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 		for (size_t i=0; i<n; ++i) cvar[i]  = 0.0;
 		for (size_t s=0; s<N; ++s) {
 			make_random_string(str,n,a,'0',&rng);
-			LZ78cs_x(str,sdic,sdlen,c);
+			LZ78c_sd_x(str,sdic,sdlen,c);
 			for (size_t i=0; i<n; ++i)  cmean[i] +=  (double)c[i];
 			for (size_t i=0; i<n; ++i)  cvar[i]  += ((double)c[i])*((double)c[i]);
 		}

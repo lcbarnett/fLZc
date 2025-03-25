@@ -71,27 +71,27 @@ MEXINC   = $(MATLAB_PATH)/extern/include
 REPDEP = sed -i -e '1s,\($*\)\.o[ :]*,\1.o \.$*.d: ,' \.$*.d
 
 CSRC = mt64.c utils.c LZ76c.c  LZ78c.c
-COBJ = $(patsubst %.c,.%.$(OBJEXT),$(CSRC))
-CDEP = $(patsubst %.o,%.d,$(COBJ))
+COBJ = $(patsubst %.c, .%.$(OBJEXT), $(CSRC))
+CDEP = $(patsubst %.o,  %.d,         $(COBJ))
 
-TSRC = LZ76c_benchmark.c LZ76c_test.c LZ78c_benchmark.c LZ78c_test.c
-TOBJ = $(patsubst %.c,.%.$(OBJEXT),$(TSRC))
-TDEP = $(patsubst %.o,%.d,$(TOBJ))
-TBIN = LZ76c_benchmark$(BINEXT) LZ76c_test$(BINEXT) LZ78c_benchmark$(BINEXT) LZ78c_test$(BINEXT)
-TBIP = $(patsubst %,$(BINDIR)/%,$(TBIN))
+TSRC = LZ76c_test.c LZ76c_benchmark.c LZ78c_test.c LZ78c_benchmark.c
+TOBJ = $(patsubst %.c, .%.$(OBJEXT), $(TSRC))
+TDEP = $(patsubst %.o,  %.d,         $(TOBJ))
+TBIN = $(patsubst %.c,  %$(BINEXT),  $(TSRC))
+TBIP = $(patsubst %,    $(BINDIR)/%, $(TBIN))
 
 NSRC = LZ76c_randmv.c LZ78c_randmv.c
-NBIN = LZ76c_randmv LZ78c_randmv
-NBIP = $(patsubst %,$(BINDIR)/%,$(NBIN))
+NBIN = $(patsubst %.c,  %$(BINEXT),  $(NSRC))
+NBIP = $(patsubst %,    $(BINDIR)/%, $(NBIN))
 
-MSRC = LZ76c_mex.c LZ76c_x_mex.c Z78/LZ78c_mex.c LZ78c_x_mex.c
-MBIN = LZ76c_mex.$(MEXEXT) LZ76c_x_mex.$(MEXEXT) LZ78c_mex.$(MEXEXT) LZ78c_x_mex.$(MEXEXT)
-MBIP = $(patsubst %,$(MEXDIR)/%,$(MBIN))
+MSRC = LZ76c_mex.c LZ78c_mex.c
+MBIN = $(patsubst %.c,  %.$(MEXEXT), $(MSRC))
+MBIP = $(patsubst %,    $(MEXDIR)/%, $(MBIN))
 
 MFLAGS = -std=c99 -march=native
 WFLAGS = -Wall -Wextra -Wconversion -pedantic-errors
-DFLAGS = -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE
-#DFLAGS = -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE -DNDEBUG
+#DFLAGS = -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE
+DFLAGS = -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE -DNDEBUG
 
 ifeq ($(OS),WIN)
 	OFLAGS = -O3

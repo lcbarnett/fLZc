@@ -10,7 +10,7 @@
 defvar('T',       600       ); % length of process (seconds)
 defvar('fs',      200       ); % sampling frequency (Hz)
 defvar('oudec',   0.1       ); % OU process decay parameter (> 0); set to Inf for white noise
-defvar('a',       2         ); % LZc alphabet size (a = 2 for binarisation around median)
+defvar('a',       2         ); % LZc alphabet size (a = 2 for binarisation around median) or 'mean' for binarisation around the mean
 defvar('cnorm',   1         ); % LZc normalisation: 0 - none; 1 - random mean; 2 asymptotic upper bound
 defvar('logs',    false     ); % display sequence length on a log scale?
 
@@ -32,13 +32,13 @@ fprintf('done (%d observations)\n\n',maxn);
 
 fprintf('calculating LZ76c... ');
 st = tic;
-c76 = LZc_x(s,76);
+c76 = LZc(s,76,true); % vector of all LZc from beginning of string
 et = toc(st);
 fprintf('done (%g seconds)\n',et);
 
 fprintf('calculating LZ78c... ');
 st = tic;
-c78 = LZc_x(s,78);
+c78 = LZc(s,78,true); % vector of all LZc from beginning of string
 et = toc(st);
 fprintf('done (%g seconds)\n\n',et);
 
