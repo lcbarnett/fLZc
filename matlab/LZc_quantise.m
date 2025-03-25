@@ -14,31 +14,16 @@ function [s,qtiles] = LZc_quantise(x,q,use_qtiles,numsym)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if nargin < 3 || isempty(use_qtiles), use_qtiles = true; end % default: calculate quantiles
+if nargin < 4 || isempty(numsym),     numsym     = true; end % default: numeric symbols
+
 assert(isvector(x),'Input must be a column vector');
 x = x(:); % ensure column vector
 n = length(x);
 
-if ischar(q) && strcmpi(q,'mean') % binarise around the mean (rather than median)
-	qtiles = mean(x);
-	z = zeros(1,n);
-	z(x > qtiles) = 1;
-	if numsym
-		s = char(48+z); % '0', '1', '2', ...
-	else
-		s = char(97+z); % 'a', 'b', 'c', ...
-	end
-	return
-end
-
-if nargin < 3 || isempty(use_qtiles), use_qtiles = true; end % default: calculate quantiles
-if nargin < 4 || isempty(numsym),     numsym     = true; end % default: numeric symbols
-
 if use_qtiles
-	assert(isnumeric(q) && q == floor(q) && q >= 0,'Number of quantiles must be a non-negative integer');
-	if q == 0
-		qtiles = nan;
-		s = char(48+zeros(1,n));
-	elseif q == 1
+	assert(isnumeric(q) && q == floor(q) && q > 0,'Number of quantiles must be a positive integer');
+	if q == 1
 		qtiles = median(x); % do the right thing (because of strange behaviour of 'quantile' for q = 1)
 	else
 		qtiles = quantile(x,q);

@@ -125,7 +125,10 @@ void LZ78c_ds_x(char* const str, strset_t* const ddic, size_t* const c)
 			c[w-str-1] = kh_size(ddic);            // set current complexity to dictionary size
 			++w;                                   // extend word to next char
 		}
-		if (*w == 0) break;                        // finished
+		if (*w == 0) {
+			c[w-str-1] = kh_size(ddic);            // set current complexity to dictionary size
+			break;                                 // finished
+		}
 	}
 
 	// remember to call ds_destroy(ddic) !!!

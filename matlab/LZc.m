@@ -17,11 +17,11 @@ function [c,dict] = LZc(s,ver,allc)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-assert(nargin > 1,"Must supply Lempel-Ziv version (76 or 78)');
-assert(~isempty(s) && ischar(s) && isvector(s),"Input must be a non-empty character string");
+assert(nargin > 1,'Must supply Lempel-Ziv version (76 or 78)');
+assert(~isempty(s) && ischar(s) && isvector(s),'Input must be a non-empty character string');
 
 if nargin < 3 || isempty(allc)
-	allc = flase;
+	allc = false;
 else
 	assert(isscalar(allc) && (isnumeric(allc) | islogical(allc)),'''all complexities'' flag must be a scalar that resolves to logical true/false');
 	allc = logical(allc);
