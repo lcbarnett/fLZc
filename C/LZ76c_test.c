@@ -33,35 +33,58 @@ int test2(int argc, char* argv[])
 	const size_t n = strlen(str);
 	printf("\ninput string (%lu): '%s'\n\n",n,str);
 
+	size_t* const c0 = malloc(n*sizeof(size_t));
 	size_t* const c1 = malloc(n*sizeof(size_t));
 	size_t* const c2 = malloc(n*sizeof(size_t));
 
-	LZ76c_x(str,c1);
-
+fprintf(stderr,"AAA\n");
 	for (size_t i=0; i<n; ++i) {
 		const char tmp = str[i+1];
 		str[i+1] = 0; // NUL-terminate at length i
-		c2[i] = LZ76c(str);
+		c0[i] = LZ76c(str);
 		str[i+1] = tmp;
 	}
 
-	for (size_t i=0; i<n; ++i) printf("%4zu %8zu %8zu\n",i+1,c1[i], c2[i]);
+fprintf(stderr,"BBB\n");
+	LZ76c_x(str,c1);
+
+fprintf(stderr,"CCC\n");
+	strmap_t* ddic = strmap_init();
+	LZ76c_dm_x(str,ddic,c2);
+	dm_destroy(ddic);
+
+fprintf(stderr,"DDD\n");
+	for (size_t i=0; i<n; ++i) printf("%4zu %8zu %8zu %8zu\n",i+1,c0[i],c1[i],c2[i]);
 	putchar('\n');
 
-	size_t ifail = SIZE_MAX;
+	size_t ifail1 = SIZE_MAX;
 	for (size_t i=0; i<n; ++i) {
-		if (c1[i] != c2[i]) {
-			ifail = i+1;
+		if (c1[i] != c0[i]) {
+			ifail1 = i+1;
 			break;
 		}
 	}
-	if (ifail < SIZE_MAX) {
-		fprintf(stderr,"*** Failure at length %zu\n\n",ifail);
+	if (ifail1 < SIZE_MAX) {
+		fprintf(stderr,"*** Failure 1 at length %zu\n\n",ifail1);
 		return(EXIT_FAILURE);
 	}
 
+	size_t ifail2 = SIZE_MAX;
+	for (size_t i=0; i<n; ++i) {
+		if (c2[i] != c0[i]) {
+			ifail2 = i+1;
+			break;
+		}
+	}
+	if (ifail2 < SIZE_MAX) {
+		fprintf(stderr,"*** Failure 2 at length %zu\n\n",ifail2);
+		return(EXIT_FAILURE);
+	}
+
+
 	free(c2);
 	free(c1);
+	free(c0);
 	free(str);
 
 	return EXIT_SUCCESS;
