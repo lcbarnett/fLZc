@@ -70,23 +70,28 @@ MEXINC   = $(MATLAB_PATH)/extern/include
 
 REPDEP = sed -i -e '1s,\($*\)\.o[ :]*,\1.o \.$*.d: ,' \.$*.d
 
+# "library" source
+
 CSRC = mt64.c utils.c LZ76c.c  LZ78c.c
 COBJ = $(patsubst %.c, .%.$(OBJEXT), $(CSRC))
-CDEP = $(patsubst %.o,  %.d,         $(COBJ))
+CDEP = $(patsubst %.o, %.d, $(COBJ))
+
+# test source
 
 TSRC = LZ76c_test.c LZ76c_benchmark.c LZ78c_test.c LZ78c_benchmark.c
 TOBJ = $(patsubst %.c, .%.$(OBJEXT), $(TSRC))
-TDEP = $(patsubst %.o,  %.d,         $(TOBJ))
-TBIN = $(patsubst %.c,  %$(BINEXT),  $(TSRC))
-TBIP = $(patsubst %,    $(BINDIR)/%, $(TBIN))
+TDEP = $(patsubst %.o, %.d, $(TOBJ))
+TBIN = $(patsubst %.c, $(BINDIR)/%$(BINEXT), $(TSRC))
+
+# mainainer source
 
 NSRC = LZ76c_randmv.c LZ78c_randmv.c
-NBIN = $(patsubst %.c,  %$(BINEXT),  $(NSRC))
-NBIP = $(patsubst %,    $(BINDIR)/%, $(NBIN))
+NBIN = $(patsubst %.c, $(BINDIR)/%$(BINEXT), $(NSRC))
+
+# Matlab (mex) source
 
 MSRC = LZ76c_mex.c LZ78c_mex.c
-MBIN = $(patsubst %.c,  %.$(MEXEXT), $(MSRC))
-MBIP = $(patsubst %,    $(MEXDIR)/%, $(MBIN))
+MBIN = $(patsubst %.c, $(MEXDIR)/%.$(MEXEXT), $(MSRC))
 
 MFLAGS = -std=c99 -march=native
 WFLAGS = -Wall -Wextra -Wconversion -pedantic-errors
@@ -98,17 +103,17 @@ ifeq ($(OS),WIN)
 	MEXCFLAGS = COMPFLAGS
 	DFLAGS := $(DFLAGS) -DWIN
 	RM = del /F /Q
-	RTBIP = $(subst /,\,$(TBIP))
-	RNBIP = $(subst /,\,$(NBIP))
-	RMBIP = $(subst /,\,$(MBIP))
+	RTBIN = $(subst /,\,$(TBIN))
+	RNBIN = $(subst /,\,$(NBIN))
+	RMBIN = $(subst /,\,$(MBIN))
 	LDFLAGS = $(OFLAGS)
 else
 	OFLAGS = -O3 -flto
 	MEXCFLAGS = CFLAGS
 	RM = rm -f
-	RTBIP = $(TBIP)
-	RNBIP = $(NBIP)
-	RMBIP = $(MBIP)
+	RTBIN = $(TBIN)
+	RNBIN = $(NBIN)
+	RMBIN = $(MBIN)
 	LDFLAGS = $(OFLAGS) -lm
 endif
 
@@ -117,16 +122,16 @@ MEXFLAGS = -O -R2018a
 
 .PHONY: all clean diag
 
-all: $(TBIP) $(MBIP)
+all: $(TBIN) $(MBIN)
 
-test: $(TBIP)
+test: $(TBIN)
 
-mex: $(MBIP)
+mex: $(MBIN)
 
-maint: $(NBIP)
+maint: $(NBIN)
 
 clean:
-	$(RM) $(COBJ) $(TOBJ) $(CDEP) $(TDEP) $(RTBIP) $(RNBIP) $(RMBIP)
+	$(RM) $(COBJ) $(TOBJ) $(CDEP) $(TDEP) $(RTBIN) $(RNBIN) $(RMBIN)
 
 $(COBJ): .%.o: %.c
 	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MEXINC) $< -o $@
@@ -137,14 +142,16 @@ $(TOBJ): .%.o: %.c
 	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MEXINC) $< -o $@
 	@$(REPDEP)
 
-$(TBIP): bin/%: .%.o
+$(TBIN): bin/%: .%.o
 	$(CC) $(COBJ) $< $(LDFLAGS) -o $@
 
-$(NBIP): $(COBJ)
-$(NBIP): $(BINDIR)/%: %.c
+# to avoid a world of pain, mex these with -client engine
+
+$(NBIN): $(COBJ)
+$(NBIN): $(BINDIR)/%: %.c
 	$(MEX) -client engine $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS)" -outdir $(BINDIR) $(COBJ) $<
 
-$(MBIP): $(COBJ)
+$(MBIN): $(COBJ)
 $(MEXDIR)/%.$(MEXEXT): %.c
 	$(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR) $(COBJ) $<
 
@@ -163,15 +170,12 @@ diag:
 	@echo "*** TOBJ      = " $(TOBJ)
 	@echo "*** TDEP      = " $(TDEP)
 	@echo "*** TBIN      = " $(TBIN)
-	@echo "*** TBIP      = " $(TBIP)
 	@echo
 	@echo "*** NSRC      = " $(NSRC)
 	@echo "*** NBIN      = " $(NBIN)
-	@echo "*** NBIP      = " $(NBIP)
 	@echo
 	@echo "*** MSRC      = " $(MSRC)
 	@echo "*** MBIN      = " $(MBIN)
-	@echo "*** MBIP      = " $(MBIP)
 	@echo
 	@echo "*** CC        = " $(CC)
 	@echo "*** GCCFLAGS  = " $(GCCFLAGS)
