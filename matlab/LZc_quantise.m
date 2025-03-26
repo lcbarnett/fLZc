@@ -1,25 +1,29 @@
 function [s,qtiles] = LZc_quantise(x,q,use_qtiles,numsym)
 
-% Quantise data sequence x (column vector) into q quantiles (so number of symbols = q+1).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Quantise data sequence x (column vector) into q quantiles (so alphabet size = q+1).
 %
 % q = 0 is allowed, if trivial (yields constant string on 1 symbol).
 %
 % If q is a vector, then don't do actual quantiles: instead, q(k) = k-th quantisation level.
 %
+% If q is the string 'mean', then binarise around the mean, rather than by quantiles
+%
 % s returns the quantised symbol string, qtiles the quantisation levels used (normally quantiles).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 3 || isempty(use_qtiles), use_qtiles = true; end % default: calculate quantiles
 if nargin < 4 || isempty(numsym),     numsym     = true; end % default: numeric symbols
 
-assert(iscolumn(x),'Input must be a column vector');
+assert(isvector(x),'Input must be a column vector');
+x = x(:); % ensure column vector
 n = length(x);
 
 if use_qtiles
-	assert(isnumeric(q) && q == floor(q) && q >= 0,'Number of quantiles must be a non-negative integer');
-	if q == 0
-		qtiles = nan;
-		s = char(48+zeros(1,n));
-	elseif q == 1
+	assert(isnumeric(q) && q == floor(q) && q > 0,'Number of quantiles must be a positive integer');
+	if q == 1
 		qtiles = median(x); % do the right thing (because of strange behaviour of 'quantile' for q = 1)
 	else
 		qtiles = quantile(x,q);

@@ -1,4 +1,4 @@
-#include "LZ76c.h"
+#include "LZ78c.h"
 
 // NOTE: do not call this mex-function directly in your Matlab code; it does no
 // input checks whatsoever! Rather, us the Matlab wrapper matlab/LZc.m
@@ -12,12 +12,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 		size_t* const c = malloc(n*sizeof(size_t));         // allocate LZc's
 		if (nlhs > 1) {                                     // return dictionary
 			strmap_t* const ddic = strmap_init();           // allocate and initialise dynamic dictionary (hash set)
-			LZ76c_dm_x(str,ddic,c);                         // LZ76 algorithm: build the dictionary
+			LZ78c_dm_x(str,ddic,c);                         // LZ78 algorithm: build the dictionary
 			plhs[1] = dm_to_cvec(ddic);                     // output (sorted) dictionary as cell vector of strings
 			dm_destroy(ddic);                               // deallocate dynamic dictionary
 		}
 		else {                                              // don't need to return dictionary
-			LZ76c_x(str,c);                                 // LZ76 algorithm: build the dictionary
+			strset_t* const ddic = strset_init();           // allocate and initialise dynamic dictionary (hash set)
+			LZ78c_ds_x(str,ddic,c);                         // LZ78 algorithm: build the dictionary
+			ds_destroy(ddic);                               // deallocate dynamic dictionary
 		}
 		double* const cd = mxGetPr(plhs[0] = mxCreateDoubleMatrix(n,1,mxREAL)); // create (double) output vector for complexities
 		for (size_t i=0; i<n; ++i) cd[i] = (double)(c[i]);  // copy integer LZc's (double) to output
@@ -27,12 +29,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int UNUSED nrhs, const mxArray *prhs
 		size_t c;
 		if (nlhs > 1) {                                     // return dictionary
 			strmap_t* const ddic = strmap_init();           // allocate and initialise dynamic dictionary (hash set)
-			c = LZ76c_dm(str,ddic);                         // LZ76 algorithm: build the dictionary
+			c = LZ78c_dm(str,ddic);                         // LZ78 algorithm: build the dictionary
 			plhs[1] = dm_to_cvec(ddic);                     // output (sorted) dictionary as cell vector of strings
 			dm_destroy(ddic);                               // deallocate dynamic dictionary
 		}
 		else {                                              // don't need to return dictionary
-			c = LZ76c(str);                                 // LZ76 algorithm: build the dictionary
+			strset_t* const ddic = strset_init();           // allocate and initialise dynamic dictionary (hash set)
+			c = LZ78c_ds(str,ddic);                         // LZ78 algorithm: build the dictionary
+			ds_destroy(ddic);                               // deallocate dynamic dictionary
 		}
 		plhs[0] = mxCreateDoubleScalar((double)c);          // output scalar LZc
 	}

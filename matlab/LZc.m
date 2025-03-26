@@ -1,54 +1,50 @@
-function [c,dict] = LZc(s,d,use_mex)
+function [c,dict] = LZc(s,ver,allc)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Lempl-Ziv complexity
 %
 % INPUT
 %
-% s           input character string
-% d           alphabet size (or empty for pessimistic memory usage)
-% use_mex     use c version (default: MUCH faster)
-%
+% s        input character string
+% ver      LZc version: 76 or 78
+% allc     flag: if true, return a vector of complexities for all substrings starting from
+%          the beginning of the input string; else just scalar complexity of whole string
 % OUTPUT
 %
-% c      LZ complexity
-% dict   The dictionary - cell string (optional)
+% c        LZ complexity
+% dict     the dictionary (optional)
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-assert(ischar(s) && isvector(s),"Input must be a character string");
+assert(nargin > 1,'Must supply Lempel-Ziv version (76 or 78)');
+assert(~isempty(s) && ischar(s) && isvector(s),'Input must be a non-empty character string');
 
-if nargin < 2 || isempty(d)
-	d = 0;
+if nargin < 3 || isempty(allc)
+	allc = false;
 else
-	assert(isscalar(d) && isnumeric(d) && d == floor(d),'Alphabet size must be a scalar integer');
+	assert(isscalar(allc) && (isnumeric(allc) | islogical(allc)),'''all complexities'' flag must be a scalar that resolves to logical true/false');
+	allc = logical(allc);
 end
 
-if nargin < 3 || isempty(use_mex), use_mex = true; end
+switch ver
 
-if use_mex
-
-	if nargout > 1
-		[c,dict] = LZc_mex(s,d);
-	else
-		c = LZc_mex(s,d);
-	end
-
-else
-
-	dict = containers.Map;      % the dictionary
-	w = [];                     % initialise current word
-	for ch = s                  % iterate through input characters
-		w = [w ch];             % append current character to current word
-		if ~isKey(dict,w)       % if current word not already in dictionary...
-			dict(w) = true;     % add to dictionary
-			w = [];             % and reinitialise
+	case 76
+		if nargout > 1
+			[c,dict] = LZ76c_mex(s,allc);
+		else
+			c = LZ76c_mex(s,allc);
+			dict = [];
 		end
-	end
-	c = length(dict);           % LZ complexity is size of dictionary
-	if nargout > 1
-		dict = keys(dict)';     % cell string of dictionary words
-	end
+
+	case 78
+		if nargout > 1
+			[c,dict] = LZ78c_mex(s,allc);
+		else
+			c = LZ78c_mex(s,allc);
+			dict = [];
+		end
+
+	otherwise, error('Lempel-Ziv version must be 76 or 78');
 
 end
