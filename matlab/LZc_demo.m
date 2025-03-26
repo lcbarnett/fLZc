@@ -1,98 +1,77 @@
-% LZc demo script: calculate LZ-complexity at all sequence lengths for a
-% subsampled stationary Ornstein-Uhlenbeck process.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% LZc demo script demonstrating capabilities of the toolbox
 %
 % Default parameters (may be overriden on command line)
 
-defvar('T',       400       ); % length of process
-defvar('q',       1         ); % quantisation (1 = binarise around median)
-defvar('fs',      200       ); % sampling frequency (Hz)
-defvar('a',       0.1       ); % OU process decay parameter (> 0); smaller a gives "smoother" process
-defvar('sig',     1         ); % OU process noise std. dev.
-defvar('lz76',    false     ); % Use LZ76 algorithm? (else "standard" LZ)
-defvar('nrmlz',   true      ); % Normalise LZc by random sequence mean?
+defvar('s', '000101000101111010001010100010101000000010000010'); % input sequence
 
-if lz76
-	if nrmlz, algostr = 'LZ76c (normalised)'; else, algostr = 'LZ76c'; end
-else
-	if nrmlz, algostr = 'LZc (normalised)';   else, algostr = 'LZc';   end
-end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Generate subsampled Ornstein-Uhlenbeck time series data
+% Alphabet size and sequence length
 
-fprintf('\ngenerating stationary OU time series... ');
-[x,t] = ouproc(a,sig,fs,T);
-fprintf('done\n\n');
-maxn = length(x);
+a = length(unique(s));
+n = length(s);
 
-% Calculate complexities for different quantisation levels, and load random string complexities
+% Display string
 
+fprintf('\ninput sequence = %s\n',s);
+fprintf('\nalphabet size   = %3d\n',a);
+fprintf(  'sequence length = %3d\n',n);
 
-fprintf('calculating %s... ',algostr);
-st = tic;
-d = q+1;                          % alphabet size = number of quantiles + 1
-[s,qtiles] = LZc_quantise(x,q);   % quantise noise sequence by q quantiles; store quantiles
-if lz76
-	c = LZ76c_x(s);               % calculate "running" LZ76 complexity (i.e., for all sequence lengths to maximum)
-	if nrmlz
-		c = c./LZ76c_crand(maxn,d); % scale by random string mean complexities
-	end
-else
-	c = LZc_x(s,d);               % calculate "running" LZ complexity (i.e., for all sequence lengths to maximum)
-	if nrmlz
-		c = c./LZc_crand(maxn,d); % scale by random string mean complexities
-	end
-end
-et = toc(st);
-fprintf('done (%g seconds)\n\n',et);
+% Calculate LZ76 and LZ78
 
-if nrmlz && isnan(c(end))
-	fprintf(2,'WARNING: sequence rather long - couldn''t normalise for all lengths\n\n');
-end
+c76 = LZc(s,76);
+c78 = LZc(s,78);
 
-% Display time series with quantiles
+fprintf('\nLZ76c = %3d\n',c76);
+fprintf(  'LZ78c = %3d\n',c78);
+
+% Calculate again, returning dictionaries (string cell vectors)
+
+[c76,d76] = LZc(s,76);
+[c78,d78] = LZc(s,78);
+
+fprintf('\nLZ76c dictionary:\n\n'); disp(d76);
+fprintf(  'LZ78c dictionary:\n\n'); disp(d78);
+
+% Calculate again, returning vector of "running" complexities
+
+cr76 = LZc(s,76,true);
+cr78 = LZc(s,78,true);
+
+% Normalise running complexities by random mean
+%
+% NOTE: Normalisation is by mean LZc for random sequences of the given length
+%       and given alphabet, rather than the maximum LZc. Thus normalised LZc
+%       can be greater than 1, especially for short sequences.
+
+alln = (1:n)'; % the sequence lengths up to the maximum
+
+crn76 = cr76./LZc_normfac(alln,a,76);
+crn78 = cr78./LZc_normfac(alln,a,78);
+
+% Display running complexities
 
 figure(1); clf
 
-subplot(3,1,1);
-xmax = 1.05*max(abs(x));
-plot(t,x);
-for k = 1:q
-	yline(qtiles(k),'color','r');
-end
-xlim([0,T]);
-ylim([-xmax xmax]);
-xlabel('Time (secs)');
-title(sprintf('Subsampled OU process (%d quantiles)',q));
+sgtitle(sprintf('LZ76c and LZ78c: alphabet size = %d, sequence length = %d\n',a,n));
+
+subplot(2,1,1);
+plot(alln,[cr76 cr78]);
+xlim([0,n+1]);
+title('Unnormalised');
+xlabel('sequence length');
+legend('LZ76c','LZ78c');
 grid on
 
-% Power spectral density (PSD)
-
-[S,f] = pwelch(x,[],[],[],fs);                    % estimated PSD (Welch method)
-ST    = abs(1./(1-exp(-(a+2*pi*1i*f)/fs))/fs).^2; % theoretical PSD
-
-% Display PSD and normalised complexities
-
-subplot(3,1,2);
-semilogx(f,log([S ST]));
-xlim([f(2) fs/2]); % to Nyqvist frequency
-title(sprintf('Power spectral density (f_s = %gHz)',fs));
-legend('estimated','theoretical');
-xlabel('Frequency (Hz; log-scale)');
-ylabel('Log-power (dB)');
-set(gca,'XTickLabel',num2str(get(gca,'XTick')')); % ridiculous faff to force sensible tick labels
-grid on
-
-subplot(3,1,3);
-if nrmlz
-	semilogx(t,c);
-	ylim([0 1.2]);
-	yline(1,'color','k');
-	ylabel('Complexity');
-else
-	loglog(t,c);
-	ylabel('Complexity (log-scale)');
-end
-xlim([1/fs,T]);
-title(algostr);
-xlabel('Time (seconds; log-scale)');
+subplot(2,1,2);
+alln = (1:n)';
+plot(alln,[crn76 crn78]);
+xlim([0,n+1]);
+ylim([0,1.05*max([max(crn76);max(crn78)])]);
+title('Normalised');
+xlabel('sequence length');
+legend('LZ76c','LZ78c');
 grid on

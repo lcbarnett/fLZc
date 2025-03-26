@@ -90,26 +90,6 @@ mtuint_t mt_uint64(mt_t* const pstate)
 	return x;
 }
 
-// generates a double-precision pseudo-random normal variate ~ N(0,1)
-double mt_randn(mt_t* const pstate)
-{
-	if (pstate->iset) {
-		pstate->iset = 0;
-		return pstate->gset;
-	}
-
-	double v1,v2,rsq;
-	do {
-		v1 = 2.0*mt_rand(pstate)-1.0;
-		v2 = 2.0*mt_rand(pstate)-1.0;
-		rsq = v1*v1 + v2*v2;
-	} while (rsq >= 1.0 || rsq == 0.0);
-	const double fac = sqrt(-2.0*log(rsq)/rsq);
-	pstate->gset = fac*v1;
-	pstate->iset = 1;
-	return fac*v2;
-}
-
 #undef NN
 #undef MM
 #undef MATRIX_A

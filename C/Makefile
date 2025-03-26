@@ -1,20 +1,31 @@
-# Makefile for LZc mex and test targets
-
-$(info )
-ifdef GLIBVER
-ifdef DEBUG
-$(info *** Building with Glib hash table (DEBUG) ***)
-else
-$(info *** Building with Glib hash table ***)
-endif
-else
-ifdef DEBUG
-$(info *** Building with Khash hash table (DEBUG) ***)
-else
-$(info *** Building with Khash hash table ***)
-endif
-endif
-$(info )
+# NOTE 1: Standalone binary executables are placed in the `bin' directory. Matlab
+# mex binaries are placed in the `../matlab/mex' directory.
+#
+# NOTE 2: For the build to work, you will need to set an environmental variable
+# called MATLAB_PATH which points to the root path of your Matlab installation;
+# then build with
+#
+#     make
+#
+# NOTE 3: The maintainer binary executables (see NBIN) are not compiled by default,
+# as they are mostly for the benefit of the maintainer. Build with
+#
+#     make maint
+#
+# The executables will have to be run (on Linux, MacOS[?]) with
+#
+#     LD_LIBRARY_PATH=$MATLAB_PATH/bin/glnxa64 bin/<executable>
+#
+# or, alternatively,
+#
+#     export LD_LIBRARY_PATH=$MATLAB_PATH/bin/glnxa64
+#
+# before running. (I tried to hard-link the library path, but failed miserably;
+# despite many, many hours down various hideous rabbit-holes, I cannot get
+# -Wl, rpath= ... to work. Thanks, Matlab :-/)
+#
+# This palaver targets Linux, but may well work on MacOS too; Windows probably
+# requires more hoopla; the maintainer would appreciate any feedback on this.
 
 ifdef ComSpec
 	OS = WIN
@@ -49,114 +60,130 @@ ifeq ($(OS),WIN)
 	OBJEXT  = obj
 endif
 
-MEXEXT = $(shell mexext)
-MEXDIR = ../matlab/mex
+CC     = gcc
+BINDIR = bin
 
-MSRC = LZc_mex.c LZc_mex_x.c LZc_mex_cmax.c LZc_mex_cmax_x.c LZc_mex_id.c LZ76c_mex.c LZ76c_mex_x.c
-CSRC = LZc.c mt64.c LZc_matlab.c
-MBIN = $(patsubst %.c,$(MEXDIR)/%.$(MEXEXT),$(MSRC))
-MDEP = $(CSRC) $(patsubst %.c,%.h,$(CSRC))
+MEX      = mex
+MEXEXT   = $(shell mexext)
+MEXDIR   = ../matlab/mex
+MEXINC   = $(MATLAB_PATH)/extern/include
 
-ZSRC = LZc.c mt64.c
-ZOBJ = $(patsubst %.c,.%.$(OBJEXT),$(ZSRC))
+REPDEP = sed -i -e '1s,\($*\)\.o[ :]*,\1.o \.$*.d: ,' \.$*.d
 
-TSRC = LZc_test.c LZc_benchmark.c LZc_check.c
-TDEP = LZc.h
-TOBJ = $(patsubst %.c,.%.$(OBJEXT),$(TSRC))
-TBIN = $(patsubst %.c,%$(BINEXT),$(TSRC))
+# "library" source
+
+CSRC = mt64.c utils.c LZ76c.c  LZ78c.c
+COBJ = $(patsubst %.c, .%.$(OBJEXT), $(CSRC))
+CDEP = $(patsubst %.o, %.d, $(COBJ))
+
+# test source
+
+TSRC = LZ76c_test.c LZ76c_benchmark.c LZ78c_test.c LZ78c_benchmark.c
+TOBJ = $(patsubst %.c, .%.$(OBJEXT), $(TSRC))
+TDEP = $(patsubst %.o, %.d, $(TOBJ))
+TBIN = $(patsubst %.c, $(BINDIR)/%$(BINEXT), $(TSRC))
+
+# mainainer source
+
+NSRC = LZ76c_randmv.c LZ78c_randmv.c
+NBIN = $(patsubst %.c, $(BINDIR)/%$(BINEXT), $(NSRC))
+
+# Matlab (mex) source
+
+MSRC = LZ76c_mex.c LZ78c_mex.c
+MBIN = $(patsubst %.c, $(MEXDIR)/%.$(MEXEXT), $(MSRC))
 
 MFLAGS = -std=c99 -march=native
-ifdef GLIBVER
-	WFLAGS = -Wall -Wextra -Wconversion -Winline -pedantic-errors -Werror
-	DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE -DGLIBVER
-	IFLAGS = $(shell pkg-config --cflags glib-2.0)
-	LIBS   = $(shell pkg-config --libs glib-2.0)
-else
-	WFLAGS = -Wall -Wextra -Wconversion -Winline -pedantic-errors
-	DFLAGS = -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE
-	IFLAGS =
-	LIBS   =
-endif
-
-ifdef DEBUG
-	DFLAGS := $(DFLAGS) -DDEBUG
-endif
+WFLAGS = -Wall -Wextra -Wconversion -pedantic-errors
+#DFLAGS = -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE
+DFLAGS = -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE -DNDEBUG
 
 ifeq ($(OS),WIN)
 	OFLAGS = -O3
 	MEXCFLAGS = COMPFLAGS
 	DFLAGS := $(DFLAGS) -DWIN
 	RM = del /F /Q
+	RTBIN = $(subst /,\,$(TBIN))
+	RNBIN = $(subst /,\,$(NBIN))
 	RMBIN = $(subst /,\,$(MBIN))
+	LDFLAGS = $(OFLAGS)
 else
 	OFLAGS = -O3 -flto
 	MEXCFLAGS = CFLAGS
 	RM = rm -f
+	RTBIN = $(TBIN)
+	RNBIN = $(NBIN)
 	RMBIN = $(MBIN)
-	LIBS:= $(LIBS) -lm
+	LDFLAGS = $(OFLAGS) -lm
 endif
 
-GCCFLAGS = $(MFLAGS) $(OFLAGS) $(WFLAGS) $(DFLAGS) $(IFLAGS)
-MEXFLAGS = -O -largeArrayDims
+GCCFLAGS = $(MFLAGS) $(OFLAGS) $(WFLAGS) $(DFLAGS)
+MEXFLAGS = -O -R2018a
 
-CC  = gcc
-MEX = mex
+.PHONY: all clean diag
 
-.PHONY: all mex test clean mex-clean test-clean diag
-
-all: $(MBIN) $(TBIN)
-
-mex: $(MBIN)
+all: $(TBIN) $(MBIN)
 
 test: $(TBIN)
 
+mex: $(MBIN)
+
+maint: $(NBIN)
+
 clean:
-	$(RM) $(RMBIN) $(TOBJ) $(ZOBJ) $(TBIN)
+	$(RM) $(COBJ) $(TOBJ) $(CDEP) $(TDEP) $(RTBIN) $(RNBIN) $(RMBIN)
 
-mex-clean:
-	$(RM) $(RMBIN)
+$(COBJ): .%.o: %.c
+	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MEXINC) $< -o $@
+	@$(REPDEP)
 
-test-clean:
-	$(RM) $(TOBJ) $(ZOBJ) $(TBIN)
+$(TOBJ): $(COBJ)
+$(TOBJ): .%.o: %.c
+	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MEXINC) $< -o $@
+	@$(REPDEP)
+
+$(TBIN): bin/%: .%.o
+	$(CC) $(COBJ) $< $(LDFLAGS) -o $@
+
+# to avoid a world of pain, mex these with -client engine
+
+$(NBIN): $(COBJ)
+$(NBIN): $(BINDIR)/%: %.c
+	$(MEX) -client engine $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS)" -outdir $(BINDIR) $(COBJ) $<
+
+$(MBIN): $(COBJ)
+$(MEXDIR)/%.$(MEXEXT): %.c
+	$(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR) $(COBJ) $<
+
+-include $(CDEP)
+-include $(TDEP)
 
 diag:
-	@echo "*** OS     = " $(OS) [$(ComSpec)]
 	@echo
-	@echo "*** CSRC   = " $(CSRC)
+	@echo "*** OS        = " $(OS) [$(ComSpec)]
 	@echo
-	@echo "*** TSRC   = " $(TSRC)
-	@echo "*** TBIN   = " $(TBIN)
-	@echo "*** TOBJ   = " $(TOBJ)
-	@echo "*** TDEP   = " $(TDEP)
+	@echo "*** CSRC      = " $(CSRC)
+	@echo "*** COBJ      = " $(COBJ)
+	@echo "*** CDEP      = " $(CDEP)
 	@echo
-	@echo "*** ZSRC   = " $(ZSRC)
-	@echo "*** ZOBJ   = " $(ZOBJ)
+	@echo "*** TSRC      = " $(TSRC)
+	@echo "*** TOBJ      = " $(TOBJ)
+	@echo "*** TDEP      = " $(TDEP)
+	@echo "*** TBIN      = " $(TBIN)
 	@echo
-	@echo "*** MSRC   = " $(MSRC)
-	@echo "*** MBIN   = " $(MBIN)
-	@echo "*** RMBIN  = " $(RMBIN)
-	@echo "*** MDEP   = " $(MDEP)
+	@echo "*** NSRC      = " $(NSRC)
+	@echo "*** NBIN      = " $(NBIN)
+	@echo
+	@echo "*** MSRC      = " $(MSRC)
+	@echo "*** MBIN      = " $(MBIN)
+	@echo
+	@echo "*** CC        = " $(CC)
+	@echo "*** GCCFLAGS  = " $(GCCFLAGS)
+	@echo "*** LDFLAGS   = " $(LDFLAGS)
 	@echo
 	@echo "*** MEXFLAGS  = " $(MEXFLAGS)
 	@echo "*** MEXCFLAGS = " $(MEXCFLAGS)
 	@echo "*** MEXEXT    = " $(MEXEXT)
 	@echo "*** MEXDIR    = " $(MEXDIR)
-	@echo
-	@echo "*** CC        = " $(CC) -c $(GCCFLAGS)
 	@echo "*** MEX       = " $(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR)
-
-$(MEXDIR)/%.$(MEXEXT): %.c $(MDEP)
-	$(MEX) $(MEXFLAGS) $(MEXCFLAGS)="\$$CFLAGS $(GCCFLAGS) -static" $(LIBS) -outdir $(MEXDIR) $< $(CSRC)
-
-$(ZOBJ): $(TDEP)
-
-$(ZOBJ): .%.$(OBJEXT): %.c
-	$(CC) -c $(GCCFLAGS) $< -o $@
-
-$(TOBJ): $(ZOBJ)
-
-$(TOBJ): .%.$(OBJEXT): %.c
-	$(CC) -c $(GCCFLAGS) $< -o $@
-
-$(TBIN): %$(BINEXT): .%.$(OBJEXT)
-	$(CC) $(GCCFLAGS) $< $(LIBS) $(ZOBJ) -o $@
+	@echo
