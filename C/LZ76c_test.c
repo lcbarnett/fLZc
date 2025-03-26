@@ -114,9 +114,28 @@ int test3(int argc, char* argv[])
 	return EXIT_SUCCESS;
 }
 
+int test4(int argc, char* argv[])
+{
+	// Try: bin/LZ76c_test 4 Hallo world, how are you today?
+
+	ldic_t* const ldic = dl_create();
+	ldic_t* ld = ldic;
+
+	for (int k = 1; k < argc; ++k) ld = dl_push(ld,argv[k]);
+	ld = dl_push_tag(ld,"That's it, folks!",TAGCHAR);
+
+	printf("\ndictionary = ");
+	dl_print(ldic,'|');
+	printf("\n\n");
+
+	dl_destroy(ldic);
+
+	return EXIT_SUCCESS;
+}
+
 // Main function
 
-static const int ntests = 3;
+static const int ntests = 4;
 
 int main(int argc, char* argv[])
 {
@@ -134,6 +153,7 @@ int main(int argc, char* argv[])
 		case 1 : return test1(argc-1,argv+1);
 		case 2 : return test2(argc-1,argv+1);
 		case 3 : return test3(argc-1,argv+1);
+		case 4 : return test4(argc-1,argv+1);
 	}
 	return(EXIT_FAILURE); // shouldn't get here!
 }

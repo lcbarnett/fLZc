@@ -29,6 +29,9 @@ void tfmt(char* const tstr, const size_t tsmaxlen, const double t /* secs */);
 
 void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng);
 
+// Some character which definitely shoudn't be in the alphabet!
+#define TAGCHAR ('*')
+
 // Like strdup(), but adds a "tag" character to the end of the copied string
 
 static inline const char* strdupt(const char* const word, const char tag)
@@ -42,9 +45,76 @@ static inline const char* strdupt(const char* const word, const char tag)
 	return tword;                    // remember to deallocate !!!
 }
 
-// Some character which definitely shoudn't be in the alphabet!
+// Linked-list dictionary - a very basic single-linked list of character
+// strings. Note that strings are duplicated into the list, which must be
+// created with dl_create() and destroyed after use with dl_destroy().
 
-#define TAGCHAR ('*')
+typedef struct ldnode {
+	struct ldnode* next;
+	const char*    word;
+} ldic_t;
+
+static inline ldic_t* dl_create()
+{
+	// creates a 'dummy' node; skip when iterating
+	ldic_t* const ld = malloc(sizeof(ldic_t));
+	ld->word = NULL; // this is just a dummy node
+	ld->next = NULL;
+	return ld;
+}
+
+static inline const char* dl_word(ldic_t* ld)
+{
+	return ld->word;
+}
+
+static inline ldic_t* dl_push(ldic_t* ld, const char* const word)
+{
+	assert(ld != NULL);
+	ld->next = malloc(sizeof(ldic_t));
+	ld = ld->next;
+	assert(word != NULL);
+	ld->word = strdup(word); // this had better be null-terminated :-O
+	ld->next = NULL;
+	return ld;
+}
+
+static inline ldic_t* dl_push_tag(ldic_t* ld, const char* const word, const char tag)
+{
+	assert(ld != NULL);
+	ld->next = malloc(sizeof(ldic_t));
+	ld = ld->next;
+	assert(word != NULL);
+	ld->word = strdupt(word,tag); // this had better be null-terminated :-O
+	ld->next = NULL;
+	return ld;
+}
+
+static inline void dl_destroy(ldic_t* const ldic)
+{
+	if (ldic == NULL) return; // nothing to do
+	// first we delete the dummy root node
+	ldic_t* ldnext = ldic->next;
+#ifndef NDEBUG
+	fprintf(stderr,"freeing dummy node\n");
+#endif
+	free(ldic);
+	// then we iterate through the other nodes, deleting as we go
+	while (ldnext != NULL) {
+		ldic_t* const ld = ldnext;
+		ldnext = ldnext->next;
+#ifndef NDEBUG
+		fprintf(stderr,"freeing word [%s]\n",ld->word);
+#endif
+		assert(ld->word != NULL);
+		free((char*)(ld->word));
+		free(ld);
+	}
+}
+
+void dl_print(const ldic_t* const ldic, const char sepchar);
+
+mxArray* dl_to_cvec(const ldic_t* const ldic, const size_t c);
 
 // Static dictionary
 

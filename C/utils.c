@@ -45,6 +45,27 @@ void make_random_string(char* const str, const size_t n, const int a, const char
 	str[n] = 0; // NUL-terminate
 }
 
+// Linked-list dictionary
+
+void dl_print(const ldic_t* const ldic, const char sepchar)
+{
+	if (ldic == NULL) return; // nothing to print
+	// Note: first entry is a dummy
+	putchar(sepchar);
+	for (ldic_t* ld = ldic->next; ld!= NULL; ld = ld->next) printf("%s%c",ld->word,sepchar);
+}
+
+mxArray* dl_to_cvec(const ldic_t* const ldic, const size_t c)
+{
+	// c is the size of the dictionary; i.e., the LZc :-)
+	mxArray* const cvec = mxCreateCellMatrix(c,1); // should be destroyed (somewhere)
+	if (ldic == NULL) return cvec; // nothing to do
+	mwIndex i = 0;
+	// Note: first entry is a dummy
+	for (ldic_t* ld = ldic->next; ld!= NULL; ld = ld->next) mxSetCell(cvec,i++,mxCreateString(ld->word));
+	return cvec;
+}
+
 // Static dictionary
 
 void sd_to_str(char* const sdic, const size_t c, const char sepchar)

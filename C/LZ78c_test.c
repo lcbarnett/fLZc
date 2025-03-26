@@ -71,7 +71,7 @@ int test1(int argc, char* argv[])
 
 int test2(int argc, char* argv[])
 {
-	// Demonstrate dynamic (hash set) vs dynamic (hash map) dictionaries
+	// Demonstrate dynamic (hash set) vs dynamic (hash map) vs dynamic (linked list) dictionaries
 
 	char* const str = strdup(argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]); // input cstring
 	const size_t n = strlen(str);
@@ -81,17 +81,25 @@ int test2(int argc, char* argv[])
 
 	strset_t* ddica = strset_init();
 	const size_t ca = LZ78c_ds(str,ddica);
-	printf("*** complexity a = %zu : \n",ca);
+	printf("*** complexity a = %zu : ",ca);
 	ds_print(ddica,sepchar);
 	printf("\n\n");
 	ds_destroy(ddica);
 
 	strmap_t* ddicb = strmap_init();
 	const size_t cb = LZ78c_dm(str,ddicb);
-	printf("*** complexity b = %zu : \n",cb);
+	printf("*** complexity b = %zu : ",cb);
 	dm_print(ddicb,sepchar);
 	printf("\n\n");
 	dm_destroy(ddicb);
+
+
+	ldic_t* ddicc = dl_create();
+	const size_t cc = LZ78c_dl(str,ddicc);
+	printf("*** complexity b = %zu : ",cc);
+	dl_print(ddicc,sepchar);
+	printf("\n\n");
+	dl_destroy(ddicc);
 
 	return EXIT_SUCCESS;
 }

@@ -68,6 +68,7 @@ size_t LZ78c_ds(char* const str, strset_t* const ddic)
 
 	ds_clear(ddic);                                // clear dynamic dictionary
 	int added;                                     // flag for strset_put
+	khint_t k;                                     // hash set iterator
 	char wchar;                                    // temp storage for current word one-past-end
 	char* p = str;                                 // current word start
 	while (1) {                                    // loop through words
@@ -75,7 +76,7 @@ size_t LZ78c_ds(char* const str, strset_t* const ddic)
 		while (1) {                                // loop through characters in word
 			wchar = *w;                            // save current word one-past-end
 			*w = 0;                                // NUL-terminate current word
-			khint_t k = strset_put(ddic,p,&added); // add current word to dictionary if not already there
+			k = strset_put(ddic,p,&added);         // add current word to dictionary if not already there
 			if (added) {                           // wasn't there
 				kh_key(ddic,k) = strdup(p);        // copy current word into hash set
 				p = w;                             // set current word to next word
@@ -105,6 +106,7 @@ void LZ78c_ds_x(char* const str, strset_t* const ddic, size_t* const c)
 
 	ds_clear(ddic);                                // clear dynamic dictionary
 	int added;                                     // flag for strset_put
+	khint_t k;                                     // hash set iterator
 	char wchar;                                    // temp storage for current word one-past-end
 	char* p = str;                                 // current word start
 	while (1) {                                    // loop through words
@@ -112,7 +114,7 @@ void LZ78c_ds_x(char* const str, strset_t* const ddic, size_t* const c)
 		while (1) {                                // loop through characters in word
 			wchar = *w;                            // save current word one-past-end
 			*w = 0;                                // NUL-terminate current word
-			khint_t k = strset_put(ddic,p,&added); // add current word to dictionary if not already there
+			k = strset_put(ddic,p,&added);         // add current word to dictionary if not already there
 			if (added) {                           // wasn't there
 				kh_key(ddic,k) = strdup(p);        // copy current word into hash set
 				p = w;                             // set current word to next word
@@ -147,6 +149,7 @@ size_t LZ78c_dm(char* const str, strmap_t* const ddic)
 	dm_clear(ddic);                                // clear dynamic dictionary
 	size_t c = 0;                                  // complexity
 	int added;                                     // flag for strset_put
+	khint_t k;                                     // hash map iterator
 	char wchar;                                    // temp storage for current word one-past-end
 	char* p = str;                                 // current word start
 	while (1) {                                    // loop through words
@@ -154,7 +157,7 @@ size_t LZ78c_dm(char* const str, strmap_t* const ddic)
 		while (1) {                                // loop through characters in word
 			wchar = *w;                            // save current word one-past-end
 			*w = 0;                                // NUL-terminate current word
-			khint_t k = strmap_put(ddic,p,&added); // add current word to dictionary if not already there
+			k = strmap_put(ddic,p,&added);         // add current word to dictionary if not already there
 			if (added) {                           // wasn't there
 				kh_key(ddic,k) = strdup(p);        // copy current word into hash map
 				kh_val(ddic,k) = c++;              // store complexity in dictionary, and increment
@@ -187,6 +190,7 @@ void LZ78c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 	dm_clear(ddic);                                // clear dynamic dictionary
 	size_t cc = 0;                                 // complexity
 	int added;                                     // flag for strset_put
+	khint_t k;                                     // hash map iterator
 	char wchar;                                    // temp storage for current word one-past-end
 	char* p = str;                                 // current word start
 	while (1) {                                    // loop through words
@@ -194,7 +198,7 @@ void LZ78c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 		while (1) {                                // loop through characters in word
 			wchar = *w;                            // save current word one-past-end
 			*w = 0;                                // NUL-terminate current word
-			khint_t k = strmap_put(ddic,p,&added); // add current word to dictionary if not already there
+			k = strmap_put(ddic,p,&added);         // add current word to dictionary if not already there
 			if (added) {                           // wasn't there
 				kh_key(ddic,k) = strdup(p);        // copy current word into hash map
 				kh_val(ddic,k) = cc++;             // store complexity in dictionary, and increment
@@ -214,4 +218,46 @@ void LZ78c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 	}
 
 	// remember to call dm_destroy(ddic) !!!
+}
+
+// Dynamic dictionary - linked list (can sort)
+
+size_t LZ78c_dl(char* const str, ldic_t* const ldic)
+{
+	// LZ78c - dynamic dictionary (linked list - can sort)
+	//
+	// str MUST be NUL-terminated.
+	//
+	// hash set ddic must be initialised (allocated) with dd_destroy(), and must be deallocated after use!
+
+	ldic_t* ld = ldic;                             // must have been created with dl_create()
+	strset_t* ddic = strset_init();                // the dynamic dictionary (hash set)
+	int added;                                     // flag for strset_put
+	khint_t k;                                     // hash set iterator
+	char wchar;                                    // temp storage for current word one-past-end
+	char* p = str;                                 // current word start
+	while (1) {                                    // loop through words
+		char* w = p+1;                             // current word one-past-end
+		while (1) {                                // loop through characters in word
+			wchar = *w;                            // save current word one-past-end
+			*w = 0;                                // NUL-terminate current word
+			k = strset_put(ddic,p,&added);         // add current word to dictionary if not already there
+			if (added) {                           // wasn't there
+				ld = dl_push(ld,p);                // copy current word into list
+				kh_key(ddic,k) = dl_word(ld);      // point the hash set word to the linked list word
+				p = w;                             // set current word to next word
+				*w = wchar;                        // restore current word one-past-end
+				break;                             // done - on to next word
+			}
+			*w = wchar;                            // restore current word one-past-end
+			if (*w == 0) break;                    // finished
+			++w;                                   // extend word to next char
+		}
+		if (*w == 0) break;                        // finished
+	}
+	const size_t c = kh_size(ddic);                // LZ78c = size of dictionary
+	strset_destroy(ddic);                          // we're finished with it
+	return c;                                      // return LZ78c
+
+	// remember to call dl_destroy(ddic) !!!
 }
