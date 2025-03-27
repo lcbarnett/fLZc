@@ -75,7 +75,7 @@ void LZ76c_x(const char* const str, size_t* const c)
 
 size_t LZ76c_dm(char* const str, strmap_t* const ddic)
 {
-	// LZ76c algorithm: dictionary version
+	// LZ76c algorithm: hash map dictionary version
 	//
 	// This version builds the dictionary. Note that the last word may be
 	// "non-exhaustive" (see Lempel & Ziv '76), in which case it is already
@@ -88,9 +88,8 @@ size_t LZ76c_dm(char* const str, strmap_t* const ddic)
 	// The LZc value is stored along with each word in the dictionary,so
 	// that the hash map can later be sorted in word addition order.
 	//
-	// Remember to destroy the dictionary after use!
+	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
 
-	dm_clear(ddic);                 // clear dictionary, in case it's not empty
 	const size_t n = strlen(str);   // string length
 	if (n == 0) return 0;
 	int added;                      // flag for strmap_put
@@ -136,7 +135,10 @@ size_t LZ76c_dm(char* const str, strmap_t* const ddic)
 
 void LZ76c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 {
-	dm_clear(ddic);                // clear dictionary, in case it's not empty
+	// This version stores LZ76c for each sequence length; c MUST be same size as the input string.
+	//
+	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
+
 	const size_t n = strlen(str);   // string length
 	if (n == 0) return;
 	int added;                      // flag for strmap_put
