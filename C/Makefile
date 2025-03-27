@@ -153,14 +153,14 @@ clean:
 	$(RM) $(COBJ) $(TOBJ) $(CDEP) $(TDEP) $(RTBIN) $(RNBIN) $(RMBIN)
 
 $(COBJ): .%.o: %.c
-	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MEXINC) $< -o $@
+	$(CC) -c -MMD -MP $(GCCFLAGS) -isystem $(MEXINC) $< -o $@
 	@$(REPDEP)
 
 -include $(CDEP)
 
 $(TOBJ): $(COBJ)
 $(TOBJ): .%.o: %.c
-	$(CC) -c -MMD -MP $(GCCFLAGS) -I$(MEXINC) $< -o $@
+	$(CC) -c -MMD -MP $(GCCFLAGS) -isystem $(MEXINC) $< -o $@
 	@$(REPDEP)
 
 -include $(TDEP)
