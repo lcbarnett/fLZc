@@ -8,69 +8,6 @@
 
 int test1(int argc, char* argv[])
 {
-	// Demonstrate static vs dynamic dictionaries (see also LZ78c_benchmark.c)
-
-	const char sepchar = '|';
-
-	char* const stra = strdup(argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]); // input cstring
-	const size_t na = strlen(stra);
-	printf("\ninput string a (%lu): '%s'\n\n",na,stra);
-
-	const size_t sdlena = 2*na;
-	char* const sdica = malloc(sdlena);
-	size_t* const cc1a = malloc(na*sizeof(size_t));
-	LZ78c_sd_x(stra,sdica,sdlena,cc1a);
-	const size_t c1a = cc1a[na-1];
-	sd_print(sdica,c1a,sepchar);
-	printf("\n\n");
-	free(sdica);
-
-	strmap_t* ddica = strmap_init();
-	size_t* const cc2a = malloc(na*sizeof(size_t));
-	LZ78c_dm_x(stra,ddica,cc2a);
-	dm_print(ddica,sepchar);
-	printf("\n\n");
-	dm_destroy(ddica);
-	free(stra);
-
-	printf("*** complexity a =\n");
-	for (size_t i=0; i<na; ++i) printf("%8zu  %8zu\n",cc1a[i],cc2a[i]);
-	printf("\n");
-	free(cc2a);
-	free(cc1a);
-
-	char* const strb = strdup(argc < 3 ? "00010001110100" : argv[2]); // input cstring
-	const size_t nb = strlen(strb);
-	printf("\ninput string b (%lu): '%s'\n\n",nb,strb);
-
-	const size_t sdlenb = 2*nb;
-	char* const sdicb = malloc(sdlenb);
-	size_t* const cc1b = malloc(nb*sizeof(size_t));
-	LZ78c_sd_x(strb,sdicb,sdlenb,cc1b);
-	const size_t c1b = cc1b[nb-1];
-	sd_print(sdicb,c1b,sepchar);
-	printf("\n\n");
-	free(sdicb);
-
-	strset_t* ddicb = strset_init();
-	size_t* const cc2b = malloc(nb*sizeof(size_t));
-	LZ78c_ds_x(strb,ddicb,cc2b);
-	ds_print(ddicb,sepchar);
-	printf("\n\n");
-	ds_destroy(ddicb);
-	free(strb);
-
-	printf("*** complexity b =\n");
-	for (size_t i=0; i<nb; ++i) printf("%8zu  %8zu\n",cc1b[i],cc2b[i]);
-	printf("\n");
-	free(cc2b);
-	free(cc1b);
-
-	return EXIT_SUCCESS;
-}
-
-int test2(int argc, char* argv[])
-{
 	// Demonstrate dynamic (hash set) vs dynamic (hash map) vs dynamic (linked list) dictionaries
 
 	char* const str = strdup(argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]); // input cstring
@@ -79,14 +16,14 @@ int test2(int argc, char* argv[])
 
 	const char sepchar = '|';
 
-	strset_t* ddica = strset_init();
+	strset_t* const ddica = strset_init();
 	const size_t ca = LZ78c_ds(str,ddica);
 	printf("*** complexity a = %zu : ",ca);
 	ds_print(ddica,sepchar);
 	printf("\n\n");
 	ds_destroy(ddica);
 
-	strmap_t* ddicb = strmap_init();
+	strmap_t* const ddicb = strmap_init();
 	const size_t cb = LZ78c_dm(str,ddicb);
 	printf("*** complexity b = %zu : ",cb);
 	dm_print(ddicb,sepchar);
@@ -94,12 +31,56 @@ int test2(int argc, char* argv[])
 	dm_destroy(ddicb);
 
 
-	ldic_t* ddicc = dl_create();
+	ldic_t* const ddicc = dl_create();
 	const size_t cc = LZ78c_dl(str,ddicc);
 	printf("*** complexity b = %zu : ",cc);
 	dl_print(ddicc,sepchar);
 	printf("\n\n");
 	dl_destroy(ddicc);
+
+	return EXIT_SUCCESS;
+}
+
+int test2(int argc, char* argv[])
+{
+	// Demonstrate extended static vs dynamic dictionaries vs dynamic (linked list) (see also LZ78c_benchmark.c)
+
+	const char sepchar = '|';
+
+	char* const str = strdup(argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]); // input cstring
+	const size_t n = strlen(str);
+	printf("\ninput string a (%lu): '%s'\n\n",n,str);
+
+	const size_t sdlen = 2*n;
+	char* const sdic = malloc(sdlen);
+	size_t* const cc1 = malloc(n*sizeof(size_t));
+	LZ78c_sd_x(str,sdic,sdlen,cc1);
+	const size_t c1a = cc1[n-1];
+	sd_print(sdic,c1a,sepchar);
+	printf("\n\n");
+	free(sdic);
+
+	strmap_t* const ddic = strmap_init();
+	size_t* const cc2 = malloc(n*sizeof(size_t));
+	LZ78c_dm_x(str,ddic,cc2);
+	dm_print(ddic,sepchar);
+	printf("\n\n");
+	dm_destroy(ddic);
+
+	ldic_t* const ldic = dl_create();
+	size_t* const cc3 = malloc(n*sizeof(size_t));
+	LZ78c_dl_x(str,ldic,cc3);
+	dl_print(ldic,sepchar);
+	printf("\n\n");
+	dl_destroy(ldic);
+
+	printf("*** complexity =\n");
+	for (size_t i=0; i<n; ++i) printf("%8zu  %8zu  %8zu\n",cc1[i],cc2[i],cc3[i]);
+	printf("\n");
+	free(cc2);
+	free(cc1);
+
+	free(str);
 
 	return EXIT_SUCCESS;
 }

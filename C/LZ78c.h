@@ -22,6 +22,7 @@ void   LZ78c_dm_x (char* const str, strmap_t* const ddic, size_t* const c);
 
 // Dynamic dictionary (linked list - can sort)
 
-size_t LZ78c_dl(char* const str, ldic_t* const ldic);
+size_t LZ78c_dl   (char* const str, ldic_t* const ldic);
+void   LZ78c_dl_x (char* const str, ldic_t* const ldic, size_t* const c);
 
 #endif // LZ78C_H

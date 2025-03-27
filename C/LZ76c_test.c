@@ -121,7 +121,7 @@ int test4(int argc, char* argv[])
 	ldic_t* const ldic = dl_create();
 	ldic_t* ld = ldic;
 
-	for (int k = 1; k < argc; ++k) ld = dl_push(ld,argv[k]);
+	for (int k = 1; k < argc; ++k) ld = dl_add(ld,argv[k]);
 	ld = dl_push_tag(ld,"That's it, folks!",TAGCHAR);
 
 	printf("\ndictionary = ");

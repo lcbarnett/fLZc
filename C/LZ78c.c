@@ -64,7 +64,7 @@ size_t LZ78c_ds(char* const str, strset_t* const ddic)
 	//
 	// str MUST be NUL-terminated.
 	//
-	// hash set ddic must be initialised (allocated) with dd_destroy(), and must be deallocated after use!
+	// hash set ddic must be initialised with strset_init(), and destroyed after use with ds_destroy()
 
 	ds_clear(ddic);                                // clear dynamic dictionary
 	int added;                                     // flag for strset_put
@@ -100,7 +100,7 @@ void LZ78c_ds_x(char* const str, strset_t* const ddic, size_t* const c)
 	//
 	// str MUST be NUL-terminated.
 	//
-	// hash set ddic must be initialised (allocated) with dd_destroy(), and must be deallocated after use!
+	// hash set ddic must be initialised with strset_init(), and destroyed after use with ds_destroy()
 	//
 	// c MUST be same size as the input string.
 
@@ -144,7 +144,7 @@ size_t LZ78c_dm(char* const str, strmap_t* const ddic)
 	//
 	// str MUST be NUL-terminated.
 	//
-	// hash map ddic must be initialised (allocated) with dd_destroy(), and must be deallocated after use!
+	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
 
 	dm_clear(ddic);                                // clear dynamic dictionary
 	size_t c = 0;                                  // complexity
@@ -183,7 +183,7 @@ void LZ78c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 	//
 	// str MUST be NUL-terminated.
 	//
-	// hash map ddic must be initialised (allocated) with dd_destroy(), and must be deallocated after use!
+	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
 	//
 	// c MUST be same size as the input string.
 
@@ -213,9 +213,9 @@ void LZ78c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 			++w;                                   // extend word to next char
 		}
 		c[w-str-1] = cc;                           // set current complexity
-		assert(cc == kh_size(ddic));
 		if (*w == 0) break;                        // finished
 	}
+	assert(cc == kh_size(ddic));
 
 	// remember to call dm_destroy(ddic) !!!
 }
@@ -228,10 +228,10 @@ size_t LZ78c_dl(char* const str, ldic_t* const ldic)
 	//
 	// str MUST be NUL-terminated.
 	//
-	// hash set ddic must be initialised (allocated) with dd_destroy(), and must be deallocated after use!
+	// linked list ldic must be created with dl_create() and destroyed after use with dl_destroy()
 
 	ldic_t* ld = ldic;                             // must have been created with dl_create()
-	strset_t* ddic = strset_init();                // the dynamic dictionary (hash set)
+	strset_t* const ddic = strset_init();          // the dynamic dictionary (hash set)
 	int added;                                     // flag for strset_put
 	khint_t k;                                     // hash set iterator
 	char wchar;                                    // temp storage for current word one-past-end
@@ -243,7 +243,7 @@ size_t LZ78c_dl(char* const str, ldic_t* const ldic)
 			*w = 0;                                // NUL-terminate current word
 			k = strset_put(ddic,p,&added);         // add current word to dictionary if not already there
 			if (added) {                           // wasn't there
-				ld = dl_push(ld,p);                // copy current word into list
+				ld = dl_add(ld,p);                 // copy current word into list
 				kh_key(ddic,k) = dl_word(ld);      // point the hash set word to the linked list word
 				p = w;                             // set current word to next word
 				*w = wchar;                        // restore current word one-past-end
@@ -258,6 +258,52 @@ size_t LZ78c_dl(char* const str, ldic_t* const ldic)
 	const size_t c = kh_size(ddic);                // LZ78c = size of dictionary
 	strset_destroy(ddic);                          // we're finished with it
 	return c;                                      // return LZ78c
+
+	// remember to call dl_destroy(ddic) !!!
+}
+
+void LZ78c_dl_x(char* const str, ldic_t* const ldic, size_t* const c)
+{
+	// LZ78c - dynamic dictionary (linked list - can sort)
+	//
+	// str MUST be NUL-terminated.
+	//
+	// linked list ldic must be created with dl_create() and destroyed after use with dl_destroy
+	//
+	// c MUST be same size as the input string.
+
+	ldic_t* ld = ldic;                             // must have been created with dl_create()
+	strset_t* const ddic = strset_init();          // the dynamic dictionary (hash set)
+	size_t cc = 0;                                 // complexity
+	int added;                                     // flag for strset_put
+	khint_t k;                                     // hash map iterator
+	char wchar;                                    // temp storage for current word one-past-end
+	char* p = str;                                 // current word start
+	while (1) {                                    // loop through words
+		char* w = p+1;                             // current word one-past-end
+		while (1) {                                // loop through characters in word
+			wchar = *w;                            // save current word one-past-end
+			*w = 0;                                // NUL-terminate current word
+			k = strset_put(ddic,p,&added);         // add current word to dictionary if not already there
+			if (added) {                           // wasn't there
+				ld = dl_add(ld,p);                 // copy current word into list
+				kh_key(ddic,k) = dl_word(ld);      // point the hash set word to the linked list word
+				++cc;                              // increment complexity
+				p = w;                             // set current word to next word
+				*w = wchar;                        // restore current word one-past-end
+				c[w-str-1] = cc;                   // set current complexity
+				break;                             // done - on to next word
+			}
+			*w = wchar;                            // restore current word one-past-end
+			if (*w == 0) break;                    // finished
+			c[w-str-1] = cc;                       // set current complexity
+			++w;                                   // extend word to next char
+		}
+		c[w-str-1] = cc;                           // set current complexity
+		if (*w == 0) break;                        // finished
+	}
+	assert(cc == kh_size(ddic));
+	strset_destroy(ddic);                          // we're finished with it
 
 	// remember to call dl_destroy(ddic) !!!
 }

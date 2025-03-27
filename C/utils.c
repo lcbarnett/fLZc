@@ -45,27 +45,6 @@ void make_random_string(char* const str, const size_t n, const int a, const char
 	str[n] = 0; // NUL-terminate
 }
 
-// Linked-list dictionary
-
-void dl_print(const ldic_t* const ldic, const char sepchar)
-{
-	if (ldic == NULL) return; // nothing to print
-	// Note: first entry is a dummy
-	putchar(sepchar);
-	for (ldic_t* ld = ldic->next; ld!= NULL; ld = ld->next) printf("%s%c",ld->word,sepchar);
-}
-
-mxArray* dl_to_cvec(const ldic_t* const ldic, const size_t c)
-{
-	// c is the size of the dictionary; i.e., the LZc :-)
-	mxArray* const cvec = mxCreateCellMatrix(c,1); // should be destroyed (somewhere)
-	if (ldic == NULL) return cvec; // nothing to do
-	mwIndex i = 0;
-	// Note: first entry is a dummy
-	for (ldic_t* ld = ldic->next; ld!= NULL; ld = ld->next) mxSetCell(cvec,i++,mxCreateString(ld->word));
-	return cvec;
-}
-
 // Static dictionary
 
 void sd_to_str(char* const sdic, const size_t c, const char sepchar)
@@ -80,12 +59,15 @@ void sd_to_str(char* const sdic, const size_t c, const char sepchar)
 	*--word = 0; // NUL-terminate string
 }
 
-void sd_print(const char* const sdic, const size_t c, const char sepchar)
+void sd_fprint(FILE* const fs, const char* const sdic, const size_t c, const char sepchar)
 {
 	// c is the size of the dictionary; i.e., the LZc :-)
-	putchar(sepchar);
+	fputc(sepchar,fs);
 	size_t k = 0;
-	for (const char* word = sdic; k < c; ++k, word += strlen(word)+1) printf("%s%c",word,sepchar);
+	for (const char* word = sdic; k < c; ++k, word += strlen(word)+1) {
+		fputs(word,fs);
+		fputc(sepchar,fs);
+	}
 }
 
 mxArray* sd_to_cvec(const char* const sdic, const size_t c)
@@ -99,11 +81,14 @@ mxArray* sd_to_cvec(const char* const sdic, const size_t c)
 
 // Dynamic dictionary (hash set - cannot sort)
 
-void ds_print(const strset_t* const ddic, const char sepchar)
+void ds_fprint(FILE* const fs, const strset_t* const ddic, const char sepchar)
 {
-	putchar(sepchar);
+	fputc(sepchar,fs);
 	khint_t k;
-	kh_foreach(ddic,k) printf("%s%c",kh_key(ddic,k),sepchar);
+	kh_foreach(ddic,k) {
+		fputs(kh_key(ddic,k),fs);
+		fputc(sepchar,fs);
+	}
 }
 
 mxArray* ds_to_cvec(const strset_t* const ddic)
@@ -117,7 +102,7 @@ mxArray* ds_to_cvec(const strset_t* const ddic)
 
 // Dynamic dictionary (hash map - can sort)
 
-void dm_print(const strmap_t* const ddic, const char sepchar)
+void dm_fprint(FILE* const fs, const strmap_t* const ddic, const char sepchar)
 {
 	const size_t c = kh_size(ddic);
 	const char** const darray = malloc(c*sizeof(const char*));
@@ -125,8 +110,11 @@ void dm_print(const strmap_t* const ddic, const char sepchar)
 	khint_t k;
 	kh_foreach(ddic,k) darray[kh_val(ddic,k)] = kh_key(ddic,k);
 	// print from sorted array
-	putchar(sepchar);
-	for (size_t i = 0; i < c; ++i) printf("%s%c",darray[i],sepchar);
+	fputc(sepchar,fs);
+	for (size_t i = 0; i < c; ++i) {
+		fputs(darray[i],fs);
+		fputc(sepchar,fs);
+	}
 	free(darray);
 }
 
@@ -141,5 +129,29 @@ mxArray* dm_to_cvec(const strmap_t* const ddic)
 	mxArray* const cvec = mxCreateCellMatrix(kh_size(ddic),1); // should be destroyed (somewhere)
 	for (size_t i = 0; i < c; ++i) mxSetCell(cvec,i,mxCreateString(darray[i]));
 	free(darray);
+	return cvec;
+}
+
+// Linked-list dictionary
+
+void dl_fprint(FILE* const fs, const ldic_t* const ldic, const char sepchar)
+{
+	if (ldic == NULL) return; // nothing to print
+	// Note: first entry is a dummy
+	fputc(sepchar,fs);
+	for (ldic_t* ld = ldic->next; ld!= NULL; ld = ld->next) {
+		fputs(ld->word,fs);
+		fputc(sepchar,fs);
+	}
+}
+
+mxArray* dl_to_cvec(const ldic_t* const ldic, const size_t c)
+{
+	// c is the size of the dictionary; i.e., the LZc :-)
+	mxArray* const cvec = mxCreateCellMatrix(c,1); // should be destroyed (somewhere)
+	if (ldic == NULL) return cvec; // nothing to do
+	mwIndex i = 0;
+	// Note: first entry is a dummy
+	for (ldic_t* ld = ldic->next; ld!= NULL; ld = ld->next) mxSetCell(cvec,i++,mxCreateString(ld->word));
 	return cvec;
 }
