@@ -12,8 +12,18 @@
 #include "mt64.h"
 #include "strdupt.h"
 
+// "Diagnostic printf" macro: printf to stderr if NDEBUG not defined
+
+#ifdef NDEBUG
+#define dprintf(...)
+#else
+#define dprintf(...) fprintf(stderr,__VA_ARGS__)
+#endif
+
+// KHASHL string hash set and hash map initialisation (creation)
+
 KHASHL_CSET_INIT(KH_LOCAL, strset_t, strset, const char*,         kh_hash_str, kh_eq_str)
-KHASHL_MAP_INIT (KH_LOCAL, strmap_t, strmap, const char*, size_t, kh_hash_str, kh_eq_str)
+KHASHL_CMAP_INIT(KH_LOCAL, strmap_t, strmap, const char*, size_t, kh_hash_str, kh_eq_str)
 
 static inline double LZ76c_max(const size_t n, const int d)
 {

@@ -90,6 +90,7 @@ size_t LZ76c_dm(char* const str, strmap_t* const ddic)
 	//
 	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
 
+	dm_clear(ddic);                 // clear the dictionary in case it is being re-used
 	const size_t n = strlen(str);   // string length
 	if (n == 0) return 0;
 	int added;                      // flag for strmap_put
@@ -108,6 +109,7 @@ size_t LZ76c_dm(char* const str, strmap_t* const ddic)
 				if (p+k >= pend) {                 // last word, so p is already null-terminated
 					i = strmap_put(ddic,p,&added); // check if already in dictionary if it wasn't
 										           // just add it; if it was, tag and then add
+dprintf("last word = [%s], %s\n",p,added?"added":"already there");
 					if (added) kh_key(ddic,i) = strdup(p); else i = strmap_put(ddic,strdupt(p,TAGCHAR),&added);
 					kh_val(ddic,i) = c++;          // store complexity in dictionary, and increment
 					assert(c == kh_size(ddic));
@@ -124,6 +126,7 @@ size_t LZ76c_dm(char* const str, strmap_t* const ddic)
 		p += (w+1);                 // end of word
 		const char psave = *p;      // save char at end of word
 		*p = 0;                     // NUL-terminate word
+dprintf("add = [%s]\n",word);
 		i = strmap_put(ddic,strdup(word),&added); // add to dictionary
 		assert(added);              // word should NOT have been in dictionary!
 		kh_val(ddic,i) = c++;       // store complexity in dictionary, and increment
@@ -139,6 +142,7 @@ void LZ76c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 	//
 	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
 
+	dm_clear(ddic);                 // clear the dictionary in case it is being re-used
 	const size_t n = strlen(str);   // string length
 	if (n == 0) return;
 	int added;                      // flag for strmap_put
@@ -197,21 +201,27 @@ size_t LZ76c_ref(const char* const str)
 	if (n == 0) return 0;
 	if (n == 1) return 1;
 	size_t i = 0, k = 1, j = 1, kmax = 1, c = 1;
+dprintf("%c.",str[0]);
 	while (true) {
 		if (str[i+k-1] == str[j+k-1]) {
 			++k;
 			if (j+k > n) {
 				++c;
+//dprintf("break 1\n");
 				break;
 			}
 		}
 		else {
 			if (k > kmax) kmax = k;
 			++i;
+dprintf("%c",str[i+k]);
 			if (i == j) {
 				++c;
 				j += kmax;
-				if (j+1 > n) break;
+				if (j+1 > n) {
+//dprintf("break 2\n");
+					break;
+				}
 				i = 0;
 				k = 1;
 				kmax = 1;
@@ -221,9 +231,37 @@ size_t LZ76c_ref(const char* const str)
 			}
 		}
 	}
+dprintf("\n");
 	return c;
 }
 
+/*
+int substrof(const char* const a1, const char* const a2, const char* const b1, const char* const b2)
+{
+	for (char*
+}
+
+size_t LZ76c_try(const char* const str)
+{
+	// LZ76c algorithm: reference version (testing)
+	//
+	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
+	// Phys. Rev. A 36(2) pp. 842-848, 1987.
+
+	if (str == 0) return 0; // empty string
+	const size_t n = strlen(str);
+	size_t c = 1;
+	printf("%c.",str[10]);
+	const char* s = str+1;
+	const char* q = s+1;
+	const char* p = q-1;
+	while(true) {
+		// is string Q: [s,q-1] a substring of the string SQpi: [str,q-2]
+		if
+	}
+	return c;
+}
+*/
 void LZ76c_xa(const char* const str, size_t* const c)
 {
 	// LZ76c algorithm: alternative extended version (testing)

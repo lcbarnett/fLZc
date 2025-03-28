@@ -15,15 +15,21 @@ int test1(int argc, char* argv[])
 
 	const size_t cref = LZ76c_ref(str);
 	const size_t c    = LZ76c    (str);
-	printf("complexity = %zu    %zu\n\n",cref,c);
 
+	strmap_t* ddic = strmap_init();
+	const size_t cdic = LZ76c_dm(str,ddic);
+	dm_print(ddic,'|');
+	dm_destroy(ddic);
+
+	printf("\n\ncomplexity = %zu    %zu    %zu\n\n",cref,c,cdic);
+/*
 	size_t* const cc = malloc(n*sizeof(size_t));
 	LZ76c_x(str,cc);
 	printf("complexity =\n");
 	for (size_t i=0; i<n; ++i) printf("\t%zu\n",cc[i]);
 	putchar('\n');
 	free(cc);
-
+*/
 	return EXIT_SUCCESS;
 }
 
@@ -37,7 +43,6 @@ int test2(int argc, char* argv[])
 	size_t* const c1 = malloc(n*sizeof(size_t));
 	size_t* const c2 = malloc(n*sizeof(size_t));
 
-fprintf(stderr,"AAA\n");
 	for (size_t i=0; i<n; ++i) {
 		const char tmp = str[i+1];
 		str[i+1] = 0; // NUL-terminate at length i
@@ -45,15 +50,12 @@ fprintf(stderr,"AAA\n");
 		str[i+1] = tmp;
 	}
 
-fprintf(stderr,"BBB\n");
 	LZ76c_x(str,c1);
 
-fprintf(stderr,"CCC\n");
 	strmap_t* ddic = strmap_init();
 	LZ76c_dm_x(str,ddic,c2);
 	dm_destroy(ddic);
 
-fprintf(stderr,"DDD\n");
 	for (size_t i=0; i<n; ++i) printf("%4zu %8zu %8zu %8zu\n",i+1,c0[i],c1[i],c2[i]);
 	putchar('\n');
 
@@ -104,11 +106,11 @@ int test3(int argc, char* argv[])
 		printf("LZ76c = %3zu : ",c);
 		dm_print(ddic,'|');
 		putchar('\n');
+break;
 	}
 	putchar('\n');
 
 	free(str);
-
 	dm_destroy(ddic);
 
 	return EXIT_SUCCESS;

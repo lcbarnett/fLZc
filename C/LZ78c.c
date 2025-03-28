@@ -66,7 +66,7 @@ size_t LZ78c_ds(char* const str, strset_t* const ddic)
 	//
 	// hash set ddic must be initialised with strset_init(), and destroyed after use with ds_destroy()
 
-	ds_clear(ddic);                                // clear dynamic dictionary
+	ds_clear(ddic);                                // clear the dictionary in case it is being re-used// clear dynamic dictionary
 	int added;                                     // flag for strset_put
 	khint_t k;                                     // hash set iterator
 	char wchar;                                    // temp storage for current word one-past-end
@@ -104,7 +104,7 @@ void LZ78c_ds_x(char* const str, strset_t* const ddic, size_t* const c)
 	//
 	// c MUST be same size as the input string.
 
-	ds_clear(ddic);                                // clear dynamic dictionary
+	ds_clear(ddic);                                // clear the dictionary in case it is being re-used// clear dynamic dictionary
 	int added;                                     // flag for strset_put
 	khint_t k;                                     // hash set iterator
 	char wchar;                                    // temp storage for current word one-past-end
@@ -146,7 +146,7 @@ size_t LZ78c_dm(char* const str, strmap_t* const ddic)
 	//
 	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
 
-	dm_clear(ddic);                                // clear dynamic dictionary
+	dm_clear(ddic);                                // clear the dictionary in case it is being re-used// clear dynamic dictionary
 	size_t c = 0;                                  // complexity
 	int added;                                     // flag for strset_put
 	khint_t k;                                     // hash map iterator
@@ -187,7 +187,7 @@ void LZ78c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 	//
 	// c MUST be same size as the input string.
 
-	dm_clear(ddic);                                // clear dynamic dictionary
+	dm_clear(ddic);                                // clear the dictionary in case it is being re-used// clear dynamic dictionary
 	size_t cc = 0;                                 // complexity
 	int added;                                     // flag for strset_put
 	khint_t k;                                     // hash map iterator

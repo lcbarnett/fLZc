@@ -15,7 +15,7 @@ typedef struct ldnode {
 	const char*    word;
 } ldic_t;
 
-static inline ldic_t* dl_create()
+static inline ldic_t* dl_create(void)
 {
 	// creates a 'dummy' node; skip when iterating
 #ifndef NDEBUG
