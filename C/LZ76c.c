@@ -12,8 +12,8 @@ size_t LZ76c(const char* const str)
 	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
 	// Phys. Rev. A 36(2) pp. 842-848, 1987.
 
+	if (str == 0) return 0; // empty string
 	const size_t n = strlen(str);
-	if (n == 0) return 0;
 	if (n == 1) return 1;
 	size_t k, w, c = 1;
 	const char* const pend = str+n; // point past end of string
@@ -43,8 +43,8 @@ void LZ76c_x(const char* const str, size_t* const c)
 	//
 	// This version stores LZ76c for each sequence length; c MUST be same size as the input string.
 
+	if (str == 0) return; // empty string
 	const size_t n = strlen(str);
-	if (n == 0) return;
 	size_t k, w, cc = 1;
 	c[0] = 1;
 	if (n == 1) return;
@@ -91,8 +91,8 @@ size_t LZ76c_dm(char* const str, strmap_t* const ddic)
 	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
 
 	dm_clear(ddic);                 // clear the dictionary in case it is being re-used
+	if (str == 0) return 0;         // empty string
 	const size_t n = strlen(str);   // string length
-	if (n == 0) return 0;
 	int added;                      // flag for strmap_put
 	size_t k, w, c = 0;             // some counters
 	khint_t i = strmap_put(ddic,strndup(str,1),&added); // add first character to dictionary
@@ -109,7 +109,6 @@ size_t LZ76c_dm(char* const str, strmap_t* const ddic)
 				if (p+k >= pend) {                 // last word, so p is already null-terminated
 					i = strmap_put(ddic,p,&added); // check if already in dictionary if it wasn't
 										           // just add it; if it was, tag and then add
-dprintf("last word = [%s], %s\n",p,added?"added":"already there");
 					if (added) kh_key(ddic,i) = strdup(p); else i = strmap_put(ddic,strdupt(p,TAGCHAR),&added);
 					kh_val(ddic,i) = c++;          // store complexity in dictionary, and increment
 					assert(c == kh_size(ddic));
@@ -126,7 +125,6 @@ dprintf("last word = [%s], %s\n",p,added?"added":"already there");
 		p += (w+1);                 // end of word
 		const char psave = *p;      // save char at end of word
 		*p = 0;                     // NUL-terminate word
-dprintf("add = [%s]\n",word);
 		i = strmap_put(ddic,strdup(word),&added); // add to dictionary
 		assert(added);              // word should NOT have been in dictionary!
 		kh_val(ddic,i) = c++;       // store complexity in dictionary, and increment
@@ -143,8 +141,8 @@ void LZ76c_dm_x(char* const str, strmap_t* const ddic, size_t* const c)
 	// hash map ddic must be initialised with strmap_init(), and destroyed after use with dm_destroy()
 
 	dm_clear(ddic);                 // clear the dictionary in case it is being re-used
+	if (str == 0) return;           // empty string
 	const size_t n = strlen(str);   // string length
-	if (n == 0) return;
 	int added;                      // flag for strmap_put
 	size_t k, w, cc = 0;            // some counters
 	khint_t i = strmap_put(ddic,strndup(str,1),&added); // add first character to dictionary
@@ -197,31 +195,25 @@ size_t LZ76c_ref(const char* const str)
 	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
 	// Phys. Rev. A 36(2) pp. 842-848, 1987.
 
+	if (str == 0) return 0; // empty string!
 	const size_t n = strlen(str);
-	if (n == 0) return 0;
 	if (n == 1) return 1;
 	size_t i = 0, k = 1, j = 1, kmax = 1, c = 1;
-dprintf("%c.",str[0]);
 	while (true) {
 		if (str[i+k-1] == str[j+k-1]) {
 			++k;
 			if (j+k > n) {
 				++c;
-//dprintf("break 1\n");
 				break;
 			}
 		}
 		else {
 			if (k > kmax) kmax = k;
 			++i;
-dprintf("%c",str[i+k]);
 			if (i == j) {
 				++c;
 				j += kmax;
-				if (j+1 > n) {
-//dprintf("break 2\n");
-					break;
-				}
+				if (j+1 > n) break;
 				i = 0;
 				k = 1;
 				kmax = 1;
@@ -231,17 +223,10 @@ dprintf("%c",str[i+k]);
 			}
 		}
 	}
-dprintf("\n");
 	return c;
 }
 
-/*
-int substrof(const char* const a1, const char* const a2, const char* const b1, const char* const b2)
-{
-	for (char*
-}
-
-size_t LZ76c_try(const char* const str)
+size_t LZ76c_try(char* const str)
 {
 	// LZ76c algorithm: reference version (testing)
 	//
@@ -250,24 +235,91 @@ size_t LZ76c_try(const char* const str)
 
 	if (str == 0) return 0; // empty string
 	const size_t n = strlen(str);
+	const char*const sope = str+n; // one-past-end of str (*send == '\0' !!)
 	size_t c = 1;
-	printf("%c.",str[10]);
-	const char* s = str+1;
-	const char* q = s+1;
-	const char* p = q-1;
+	putchar(str[0]);
+	if (n == 1) return 1; // empty string
+	char* s = str+1;
+	char* q = s;
+	const char* start = str; // start of search in SQpi
 	while(true) {
-		// is string Q: [s,q-1] a substring of the string SQpi: [str,q-2]
-		if
+		// find Q in SQpi (Kaspar & Schuster)
+		int found = 0;
+		for (; start < s; ++start) {
+			const long k = s-start;
+			const char* b = s;
+			for (; b <= q; ++b) if (*b != *(b-k)) break;
+			if (b > q) {
+				found = 1; // found at start!
+				break;
+			}
+		}
+		++q;
+		if (found) {
+			if (q == sope) {
+				++c;
+				pputs(s,q);            // the remainder (non-exhaustive!)
+				break;
+			}
+		}
+		else {                         // not there new word
+			++c;
+			pputs(s,q);
+			s = q;
+			start = str;               // new word, so need to start search back at the beginning
+			if (q >= sope) {
+				putchar('.');          // nothing there (exhaustive!)
+				break;
+			}
+		}
 	}
 	return c;
 }
-*/
+
+size_t LZ76c_rpt(const char* const str)
+{
+	// LZ76c algorithm: slightly optimised version of
+	//
+	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
+	// Phys. Rev. A 36(2) pp. 842-848, 1987.
+
+	if (str == 0) return 0; // empty string
+	const size_t n = strlen(str);
+//	if (n == 1) return 1;
+	size_t k, w, c = 1;
+	putchar(str[0]);
+	const char* pend = str+n; // point past end of string
+	for (char* p = (char*)str+1; p < pend;) {
+		k = 0;
+		w = 0;
+		for (const char* q = str; q < p;) {
+			if (q[k] == p[k]) {
+				++k;
+				if (p+k >= pend) {
+					pputs(p,p+w+1); // non-exhaustive
+					return ++c;
+				}
+			}
+			else {
+				if (k > w) w = k;
+				k = 0;
+				++q;
+			}
+		}
+		++c;
+		pputs(p+k,p+w);
+		p += (w+1);
+		if (p == pend) putchar('.'); // exhaustive
+	}
+	return c;
+}
+
 void LZ76c_xa(const char* const str, size_t* const c)
 {
 	// LZ76c algorithm: alternative extended version (testing)
 
+	if (str == 0) return; // empty string
 	const size_t n = strlen(str);
-	if (n == 0) return;
 	size_t k, w, cc = 1;
 	c[0] = 1;
 	const char* const pend = str+n; // point past end of string

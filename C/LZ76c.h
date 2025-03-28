@@ -14,5 +14,7 @@ void   LZ76c_dm_x (char* const str, strmap_t* const ddic, size_t* const c);
 
 size_t LZ76c_ref  (const char* const str);
 void   LZ76c_xa   (const char* const str, size_t* const c);
+size_t LZ76c_try  (char* const str);
+size_t LZ76c_rpt  (const char* const str);
 
 #endif // LZC76_H

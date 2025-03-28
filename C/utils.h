@@ -115,4 +115,49 @@ static inline void dl_print(const ldic_t* const ldic, const char sepchar)
 
 mxArray* dl_to_cvec(const ldic_t* const ldic, const size_t c);
 
+static inline void pputs(char* const sstart, char* const send)
+{
+	const char nchar = *(send+1);
+	*(send+1) = 0;
+	putchar('.');
+	fputs(sstart,stdout);
+	*(send+1) = nchar;
+}
+
+/*
+static inline int substrof1(const char* const a1, const char* const a2, const char* const b1, const char* const b2)
+{
+	assert(a2 >= a1);
+	assert(b2 >= b1);
+	const size_t alen = (size_t)(a2-a1+1);
+	const size_t blen = (size_t)(b2-b1+1);
+	assert(blen <= alen);
+	for (const char* astart = a1; astart <= a1+alen-blen; ++astart) {
+		const char* a = astart;
+		const char* b = b1;
+		for (; b <= b2; ++a, ++b) {
+			if (*b != *a) break;
+		}
+		if (b > b2) return 1;
+	}
+	return 0;
+}
+
+static inline int substrof(const char* const str, const char* const s, const char* const q)
+{
+	assert(s >  str);
+	assert(s <= q  );
+	assert(str <  s);
+	for (const char* astart = str; astart < s; ++astart) {
+		const char* a = astart;
+		const char* b = s;
+		for (; b <= q; ++a, ++b) {
+			if (*b != *a) break;
+		}
+		if (b > q) return 1;
+	}
+	return 0;
+}
+*/
+
 #endif // UTILS_H

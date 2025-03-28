@@ -135,9 +135,23 @@ int test4(int argc, char* argv[])
 	return EXIT_SUCCESS;
 }
 
+int test5(int argc, char* argv[])
+{
+	char* const  str = strdup(argc < 2 ? "0001101001000101" : argv[1]); // input cstring (also try without last A)
+	const size_t n = strlen(str);
+	printf("\ninput string (%lu): '%s'\n\n",n,str);
+
+	const size_t cref = LZ76c_ref(str);
+	const size_t ctry = LZ76c_rpt(str);
+
+	printf("\n\nZ76c = %2zu %2zu\n\n",cref,ctry);
+
+	return EXIT_SUCCESS;
+}
+
 // Main function
 
-static const int ntests = 4;
+static const int ntests = 5;
 
 int main(int argc, char* argv[])
 {
@@ -156,6 +170,8 @@ int main(int argc, char* argv[])
 		case 2 : return test2(argc-1,argv+1);
 		case 3 : return test3(argc-1,argv+1);
 		case 4 : return test4(argc-1,argv+1);
+		case 5 : return test5(argc-1,argv+1);
 	}
+
 	return(EXIT_FAILURE); // shouldn't get here!
 }
