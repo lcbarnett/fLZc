@@ -30,9 +30,6 @@ int main(int argc, char* argv[])
 	mt_t rng;                  // pseudo-random number generator
 	mt_seed(&rng,(mtuint_t)s); // initialise PRNG
 
-	const size_t sbuflen = 1000;
-	char sbuf[sbuflen+1];
-
 	char* const str  = malloc(n+1); // no need to NUL-terminate; we're going to randomise it
 
 	size_t* const c = malloc(n*sizeof(size_t));
@@ -67,9 +64,12 @@ int main(int argc, char* argv[])
 	free(c);
 	free(str);
 
-	tfmt(sbuf,sbuflen,(double)(tend-tstart)/(double)CLOCKS_PER_SEC);
-	printf("\nCompleted in %s\n\n",sbuf);
+	printf("\nCompleted in ");
+	printft((double)(tend-tstart)/(double)CLOCKS_PER_SEC);
+	printf("\n\n");
 
+	const size_t sbuflen = 1000;
+	char sbuf[sbuflen+1];
 	snprintf(sbuf,sbuflen,"%s/LZ76c_rand_a%02d.mat",D,a);
 	printf("Saving results to %s ...",sbuf); fflush(stdout);
 	MATFile* const pf = matOpen(sbuf, "w");

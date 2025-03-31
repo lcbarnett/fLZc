@@ -1,16 +1,30 @@
+#include<stdlib.h>
 #include<math.h>
 
 #include "utils.h"
 
-void tfmt(char* const tstr, const size_t tsmaxlen, const double t /* secs */)
+void fprintft(FILE* const fs, const double t) /* secs */
 {
-	const double xsecs  = floor(t);          // total whole seconds
-	const double xmins  = floor(xsecs/60.0); // total whole minutes
-	const double xhrs   = floor(xmins/60.0); // total whole hours
-	const double secs   = t - xmins*60.0;
-	const int    mins   = (int)floor(xmins - xhrs*60.0);
-	const int    hrs    = (int)floor(xhrs);
-	snprintf(tstr,tsmaxlen,"%d:%d:%.4f",hrs,mins,secs); // h:m:s
+	long ms,secs,mins,hrs;
+	ms   = lrint(1000.0*t);
+	secs = ms/1000; ms    %= 1000;
+	mins = secs/60; secs  %= 60;
+	hrs  = mins/60; mins  %= 60;
+	fprintf(fs,"%ld:%ld:%ld.%ld",hrs,mins,secs,ms); // hrs:mins:secs.ms
+}
+
+char* sprintft(const double t) /* secs */
+{
+	long ms,secs,mins,hrs;
+	ms   = lrint(1000.0*t);
+	secs = ms/1000; ms    %= 1000;
+	mins = secs/60; secs  %= 60;
+	hrs  = mins/60; mins  %= 60;
+	const size_t tsmaxlen = 15; // enough for 10 years, 59 minutes, 59 seconds and 999 milliseconds :-)
+	char* const tbuf = malloc(tsmaxlen+1);
+	snprintf(tbuf,tsmaxlen,"%ld:%ld:%ld.%ld",hrs,mins,secs,ms); // hrs:mins:secs.ms
+	return tbuf;
+	// WARNING: caller must free returned char pointer!!!
 }
 
 void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng)
