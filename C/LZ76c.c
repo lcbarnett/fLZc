@@ -5,6 +5,8 @@
 size_t LZ76c(const char* const str)
 {
 	// LZ76c
+	//
+	// str must be NUL-terminated.
 
 	if (*str == 0) return 0;        // empty string
 	const size_t n = strlen(str);   // length of the input string
@@ -34,11 +36,13 @@ size_t LZ76cd(const char* const str, char* const dict)
 {
 	// LZ76c: returns (printable) dictionary
 	//
+	// str must be NUL-terminated.
+	//
 	// dict must have length DLEN(n), where n is the length of the input string.
 
 	if (*str == 0) {*dict = 0; return 0;} // empty string
-	const size_t n = strlen(str);       // length of the input string
-	size_t k, w, c = 1;                 // some counters
+	const size_t n = strlen(str);         // length of the input string
+	size_t k, w, c = 1;                   // some counters
 	char* d = dict;
 	*d++ = str[0];
 	const char* pend = str+n; // point past end of string
@@ -76,6 +80,8 @@ void LZ76cr(const char* const str, size_t* const c)
 {
 	// LZ76c - calculates running complexity at all sequence lengths
 	//
+	// str must be NUL-terminated.
+	//
 	// c must be same size as the input string.
 
 	if (*str == 0) return;        // empty string
@@ -111,6 +117,8 @@ void LZ76cr(const char* const str, size_t* const c)
 void LZ76crd(const char* const str, size_t* const c, char* const dict)
 {
 	// LZ76c - calculates running complexity at all sequence lengths and returns (printable) dictionary	//
+	//
+	// str must be NUL-terminated.
 	//
 	// dict must have length DLEN(n), where n is the length of the input string.
 	//
@@ -164,6 +172,8 @@ size_t LZ76c_ref(const char* const str)
 	//
 	// F. Kaspar and H. G. Schuster, "Easily calculable measure for the complexity of spatiotemporal patterns",
 	// Phys. Rev. A 36(2) pp. 842-848, 1987.
+	//
+	// str must be NUL-terminated.
 
 	if (str == 0) return 0; // empty string!
 	const size_t n = strlen(str);

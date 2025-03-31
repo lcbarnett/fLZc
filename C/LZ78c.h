@@ -11,7 +11,7 @@ static inline void make_printable(char* const dict)
 {
 	// Replace NULs with dictionary separator character
 	char* w;
-	for (w = dict; *w != DTRMCHAR; ++w) if(*w == 0) *w = DSEPCHAR;
+	for (w = dict; *w != DTRMCHAR; ++w) if (*w == 0) *w = DSEPCHAR;
 	*w = 0; // replace dictionary terminator with NUL
 }
 
