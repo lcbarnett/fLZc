@@ -1,15 +1,10 @@
 // NOTE: This is not compiled by default, as it is mostly for the benefit of
 // the maintainer. See `Makefile' for build details.
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 #include <time.h>
 
 #include <mat.h>
 
-#include "mt64.h"
 #include "LZ76c.h"
 
 // Main function
@@ -53,7 +48,7 @@ int main(int argc, char* argv[])
 		for (size_t i=0; i<n; ++i) cmean[i] = 0.0;
 		for (size_t s=0; s<N; ++s) {
 			make_random_string(str,n,a,'0',&rng);
-			LZ76c_x(str,c);
+			LZ76cr(str,c);
 			for (size_t i=0; i<n; ++i) cmean[i] += (double)c[i];
 		}
 		const double NN = (double)N;
@@ -64,7 +59,7 @@ int main(int argc, char* argv[])
 		for (size_t i=0; i<n; ++i) cvar[i]  = 0.0;
 		for (size_t s=0; s<N; ++s) {
 			make_random_string(str,n,a,'0',&rng);
-			LZ76c_x(str,c);
+			LZ76cr(str,c);
 			for (size_t i=0; i<n; ++i)  cmean[i] +=  (double)c[i];
 			for (size_t i=0; i<n; ++i)  cvar[i]  += ((double)c[i])*((double)c[i]);
 		}

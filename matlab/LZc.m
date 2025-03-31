@@ -1,4 +1,4 @@
-function [c,dict] = LZc(s,ver,allc)
+function [c,dict] = LZc(s,ver,runningc)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -6,43 +6,42 @@ function [c,dict] = LZc(s,ver,allc)
 %
 % INPUT
 %
-% s        input character string
-% ver      LZc version: 76 or 78
-% allc     flag: if true, return a vector of complexities for all substrings starting from
-%          the beginning of the input string; else just scalar complexity of whole string
+% s         input character string
+% ver       LZc version: 76 or 78
+% runningc  flag: if true, return a vector of running complexities for all substrings starting
+%           from the beginning of the input string; else just scalar complexity of whole string
 % OUTPUT
 %
-% c        LZ complexity
-% dict     the dictionary (optional)
+% c         LZ complexity
+% dict      the dictionary as a string (optional)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 assert(nargin > 1,'Must supply Lempel-Ziv version (76 or 78)');
 assert(~isempty(s) && ischar(s) && isvector(s),'Input must be a non-empty character string');
 
-if nargin < 3 || isempty(allc)
-	allc = false;
+if nargin < 3 || isempty(runningc)
+	runningc = 0;
 else
-	assert(isscalar(allc) && (isnumeric(allc) | islogical(allc)),'''all complexities'' flag must be a scalar that resolves to logical true/false');
-	allc = logical(allc);
+	assert(isscalar(runningc) && (isnumeric(runningc) | islogical(runningc)),'''all complexities'' flag must be a scalar that resolves to logical true/false');
 end
 
 switch ver
 
 	case 76
 		if nargout > 1
-			[c,dict] = LZ76c_mex(s,allc);
+			[c,dict] = LZ76c_mex(s,runningc);
 		else
-			c = LZ76c_mex(s,allc);
-			dict = [];
+			c = LZ76c_mex(s,runningc);
+			dict = '';
 		end
 
 	case 78
 		if nargout > 1
-			[c,dict] = LZ78c_mex(s,allc);
+			[c,dict] = LZ78c_mex(s,runningc);
 		else
-			c = LZ78c_mex(s,allc);
-			dict = [];
+			c = LZ78c_mex(s,runningc);
+			dict = '';
 		end
 
 	otherwise, error('Lempel-Ziv version must be 76 or 78');

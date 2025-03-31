@@ -1,15 +1,10 @@
 // NOTE: This is not compiled by default, as it is mostly for the benefit of
 // the maintainer. See `Makefile' for build details.
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 #include <time.h>
 
 #include <mat.h>
 
-#include "mt64.h"
 #include "LZ78c.h"
 
 // Main function
@@ -20,7 +15,7 @@ int main(int argc, char* argv[])
 	// with alphabet size d up to length n, based on a sample of size N, and store
 	// results as a .mat file.
 	//
-	// We use sdic rather than ddic, as it is somewhat more efficient in this scenario.
+	// We use dict rather than ddic, as it is somewhat more efficient in this scenario.
 
 	const int         v = argc > 1 ? atoi(argv[1])           : 1;
 	const size_t      n = argc > 2 ? (size_t)atol(argv[2])   : 10000;
@@ -43,8 +38,7 @@ int main(int argc, char* argv[])
 
 	size_t* const c = malloc(n*sizeof(size_t));
 
-	const size_t sdlen = 2*n;
-	char* const sdic = malloc(sdlen);
+	char* const dict = malloc(DLEN(n));
 
 	mxArray* const pcmean = mxCreateDoubleMatrix(n,1,mxREAL);
 	double*  const cmean  = mxGetDoubles(pcmean);
@@ -58,7 +52,7 @@ int main(int argc, char* argv[])
 		for (size_t i=0; i<n; ++i) cmean[i] = 0.0;
 		for (size_t s=0; s<N; ++s) {
 			make_random_string(str,n,a,'0',&rng);
-			LZ78c_sd_x(str,sdic,sdlen,c);
+			LZ78cr(str,dict,c);
 			for (size_t i=0; i<n; ++i) cmean[i] += (double)c[i];
 		}
 		const double NN = (double)N;
@@ -69,7 +63,7 @@ int main(int argc, char* argv[])
 		for (size_t i=0; i<n; ++i) cvar[i]  = 0.0;
 		for (size_t s=0; s<N; ++s) {
 			make_random_string(str,n,a,'0',&rng);
-			LZ78c_sd_x(str,sdic,sdlen,c);
+			LZ78cr(str,dict,c);
 			for (size_t i=0; i<n; ++i)  cmean[i] +=  (double)c[i];
 			for (size_t i=0; i<n; ++i)  cvar[i]  += ((double)c[i])*((double)c[i]);
 		}
@@ -80,7 +74,7 @@ int main(int argc, char* argv[])
 	}
 	const clock_t tend = clock();
 	free(c);
-	free(sdic);
+	free(dict);
 	free(str);
 
 	const size_t sbuflen = 1000;

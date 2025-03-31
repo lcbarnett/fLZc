@@ -1,23 +1,21 @@
 #ifndef LZ78C_H
 #define LZ78C_H
 
-#define UNUSED __attribute__ ((unused))
-
 #include "utils.h"
 
-// Static dictionary
+// Dictionary terminator - should be non-printable
 
-size_t LZ78c_sd   (const char* const istr, char* const dbuf, const size_t dlen);
-void   LZ78c_sd_x (const char* const istr, char* const dbuf, const size_t dlen, size_t* const c);
+#define DTRMCHAR (1)
 
-// Dynamic dictionary (hash set - cannot sort)
+static inline void make_printable(char* const dict)
+{
+	// Replace NULs with dictionary separator character
+	char* w;
+	for (w = dict; *w != DTRMCHAR; ++w) if(*w == 0) *w = DSEPCHAR;
+	*w = 0; // replace dictionary terminator with NUL
+}
 
-size_t LZ78c_ds   (char* const str, strset_t* const ddic);
-void   LZ78c_ds_x (char* const str, strset_t* const ddic, size_t* const c);
-
-// Dynamic dictionary (hash map - can sort)
-
-size_t LZ78c_dm   (char* const str, strmap_t* const ddic);
-void   LZ78c_dm_x (char* const str, strmap_t* const ddic, size_t* const c);
+size_t LZ78c  (const char* const str, char* const dict);
+void   LZ78cr (const char* const str, char* const dict, size_t* const c);
 
 #endif // LZ78C_H

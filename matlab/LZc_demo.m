@@ -33,8 +33,8 @@ fprintf(  'LZ78c = %3d\n',c78);
 [c76,d76] = LZc(s,76);
 [c78,d78] = LZc(s,78);
 
-fprintf('\nLZ76c dictionary:\n\n'); disp(d76);
-fprintf(  'LZ78c dictionary:\n\n'); disp(d78);
+fprintf('\nLZ76c dictionary: %s\n',  d76);
+fprintf(  'LZ78c dictionary: %s\n\n',d78);
 
 % Calculate again, returning vector of "running" complexities
 
