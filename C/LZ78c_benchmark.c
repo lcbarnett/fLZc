@@ -1,12 +1,7 @@
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <inttypes.h>
 #include <time.h>
 
 #include "LZ78c.h"
-#include "mt64.h"
 
 // Main function
 
@@ -35,63 +30,22 @@ int main(int argc, char* argv[])
 
 	clock_t tstart, tend;
 
-//	FILE* const fs = fopen("/dev/null","w");
-
-//	const char sepchar = '|';
-
-	const size_t sdlen = 2*n;
-	char* const sdic = malloc(sdlen);
+	char* const dict = malloc(DLEN(n));
 	mt_seed(&rng,s); // initialise PRNG
-	printf("Starting static      run ...");
+	printf("Starting LZ78c run ...");
 	fflush(stdout);
 	tstart = clock();
 	double cmeans = 0.0;
 	for (size_t k=0; k<N; ++k) {
 		make_random_string(str,n,a,o,&rng);
-		LZ78c_sd_x(str,sdic,sdlen,c);
-//		sd_fprint(fs,sdic,c[n-1],sepchar);
+		LZ78cr(str,dict,c);
 		cmeans += (double)c[n-1];
 	}
 	cmeans /= (double)N;
 	tend = clock();
 	printf(" time = %.4f seconds : mean LZ78c = %.4f\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeans);
-	free(sdic);
+	free(dict);
 
-	strset_t* const ddic = strset_init();
-	mt_seed(&rng,s); // initialise PRNG
-	printf("Starting dynamic     run ...");
-	fflush(stdout);
-	tstart = clock();
-	double cmeand = 0.0;
-	for (size_t k=0; k<N; ++k) {
-		make_random_string(str,n,a,o,&rng);
-		LZ78c_ds_x(str,ddic,c);
-//		ds_fprint(fs,ddic,sepchar);
-		cmeand += (double)c[n-1];
-	}
-	cmeand /= (double)N;
-	tend = clock();
-	printf(" time = %.4f seconds : mean LZ78c = %.4f\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeand);
-	ds_destroy(ddic);
-
-	ldic_t* const ldic = dl_create();
-	mt_seed(&rng,s); // initialise PRNG
-	printf("Starting linked-list run ...");
-	fflush(stdout);
-	tstart = clock();
-	double cmeanl = 0.0;
-	for (size_t k=0; k<N; ++k) {
-		make_random_string(str,n,a,o,&rng);
-		LZ78c_dl_x(str,ldic,c);
-//		dl_fprint(fs,ldic,sepchar);
-		cmeanl += (double)c[n-1];
-	}
-	cmeanl /= (double)N;
-	tend = clock();
-	printf(" time = %.4f seconds : mean LZ78c = %.4f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeanl);
-	dl_destroy(ldic);
-
-//	fclose(fs);
 	free(c);
 	free(str);
 

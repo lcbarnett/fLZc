@@ -1,11 +1,7 @@
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 #include <time.h>
 
 #include "LZ76c.h"
-#include "mt64.h"
 
 // Main function
 
@@ -70,19 +66,6 @@ int main(int argc, char* argv[])
 	cmeand /= (double)N;
 	tend = clock();
 	printf(" %8.4f seconds : mean LZ76c = %.4f\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeand);
-
-	mt_seed(&rng,s); // initialise PRNG
-	printf("Starting tryhard   run ...");
-	fflush(stdout);
-	tstart = clock();
-	double cmeant = 0.0;
-	for (size_t k=0; k<N; ++k) {
-		make_random_string(str,n,a,o,&rng);
-		cmeant += (double)LZ76c_try(str);
-	}
-	cmeant /= (double)N;
-	tend = clock();
-	printf(" %8.4f seconds : mean LZ76c = %.4f\n\n",(double)(tend-tstart)/(double)CLOCKS_PER_SEC,cmeant);
 
 	free(str);
 

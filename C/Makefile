@@ -74,7 +74,7 @@ REPDEP = sed -i -e '1s,\($*\)\.o[ :]*,\1.o \.$*.d: ,' \.$*.d
 
 # "library" source
 
-CSRC = mt64.c utils.c LZ76c.c  LZ78c.c
+CSRC = mt64.c utils.c LZ76c.c LZ78c.c
 COBJ = $(patsubst %.c, .%.$(OBJEXT), $(CSRC))
 CDEP = $(patsubst %.o, %.d, $(COBJ))
 
@@ -85,7 +85,7 @@ TOBJ = $(patsubst %.c, .%.$(OBJEXT), $(TSRC))
 TDEP = $(patsubst %.o, %.d, $(TOBJ))
 TBIN = $(patsubst %.c, $(BINDIR)/%$(BINEXT), $(TSRC))
 
-# mainainer source
+# maintainer source
 
 NSRC = LZ76c_randmv.c LZ78c_randmv.c
 NBIN = $(patsubst %.c, $(BINDIR)/%$(BINEXT), $(NSRC))

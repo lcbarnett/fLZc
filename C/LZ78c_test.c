@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "LZ78c.h"
@@ -8,78 +7,25 @@
 
 int test1(int argc, char* argv[])
 {
-	// Demonstrate dynamic (hash set) vs dynamic (hash map) vs dynamic (linked list) dictionaries
+	// Test dictionary
 
-	char* const str = strdup(argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]); // input cstring
-	const size_t n = strlen(str);
-	printf("\ninput string (%lu): '%s'\n\n",n,str);
-
-	const char sepchar = '|';
-
-	strset_t* const ddica = strset_init();
-	const size_t ca = LZ78c_ds(str,ddica);
-	printf("*** complexity a = %zu : ",ca);
-	ds_print(ddica,sepchar);
-	printf("\n\n");
-	ds_destroy(ddica);
-
-	strmap_t* const ddicb = strmap_init();
-	const size_t cb = LZ78c_dm(str,ddicb);
-	printf("*** complexity b = %zu : ",cb);
-	dm_print(ddicb,sepchar);
-	printf("\n\n");
-	dm_destroy(ddicb);
-
-
-	ldic_t* const ddicc = dl_create();
-	const size_t cc = LZ78c_dl(str,ddicc);
-	printf("*** complexity b = %zu : ",cc);
-	dl_print(ddicc,sepchar);
-	printf("\n\n");
-	dl_destroy(ddicc);
-
-	return EXIT_SUCCESS;
-}
-
-int test2(int argc, char* argv[])
-{
-	// Demonstrate extended static vs dynamic dictionaries vs dynamic (linked list) (see also LZ78c_benchmark.c)
-
-	const char sepchar = '|';
-
-	char* const str = strdup(argc < 2 ? "ABBBAABABBBABBABAAAABABABBBAA" : argv[1]); // input cstring
+	char* const str = strdup(argc < 2 ? "0001101001000101" : argv[1]); // input cstring
 	const size_t n = strlen(str);
 	printf("\ninput string a (%lu): '%s'\n\n",n,str);
 
-	const size_t sdlen = 2*n;
-	char* const sdic = malloc(sdlen);
-	size_t* const cc1 = malloc(n*sizeof(size_t));
-	LZ78c_sd_x(str,sdic,sdlen,cc1);
-	const size_t c1a = cc1[n-1];
-	sd_print(sdic,c1a,sepchar);
-	printf("\n\n");
-	free(sdic);
+	char* const dict = malloc(DLEN(n));
 
-	strmap_t* const ddic = strmap_init();
-	size_t* const cc2 = malloc(n*sizeof(size_t));
-	LZ78c_dm_x(str,ddic,cc2);
-	dm_print(ddic,sepchar);
-	printf("\n\n");
-	dm_destroy(ddic);
+	for (size_t i=0; i<n; ++i) {
+		const char tmp = str[i+1];
+		str[i+1] = 0; // NUL-terminate at length i
+		const size_t c = LZ78c(str,dict);
+		make_printable(dict);
+		printf("%6zu    %s\n",c,dict);
+		str[i+1] = tmp;
+	}
+	putchar('\n');
 
-	ldic_t* const ldic = dl_create();
-	size_t* const cc3 = malloc(n*sizeof(size_t));
-	LZ78c_dl_x(str,ldic,cc3);
-	dl_print(ldic,sepchar);
-	printf("\n\n");
-	dl_destroy(ldic);
-
-	printf("*** complexity =\n");
-	for (size_t i=0; i<n; ++i) printf("%8zu  %8zu  %8zu\n",cc1[i],cc2[i],cc3[i]);
-	printf("\n");
-	free(cc2);
-	free(cc1);
-
+	free(dict);
 	free(str);
 
 	return EXIT_SUCCESS;
@@ -87,7 +33,7 @@ int test2(int argc, char* argv[])
 
 // Main function
 
-static const int ntests = 2;
+static const int ntests = 1;
 
 int main(int argc, char* argv[])
 {
@@ -103,7 +49,6 @@ int main(int argc, char* argv[])
 
 	switch (test) {
 		case 1 : return test1(argc-1,argv+1);
-		case 2 : return test2(argc-1,argv+1);
 	}
 	return(EXIT_FAILURE); // shouldn't get here!
 }
