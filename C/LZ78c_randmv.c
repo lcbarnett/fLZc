@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	double*  const cvar  = mxGetDoubles(pcvar);
 	double*  const cmax  = mxGetDoubles(pcmax);
 
-	printf("Calculating complexities:\n\n");
+	printf("Calculating complexities:\n\n"); fflush(stdout);
 	const clock_t tstart = clock();
 	for (size_t i=0; i<n; ++i) cmean[i] = 0.0;
 	for (size_t i=0; i<n; ++i) cvar[i]  = 0.0;
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 		for (size_t i=0; i<n; ++i)  cmean[i] +=  (double)c[i];
 		for (size_t i=0; i<n; ++i)  cvar[i]  += ((double)c[i])*((double)c[i]);
 		for (size_t i=0; i<n; ++i)  cmax[i]   = c[i] > cmax[i] ? (double)c[i] : (double)cmax[i];
-		progrep("\t",s,N);
+		progrep("\t",s,N); fflush(stdout);
 	}
 	const double NN = (double)N;
 	for (size_t i=0; i<n; ++i) cmean[i] /= NN;
