@@ -16,7 +16,6 @@ export LD_LIBRARY_PATH=$MATLAB_PATH/bin/glnxa64
 
 # Parameters
 
-v=0
 n=10000
 N=10000
 s=0
@@ -29,6 +28,6 @@ for a in $(seq 2 10); do
 	logfile=$currdir/$scriptname\_a$(printf "%02d" $a).log
 
 	# run the program
-	nohup nice $prog $v $n $a $N $s $D > $logfile < /dev/null 2>&1 &
+	nohup nice $prog $n $a $N $s $D > $logfile < /dev/null 2>&1 &
 
 done
