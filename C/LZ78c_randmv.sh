@@ -25,9 +25,9 @@ D=/tmp
 for a in $(seq 2 10); do
 
 	# the log file
-	logfile=$currdir/$scriptname\_d$(printf "%02d" $a).log
+	logfile=$currdir/$scriptname\_a$(printf "%02d" $a).log
 
 	# run the program
-	nohup nice $prog 1 $n $a $N $s $D > $logfile < /dev/null 2>&1 &
+	nohup nice $prog $n $a $N $s $D > $logfile < /dev/null 2>&1 &
 
 done
