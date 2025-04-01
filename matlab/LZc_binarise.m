@@ -17,7 +17,7 @@ if usemean
 	xmid = mean(x);
 else
 	xmid = median(x);
-else
+end
 
 % Binarise
 
