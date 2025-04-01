@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	const int         a = argc > 2 ? atoi(argv[2])           : 2;
 	const size_t      N = argc > 3 ? (size_t)atol(argv[3])   : 100;
 	const mtuint_t    s = argc > 4 ? (mtuint_t)atol(argv[4]) : 0;
-	const char* const D = argc > 5 ? argv[6]                 : "/tmp";
+	const char* const D = argc > 5 ? argv[5]                 : "/tmp";
 
 	printf("\nstring length    = %zu\n",  n);
 	printf("alphabet size    = %d\n",   a);
