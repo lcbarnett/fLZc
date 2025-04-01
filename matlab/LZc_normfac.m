@@ -1,4 +1,4 @@
-function [cm,cv] = LZc_normfac(n,a,ver,asymp)
+function [cm,ns,cv,cx] = LZc_normfac(n,a,ver,asymp)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -26,7 +26,9 @@ function [cm,cv] = LZc_normfac(n,a,ver,asymp)
 % OUTPUT
 %
 % cm       random sequence mean LZc (or theoretical ceilings if asymp = false)
+% ns       random sequence sample size
 % cv       random sequence variances, if available
+% cx       random sequence maxima, if available
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -43,32 +45,40 @@ end
 global fLZc_data_path;
 cmean = [];
 cvar  = [];
+cmax  = [];
 fname = fullfile(fLZc_data_path,sprintf('LZ%dc_rand_a%02d.mat',ver,a));
 try
 	load(fname);
 catch
-	error('\n\t*** No data found for alphabet size %d ***',a);
+	error('\n\t*** No LZ%2dc data found for alphabet size %d ***',ver,a);
 end
 
 % loaded:
 %
-% nmax   : max string length
-% asize  : alphabet size
-% nsamps : number of samples used for estimates
-% rseed  : random seed
-% cmean  : means     at each string length 1 ... nmax
-% cvar   : (optionally) variances at each string length 1 ... nmax
+% nmax     : max string length
+% asize    : alphabet size
+% nsamples : number of samples used for estimates
+% rseed    : random seed
+% cmean    : means     at each string length 1 ... nmax
+% cvar     : variances at each string length 1 ... nmax (if available)
+% cmax     : maxima    at each string length 1 ... nmax (if available)
 
 iof = find(n <= nmax); % indices on file
 nof = n(iof);          % values on file
-
-numn = length(n);
+numn = length(n);      % sequence lengths
 
 cm = nan(numn,1);
 cm(iof) = cmean(nof);
-
 if nargout > 1
-	assert(~isempty(cvar),'Sorry, ''%s'' does not contain variances',fname);
-	cv = nan(numn,1);
-	cv(iof) = cvar(nof);
+	ns = nsamples;
+	if nargout > 2
+		assert(~isempty(cvar),'Sorry, ''%s'' does not contain variances',fname);
+		cv = nan(numn,1);
+		cv(iof) = cvar(nof);
+		if nargout > 3
+			assert(~isempty(cmax),'Sorry, ''%s'' does not contain maxima',fname);
+			cx = nan(numn,1);
+			cx(iof) = cmax(nof);
+		end
+	end
 end
