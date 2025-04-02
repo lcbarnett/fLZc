@@ -61,6 +61,7 @@ int test2(int argc, char* argv[])
 	size_t dl76, dl78, dl76max = 0, dl78max = 0;
 	for (size_t k=0; k<N; ++k) {
 		make_random_string(str,n,a,o,&rng);
+		dprintf(stderr,"\t\talphabet size = %d\n",alphasize(str));
 		LZ76cd(str,dict76);
 		LZ78c (str,dict78);
 		make_printable(dict78);
@@ -72,7 +73,7 @@ int test2(int argc, char* argv[])
 		if (dl78 > dlmax) printf("\n*** FAIL 78\n\n");
 		progrep("\t",k,N); fflush(stdout);
 	}
-	printf("*** PASS\n\n");
+	printf("\n*** PASS\n\n");
 
 	printf("dictionary length (analytic)  = %zu\n",dlmax);
 	printf("dictionary length (LZ76c max) = %zu\n",dl76max);

@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include "LZ78c.h"
-
 #include "khashl.h"
+
+#include "LZ78c.h"
 
 // KHASHL string hashset initialisation (creation)
 

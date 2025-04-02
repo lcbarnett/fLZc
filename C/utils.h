@@ -30,6 +30,8 @@ static inline void printft(const double t)
 
 char* sprintft(const double t); // WARNING: caller must free returned char pointer!!!
 
+int alphasize(const char* const str);
+
 size_t dmaxlen(const size_t n, const int asize); // maximum dictionary length
 
 void make_random_string(char* const str, const size_t n, const int a, const char aoff, mt_t* const prng);

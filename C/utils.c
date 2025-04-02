@@ -1,7 +1,11 @@
-#include<stdlib.h>
-#include<math.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include "khashl.h"
 
 #include "utils.h"
+
+// KHASHL string hashset initialisation (creation)
 
 void fprintft(FILE* const fs, const double t) /* secs */
 {
@@ -25,6 +29,20 @@ char* sprintft(const double t) /* secs */
 	snprintf(tbuf,tsmaxlen,"%ld:%ld:%ld.%ld",hrs,mins,secs,ms); // hrs:mins:secs.ms
 	return tbuf;
 	// WARNING: caller must free returned char pointer!!!
+}
+
+KHASHL_CSET_INIT(KH_LOCAL, charset_t, charset, char, kh_hash_dummy, kh_eq_generic)
+
+int alphasize(const char* const str)
+{
+	// return size of alphabet in input string
+	int added;
+	charset_t* const h = charset_init();
+	const char* const strend = str+strlen(str); // end of string (NUL-terminator)
+	for (const char* p = str; p < strend; ++p) charset_put(h,*p,&added);
+	const int c = (int)kh_size(h);
+	charset_destroy(h);
+	return c;
 }
 
 size_t dmaxlen(const size_t n, const int asize)
