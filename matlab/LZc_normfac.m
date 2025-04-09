@@ -4,24 +4,24 @@ function [cm,ns,cv,cx] = LZc_normfac(n,a,ver,asymp)
 %
 % LZc normalisation factors.
 %
-% If 'asymp' is false (default), then returns means and (optionally) variances of LZc
-% for random sequences with the supplied lengths and alphabet size from data files, as
-% available. Binary normalisation data may be downloaded from:
+% Returns means and (optionally) variances of LZc for random sequences with the supplied
+% lengths and alphabet size from data files, as available. Binary normalisation data may
+% be downloaded from:
 %
 %    http://users.sussex.ac.uk/~lionelb/downloads/fLZc_data.zip
 %
 % and should be unzipped into fLZc_data_path (see startup.m). If requested values are
 % not available, NaNs are returned.
 %
-% If 'asymp' is true, then returns theoretical asymptotic upper bound values in cm (not
-% recommended for short sequences).
+% DEPRECATED AS NOT FIT FOR PURPOSE: If 'asymp' is true, then returns theoretical asymptotic
+% upper bound values.
 %
 % INPUT
 %
 % n        vector of sequence lengths
 % a        alphabet size
 % ver      LZc version: 76 or 78
-% asymp    flag for asymptotic vs. random normalisation (default: false)
+% asymp    DEPRECATED (flag for asymptotic vs. random normalisation)
 %
 % OUTPUT
 %
@@ -36,10 +36,8 @@ assert(isvector(n) && isnumeric(n) && all(n == floor(n)) && all(n > 0),'String l
 assert(isscalar(a) && isnumeric(a) && a == floor(a)  && a > 1,'Alphabet size must be an integer > 1');
 assert(ver == 76 || ver == 78,'Lempel-Ziv version must be 76 or 78');
 
-if nargin < 4 || isempty(asymp), asymp = false; end % default: use random data files
-
-if asymp
-	error('Sorry, asymptotic bounds not currently implemented (and actually not that great for normalisation anyway)');
+if nargin > 3 && asymp
+	error('\nAsymptotic bounds deprecated as not fit for purpose; they are unacceptably poor, especially for ''short'' (n < 10^5) sequences.');
 end
 
 global fLZc_data_path;
