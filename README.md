@@ -3,6 +3,8 @@
 
 The __fLZc (fast Lempel-Ziv complexity) library__ is written in C, with a [Matlab](https://uk.mathworks.com/) interface. LZc comes in many flavours; __fLZc__ computes the canonical LZ76c [^1] and LZ78c [^2] versions, with optional normalisation.
 
+__NEW:__ See [fLZc_python](https://pypi.org/project/fLZc/) for a Python interface (many thanks to [Romy Beauté](https://github.com/romybeaute)).
+
 ### Building
 You will need the [Make](https://www.gnu.org/software/make/) build tool installed on your system, a suitable C99 compiler (e.g., [GCC](https://gcc.gnu.org/) or [Clang](https://clang.llvm.org/)), and the Matlab `mex` and `makemex` executables on your system execution path. You will also need to set up an environmental variable `MATLAB_PATH` which contains the root path of your Matlab installation. [^3]
 
